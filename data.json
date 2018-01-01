@@ -1,0 +1,49 @@
+{
+    "data": [
+        {
+            "id": "ylist-1",
+            "name": "Элемент списка №1",
+            "coords": [55.790464, 37.530409],
+            "address": "Ходынский бульвар, д. 4",
+            "phone": "8 (999) 999-99-99",
+            "email": "email@domain.com",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+        },
+        {
+            "id": "ylist-2",
+            "name": "Элемент списка №2",
+            "coords": [55.861954, 37.687713],
+            "address": "ул. Дудинка, д. 3",
+            "phone": "8 (999) 999-99-99",
+            "email": "email@domain.com",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+        },
+        {
+            "id": "ylist-3",
+            "name": "Элемент списка №3",
+            "coords": [55.783944, 37.624642],
+            "address": "Олимпийский проспект, д. 16, стр. 5, БЦ Олимпик-холл",
+            "phone": "8 (999) 999-99-99",
+            "email": "email@domain.com",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+        },
+        {
+            "id": "ylist-4",
+            "name": "Элемент списка №4",
+            "coords": [55.706431, 37.022618],
+            "address": "Рублево-Успенское шоссе, пос. Горки-10, д. 24А",
+            "phone": "8 (999) 999-99-99",
+            "email": "email@domain.com",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+        },
+        {
+            "id": "ylist-5",
+            "name": "Элемент списка №5",
+            "coords": [55.451967, 37.763198],
+            "address": "Советский пр-т, д. 2А",
+            "phone": "8 (999) 999-99-99",
+            "email": "email@domain.com",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+        }
+    ]
+}
