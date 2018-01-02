@@ -117,7 +117,8 @@ class Ylist {
              */
             clusterDisableClickZoom: false,
             clusterHideIconOnBalloonOpen: false,
-            geoObjectHideIconOnBalloonOpen: false
+            geoObjectHideIconOnBalloonOpen: false,
+            zoomMargin: 40
         });
 
 
