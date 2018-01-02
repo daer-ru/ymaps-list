@@ -5,7 +5,9 @@ class Ylist {
         this.map = null;
         this.points = JSON.parse(this.options.data).data;
         this.placemarks = [];
+        this.clusterer = null;
     }
+
 
     init() {
         let self = this;
@@ -14,6 +16,7 @@ class Ylist {
             self._initMap();
         });
     }
+
 
     _initMap() {
         // Если карта уже создана, то дистроим её
@@ -44,9 +47,17 @@ class Ylist {
         this.map.behaviors.disable('scrollZoom');
 
         this._createPlacemarks();
-        this._addPlacemarks();
-        this._setBounds();
+
+        if (this.options.cluster) {
+            this._createClusterer();
+            this._addClusterer();
+            this._setBounds(this.clusterer);
+        } else {
+            this._addPlacemarks();
+            this._setBounds(this.map.geoObjects);
+        }
     }
+
 
     /**
      * Создание массива меток из входящего массива данных
@@ -71,6 +82,7 @@ class Ylist {
         }
     }
 
+
     /**
      * Добавление всех меток на карту
      */
@@ -80,11 +92,58 @@ class Ylist {
         }
     }
 
+
     /**
-     * Масштабирование карты так, чтобы были видны все метки
+     * Создание кластера из массива меток
      */
-    _setBounds() {
-        this.map.setBounds(this.map.geoObjects.getBounds(), {
+    _createClusterer() {
+        /**
+         * Создадим кластеризатор, вызвав функцию-конструктор.
+         * Список всех опций доступен в документации.
+         * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Clusterer.xml#constructor-summary
+         */
+        this.clusterer = new ymaps.Clusterer({
+            /**
+             * Через кластеризатор можно указать только стили кластеров,
+             * стили для меток нужно назначать каждой метке отдельно.
+             * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/option.presetStorage.xml
+             */
+            preset: 'islands#invertedNightClusterIcons',
+            /**
+             * Ставим true, если хотим кластеризовать только точки с одинаковыми координатами.
+             */
+            groupByCoordinates: false,
+            /**
+             * Опции кластеров указываем в кластеризаторе с префиксом "cluster".
+             * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/ClusterPlacemark.xml
+             */
+            clusterDisableClickZoom: false,
+            clusterHideIconOnBalloonOpen: false,
+            geoObjectHideIconOnBalloonOpen: false
+        });
+
+        /**
+         * В кластеризатор можно добавить javascript-массив меток (не геоколлекцию) или одну метку.
+         * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Clusterer.xml#add
+         */
+        this.clusterer.add(this.placemarks);
+    }
+
+
+    /**
+     * Добавление кластера на карту
+     */
+    _addClusterer() {
+        this.map.geoObjects.add(this.clusterer);
+    }
+
+
+    /**
+     * Масштабирование карты так, чтобы были видны все объекты
+     * @param {Object} objects массив геобъектов или кластер
+     */
+    _setBounds(objects) {
+        this.map.setBounds(objects.getBounds(), {
             checkZoomRange: true,
             zoomMargin: 10
         });
