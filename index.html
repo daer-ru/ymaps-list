@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="skype_toolbar" content="skype_toolbar_parser_compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico"> -->
     <title>Ymaps list</title>
 </head>
 
@@ -23,12 +22,21 @@
 
         var list = new Ylist('ymaps-list', {
             data: data,
+            center: [55.751574, 37.573856],
             list: false,
             cluster: false,
             balloon: false,
             icons: [
-                './assets/img/pin.svg',
-                './assets/img/pin_active.svg'
+                {
+                    icon: './assets/img/pin.svg',
+                    iconSize: [40, 48],
+                    iconOffset: [-20, -40]
+                },
+                {
+                    icon: './assets/img/pin_active.svg',
+                    iconSize: [40, 48],
+                    iconOffset: [-20, -40]
+                }
             ]
         });
 

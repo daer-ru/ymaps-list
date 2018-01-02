@@ -24,7 +24,7 @@ class Ylist {
 
         // Создаем яндекс карту
         this.map = new ymaps.Map(this.container, {
-            center: [55.751574, 37.573856],
+            center: this.options.center,
             zoom: 13,
             controls: []
         });
@@ -48,6 +48,9 @@ class Ylist {
         this._setBounds();
     }
 
+    /**
+     * Создание массива меток из входящего массива данных
+     */
     _createPlacemarks() {
         for (let i = 0; i < this.points.length; i++) {
             let point = this.points[i];
@@ -56,24 +59,30 @@ class Ylist {
                 // Необходимо указать данный тип макета.
                 iconLayout: 'default#image',
                 // Своё изображение иконки метки.
-                iconImageHref: this.options.icons[0],
+                iconImageHref: this.options.icons[0].icon,
                 // Размеры метки.
-                iconImageSize: [40, 48],
+                iconImageSize: this.options.icons[0].iconSize,
                 // Смещение левого верхнего угла иконки относительно
                 // её "ножки" (точки привязки).
-                iconImageOffset: [-20, -40]
+                iconImageOffset: this.options.icons[0].iconOffset
             });
 
             this.placemarks.push(placemark);
         }
     }
 
+    /**
+     * Добавление всех меток на карту
+     */
     _addPlacemarks() {
         for (let i = 0; i < this.placemarks.length; i++) {
             this.map.geoObjects.add(this.placemarks[i]);
         }
     }
 
+    /**
+     * Масштабирование карты так, чтобы были видны все метки
+     */
     _setBounds() {
         this.map.setBounds(this.map.geoObjects.getBounds(), {
             checkZoomRange: true,
