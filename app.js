@@ -48,13 +48,13 @@ class Ylist {
 
         this._createPlacemarks();
 
-        if (this.options.cluster) {
+        if (typeof this.options.cluster == 'boolean' && !this.options.cluster) {
+            this._addPlacemarks();
+            this._setBounds(this.map.geoObjects);
+        } else {
             this._createClusterer();
             this._addClusterer();
             this._setBounds(this.clusterer);
-        } else {
-            this._addPlacemarks();
-            this._setBounds(this.map.geoObjects);
         }
     }
 
@@ -70,12 +70,12 @@ class Ylist {
                 // Необходимо указать данный тип макета.
                 iconLayout: 'default#image',
                 // Своё изображение иконки метки.
-                iconImageHref: this.options.icons[0].icon,
+                iconImageHref: this.options.icons[0].href,
                 // Размеры метки.
-                iconImageSize: this.options.icons[0].iconSize,
+                iconImageSize: this.options.icons[0].size,
                 // Смещение левого верхнего угла иконки относительно
                 // её "ножки" (точки привязки).
-                iconImageOffset: this.options.icons[0].iconOffset
+                iconImageOffset: this.options.icons[0].offset
             });
 
             this.placemarks.push(placemark);
@@ -97,18 +97,16 @@ class Ylist {
      * Создание кластера из массива меток
      */
     _createClusterer() {
+        if (this.clusterer) {
+            this.clusterer.removeAll();
+        }
+
         /**
          * Создадим кластеризатор, вызвав функцию-конструктор.
          * Список всех опций доступен в документации.
          * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Clusterer.xml#constructor-summary
          */
         this.clusterer = new ymaps.Clusterer({
-            /**
-             * Через кластеризатор можно указать только стили кластеров,
-             * стили для меток нужно назначать каждой метке отдельно.
-             * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/option.presetStorage.xml
-             */
-            preset: 'islands#invertedNightClusterIcons',
             /**
              * Ставим true, если хотим кластеризовать только точки с одинаковыми координатами.
              */
@@ -121,6 +119,34 @@ class Ylist {
             clusterHideIconOnBalloonOpen: false,
             geoObjectHideIconOnBalloonOpen: false
         });
+
+
+        if (typeof this.options.cluster.style == 'string') {
+            // Если задаем стандартную иконку кластера из набора яндекса
+            this.clusterer.options.set({
+                /**
+                 * Через кластеризатор можно указать только стили кластеров,
+                 * стили для меток нужно назначать каждой метке отдельно.
+                 * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/option.presetStorage.xml
+                 */
+                preset: this.options.cluster.style
+            });
+        } else {
+            // Если задаем для кластера кастомную иконку
+
+            // Сделаем макет содержимого иконки кластера
+            var MyClustererIconContentLayout = ymaps.templateLayoutFactory.createClass(
+                '<div style="color: #fff; font-weight: 800; padding-left: 2px; line-height: 42px; font-size: 15px; text-align: center; font-family: circle, Helvetica, Helvetica CY, Arial, Nimbus Sans L, sans-serif;">{{ properties.geoObjects.length }}</div>');
+
+            this.clusterer.options.set({
+                clusterIcons: this.options.cluster.icons[0],
+                // Эта опция отвечает за размеры кластеров.
+                // В данном случае для кластеров, содержащих до 10 элементов,
+                // будет показываться маленькая иконка. Для остальных - большая.
+                clusterNumbers: [10],
+                clusterIconContentLayout: MyClustererIconContentLayout
+            });
+        }
 
         /**
          * В кластеризатор можно добавить javascript-массив меток (не геоколлекцию) или одну метку.
