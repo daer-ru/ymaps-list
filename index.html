@@ -24,18 +24,51 @@
             data: data,
             center: [55.751574, 37.573856],
             list: false,
-            cluster: false,
+            // cluster либо false, либо объект с настройками
+            cluster: {
+                // style либо false, либо строка
+                // style: 'islands#invertedNightClusterIcons',
+                style: false,
+                // если style строка, то массив настроек иконок не используется
+                icons: [
+                    [
+                        {
+                            href: './assets/img/pin_empty.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: './assets/img/pin_empty.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ],
+                    [
+                        {
+                            href: './assets/img/pin_empty_active.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: './assets/img/pin_empty_active.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ]
+                ]
+            },
+            // cluster: false,
             balloon: false,
             icons: [
                 {
-                    icon: './assets/img/pin.svg',
-                    iconSize: [40, 48],
-                    iconOffset: [-20, -40]
+                    href: './assets/img/pin.svg',
+                    size: [40, 50],
+                    offset: [-20, -50]
                 },
                 {
-                    icon: './assets/img/pin_active.svg',
-                    iconSize: [40, 48],
-                    iconOffset: [-20, -40]
+                    href: './assets/img/pin_active.svg',
+                    size: [40, 50],
+                    offset: [-20, -50]
                 }
             ]
         });
