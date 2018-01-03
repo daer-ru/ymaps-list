@@ -1,0 +1,35 @@
+.ylist-balloon {
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    width: 264px;
+    padding: 24px;
+}
+
+    .ylist-balloon::after {
+        border: 15px solid transparent;
+        border-top: 15px solid #fff;
+    }
+
+    .ylist-balloon__content *:last-child {
+        margin-bottom: 0;
+    }
+
+    .ylist-balloon__title {
+        border-bottom: 1px solid #ccc;
+        margin: 0 0 10px 0;
+        padding-bottom: 10px;
+    }
+
+    .ylist-balloon__close,
+    .ylist-balloon__close:active,
+    .ylist-balloon__close:hover,
+    .ylist-balloon__close:focus {
+        background: none;
+        border: none;
+        right: 11px;
+        top: 11px;
+        width: 11px;
+        height: 11px;
+        line-height: 11px;
+        text-align: center;
+    }

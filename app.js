@@ -6,6 +6,13 @@ class Ylist {
         this.points = JSON.parse(this.options.data).data;
         this.placemarks = [];
         this.clusterer = null;
+        this.balloonLayout = null;
+        this.balloonContentLayout = null;
+        this.ballonParams = {
+            balloonWidth: null,
+            balloonHeight: null,
+            balloonTailHeight: 15
+        };
     }
 
 
@@ -65,18 +72,9 @@ class Ylist {
     _createPlacemarks() {
         for (let i = 0; i < this.points.length; i++) {
             let point = this.points[i];
-            let placemark = new ymaps.Placemark(point.coords, {}, {
-                // Опции.
-                // Необходимо указать данный тип макета.
-                iconLayout: 'default#image',
-                // Своё изображение иконки метки.
-                iconImageHref: this.options.icons[0].href,
-                // Размеры метки.
-                iconImageSize: this.options.icons[0].size,
-                // Смещение левого верхнего угла иконки относительно
-                // её "ножки" (точки привязки).
-                iconImageOffset: this.options.icons[0].offset
-            });
+            let placemark = new ymaps.Placemark(point.coords, this.options.balloon ? this._setBalloonData(i) : {}, this._setPlacemarkOptions(i));
+
+            placemark.id = point.id;
 
             this.placemarks.push(placemark);
         }
@@ -90,6 +88,29 @@ class Ylist {
         for (let i = 0; i < this.placemarks.length; i++) {
             this.map.geoObjects.add(this.placemarks[i]);
         }
+    }
+
+
+    /**
+     * Возвращает объект, содержащий опции метки.
+     * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/GeoObject.xml
+     */
+    _setPlacemarkOptions(index) {
+        return {
+            // Опции.
+            // Необходимо указать данный тип макета.
+            iconLayout: 'default#image',
+            // Своё изображение иконки метки.
+            iconImageHref: this.options.icons[0].href,
+            // Размеры метки.
+            iconImageSize: this.options.icons[0].size,
+            // Смещение левого верхнего угла иконки относительно
+            // её "ножки" (точки привязки).
+            iconImageOffset: this.options.icons[0].offset,
+
+            balloonLayout: this.options.balloon ? this._createBalloonLayout() : false,
+            balloonContentLayout: this.options.balloon ? this._createBalloonContentLayout() : false
+        };
     }
 
 
@@ -162,6 +183,145 @@ class Ylist {
      */
     _addClusterer() {
         this.map.geoObjects.add(this.clusterer);
+    }
+
+
+    /**
+     * Создание макета балуна на основе
+     */
+    _createBalloonLayout() {
+        let self = this;
+
+        let balloonLayout = ymaps.templateLayoutFactory.createClass(
+            `<div class="ylist-balloon">
+                <button class="ylist-balloon__close" type="button">x</button>
+                <div class="ylist-balloon__inner">
+                    $[[options.contentLayout]]
+                </div>
+            </div>`, {
+                /**
+                 * Строит экземпляр макета на основе шаблона и добавляет его в родительский HTML-элемент.
+                 * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#build
+                 */
+                build: function () {
+                    this.constructor.superclass.build.call(this);
+                    this._$element = $('.ylist-balloon', this.getParentElement());
+                    this.applyElementOffset();
+                    this._$element.find('.ylist-balloon__close')
+                        .on('click', $.proxy(this.onCloseClick, this));
+
+                    self.ballonParams.balloonWidth = this._$element[0].offsetWidth;
+                    self.ballonParams.balloonHeight = this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight;
+                },
+
+                /**
+                 * Удаляет содержимое макета из DOM.
+                 * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#clear
+                 */
+                clear: function () {
+                    this._$element.find('.ylist-balloon__close')
+                        .off('click');
+                    this.constructor.superclass.clear.call(this);
+                },
+
+                /**
+                 * Метод будет вызван системой шаблонов АПИ при изменении размеров вложенного макета.
+                 * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
+                 */
+                onSublayoutSizeChange: function () {
+                    this.balloonLayout.superclass.onSublayoutSizeChange.apply(this, arguments);
+
+                    if(!this._isElement(this._$element)) {
+                        return;
+                    }
+
+                    this.applyElementOffset();
+
+                    this.events.fire('shapechange');
+                },
+
+                /**
+                 * Сдвигаем балун, чтобы "хвостик" указывал на точку привязки.
+                 * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
+                 */
+                applyElementOffset: function () {
+                    this._$element.css({
+                        left: -(this._$element[0].offsetWidth / 2),
+                        top: -(this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight)
+                    });
+                },
+
+                /**
+                 * Закрывает балун при клике на крестик, кидая событие "userclose" на макете.
+                 * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
+                 */
+                onCloseClick: function (e) {
+                    e.preventDefault();
+
+                    this.events.fire('userclose');
+                },
+
+                /**
+                 * Проверяем наличие элемента (в ИЕ и Опере его еще может не быть).
+                 * @param {jQuery} [element] Элемент.
+                 * @returns {Boolean} Флаг наличия.
+                 */
+                _isElement: function (element) {
+                    return element && element[0] && element.find('.ylist-balloon__inner')[0];
+                }
+            });
+
+        return balloonLayout;
+    }
+
+
+    /**
+     * Создание вложенного макета содержимого балуна
+     */
+    _createBalloonContentLayout() {
+        let balloonContentLayout = ymaps.templateLayoutFactory.createClass(
+            `<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>
+            <div class="ylist-balloon__content">$[properties.balloonContent]</div>`
+        );
+
+        return balloonContentLayout;
+    }
+
+
+    /**
+     * Возвращает объект, содержащий данные метки.
+     * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/GeoObject.xml
+     */
+    _setBalloonData(index) {
+        let ballonAddres = '',
+            balloonPhone = '',
+            balloneEmail = '',
+            balloonDescription = '';
+
+        if (this.points[index].address && this.points[index].address.length > 0) {
+            ballonAddres = `<p class="ylist-balloon__address">${this.points[index].address}</p>`;
+        }
+
+        if (this.points[index].phone && this.points[index].phone.length > 0) {
+            balloonPhone = `<p class="ylist-balloon__phone">${this.points[index].phone}</p>`;
+        }
+
+        if (this.points[index].email && this.points[index].email.length > 0) {
+            balloneEmail = `<p class="ylist-balloon__email">${this.points[index].email}</p>`;
+        }
+
+        if (this.points[index].description && this.points[index].description.length > 0) {
+            balloonDescription = `<p class="ylist-balloon__description">${this.points[index].description}</p>`;
+        }
+
+        return {
+            balloonHeader: this.points[index].name,
+            balloonContent:
+                ballonAddres +
+                balloonPhone +
+                balloneEmail +
+                balloonDescription
+        };
     }
 
 
