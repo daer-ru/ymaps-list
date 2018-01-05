@@ -1,0 +1,21 @@
+.ylist-balloon {
+    position: relative;
+}
+
+    .ylist-balloon::after {
+        content: '';
+        border-bottom-width: 0;
+        display: block;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .ylist-balloon__close {
+        display: block;
+        position: absolute;
+        margin: 0;
+        padding: 0;
+        cursor: pointer;
+    }
