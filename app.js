@@ -5,6 +5,7 @@ class Ylist {
         this.map = null;
         this.points = JSON.parse(this.options.data).data;
         this.placemarks = [];
+        this.activePlacemark = null;
         this.clusterer = null;
         this.balloonLayout = null;
         this.balloonContentLayout = null;
@@ -70,11 +71,15 @@ class Ylist {
      * Создание массива меток из входящего массива данных
      */
     _createPlacemarks() {
+        let self = this;
         for (let i = 0; i < this.points.length; i++) {
             let point = this.points[i];
             let placemark = new ymaps.Placemark(point.coords, this.options.balloon ? this._setBalloonData(i) : {}, this._setPlacemarkOptions(i));
 
             placemark.id = point.id;
+            placemark.events.add('click', function(e) {
+                self._placemarkClickHandler(e, self);
+            });
 
             this.placemarks.push(placemark);
         }
@@ -334,5 +339,41 @@ class Ylist {
             checkZoomRange: true,
             zoomMargin: 10
         });
+    }
+
+
+    /**
+     * Обработчик клика на метку
+     * @param {Object} e    event
+     * @param {Object} self экземпляр класса
+     */
+    _placemarkClickHandler(e, self) {
+        let placemark = e.get('target');
+        self.activePlacemark = placemark;
+
+        /**
+         * Расчитывает координаты центра, с учетом размеров балуна,
+         * и центрирует карту относительно балуна
+         */
+        function setBalloonToCenter() {
+            let coords, newCoords;
+
+            coords = self.map.options.get('projection').toGlobalPixels(
+                    placemark.geometry.getCoordinates(),
+                    self.map.getZoom()
+            );
+
+            // Сдвигаем координаты на половину высоты балуна
+            coords[1] -= self.ballonParams.balloonHeight / 2;
+
+            newCoords = self.map.options.get('projection').fromGlobalPixels(coords, self.map.getZoom());
+
+            self.map.panTo(newCoords, {flying: true});
+
+            // После выполнения функции удаляем обработчик
+            self.map.geoObjects.events.remove('balloonopen', setBalloonToCenter);
+        }
+
+        self.map.geoObjects.events.add('balloonopen', setBalloonToCenter);
     }
 }
