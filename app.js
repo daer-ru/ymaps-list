@@ -13,7 +13,7 @@ class Ylist {
             balloonHeight: null,
             balloonTailHeight: 15
         };
-        this.listClassName = 'ymaps-list';
+        this.listClassName = 'ylist-list';
         this.listElements = [];
     }
 
