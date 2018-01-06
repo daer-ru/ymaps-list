@@ -1,6 +1,5 @@
 class Ylist {
-    constructor(container, options) {
-        this.container = container;
+    constructor(options) {
         this.options = options;
         this.map = null;
         this.points = JSON.parse(this.options.data).data;
@@ -14,6 +13,8 @@ class Ylist {
             balloonHeight: null,
             balloonTailHeight: 15
         };
+        this.listClassName = 'ymaps-list';
+        this.listElements = [];
     }
 
 
@@ -23,6 +24,10 @@ class Ylist {
         ymaps.ready(function() {
             self._initMap();
         });
+
+        if (this.options.list) {
+            this._initList();
+        }
     }
 
 
@@ -34,8 +39,8 @@ class Ylist {
         }
 
         // Создаем яндекс карту
-        this.map = new ymaps.Map(this.container, {
-            center: this.options.center,
+        this.map = new ymaps.Map(this.options.mapContainer, {
+            center: this.options.mapCenter,
             zoom: 13,
             controls: []
         });
@@ -64,6 +69,11 @@ class Ylist {
             this._addClusterer();
             this._setBounds(this.clusterer);
         }
+    }
+
+
+    _initList() {
+        this._createPointsList();
     }
 
 
@@ -327,6 +337,74 @@ class Ylist {
                 balloneEmail +
                 balloonDescription
         };
+    }
+
+
+    /**
+     * Создает DOM элемент списка
+     * @param  {Array}   point данные точки из входящего json
+     * @return {Element}       DOM элемент спсика с содержимым
+     */
+    _createListElement(point) {
+        let $elementTitle = $('<h3/>', {class: this.listClassName + '__title'}),
+            $elementAddress = $('<p/>', {class: this.listClassName + '__address'}),
+            $elementPhone = $('<p/>', {class: this.listClassName + '__phone'}),
+            $elementEmail = $('<p/>', {class: this.listClassName + '__email'}),
+            $elementDescription = $('<p/>', {class: this.listClassName + '__description'});
+
+
+        if (typeof point.name === 'string') {
+            $elementTitle.html('<a>' + point.name + '</a>');
+        } else {
+            $elementTitle = null;
+        }
+
+        if (typeof point.address === 'string') {
+            $elementAddress.html(point.address);
+        } else {
+            $elementAddress = null;
+        }
+
+        if (typeof point.phone === 'string') {
+            $elementPhone.html('<a href="tel:' + point.phoneLink + '">' + point.phone + '</a>');
+        } else {
+            $elementPhone = null;
+        }
+
+        if (typeof point.email === 'string') {
+            $elementEmail.html('<a href="mailto:' + point.email + '">' + point.email + '</a>');
+        } else {
+            $elementEmail = null;
+        }
+
+        if (typeof point.description === 'string') {
+            $elementDescription.html(point.description);
+        } else {
+            $elementDescription = null;
+        }
+
+        var $listElement = $('<li/>', {
+            id: point.id,
+            class: this.listClassName + '__item'
+        }).append($elementTitle, $elementAddress, $elementPhone, $elementEmail, $elementDescription);
+
+        return $listElement;
+    }
+
+
+    /**
+     * Создает элемент список, наполняет его содержимым и добавляет в DOM
+     */
+    _createPointsList() {
+        var $list = $('<ul/>', {class: this.listClassName});
+
+        for (let i = 0; i < this.points.length; i++) {
+            let point = this.points[i];
+
+            $list.append(this._createListElement(point));
+        }
+
+        $('#' + this.options.listContainer).html('').append($list);
     }
 
 
