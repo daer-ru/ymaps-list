@@ -1,3 +1,62 @@
+/* List and map */
+
+.ylist {
+    height: 500px;
+}
+
+    .ylist__list-container,
+    .ylist__map-container {
+        height: 100%;
+    }
+
+    .ylist__list-container {
+        overflow-x: hidden;
+        overflow-y: auto;
+        float: left;
+        width: 400px;
+    }
+
+    .ylist__map-container {
+        
+    }
+
+        .ylist-list {
+            
+        }
+
+            .ylist-list__item {
+                border-top: 1px solid #f2f2f2;
+                padding: 20px;
+            }
+
+            .ylist-list__item:first-child {
+                border-top: none;
+            }
+
+            .ylist-list__item.is-active {
+                background: #f2f2f2;
+            }
+
+                .ylist-list__item *:first-child {
+                    margin-top: 0;
+                }
+
+                .ylist-list__item *:last-child {
+                    margin-bottom: 0;
+                }
+
+                .ylist-list__title a {
+                    cursor: pointer;
+                }
+
+                .ylist-list__title a:hover {
+                    text-decoration: underline;
+                }
+
+/* /List and map */
+
+/* Balloon */
+
 .ylist-balloon {
     background: #fff;
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
@@ -33,3 +92,5 @@
         line-height: 11px;
         text-align: center;
     }
+
+/* /Balloon */
