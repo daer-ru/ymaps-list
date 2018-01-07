@@ -14,12 +14,14 @@ class Ylist {
             balloonTailHeight: 15
         };
         this.listClassName = 'ylist-list';
-        this.listElements = [];
+        this.isLessThanAdaptiveBreakpoint = false;
     }
 
 
     init() {
         let self = this;
+
+        this._setAdaptiveParams();
 
         ymaps.ready(function() {
             self._initMap();
@@ -69,6 +71,10 @@ class Ylist {
             this._addClusterer();
             this._setBounds(this.clusterer);
         }
+
+        if (this.isLessThanAdaptiveBreakpoint) {
+            this.map.behaviors.disable('drag');
+        }
     }
 
 
@@ -83,8 +89,9 @@ class Ylist {
     _createPlacemarks() {
         let self = this;
         for (let i = 0; i < this.points.length; i++) {
-            let point = this.points[i];
-            let placemark = new ymaps.Placemark(point.coords, this.options.balloon ? this._setBalloonData(i) : {}, this._setPlacemarkOptions(i));
+            let point = this.points[i],
+                balloonData = this.isLessThanAdaptiveBreakpoint && this.options.balloon ? this._setBalloonData(i) : {},
+                placemark = new ymaps.Placemark(point.coords, balloonData, this._setPlacemarkOptions(i));
 
             placemark.id = point.id;
             placemark.events.add('click', function(e) {
@@ -111,7 +118,7 @@ class Ylist {
      * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/GeoObject.xml
      */
     _setPlacemarkOptions(index) {
-        return {
+        let placemarkOptions = {
             // Опции.
             // Необходимо указать данный тип макета.
             iconLayout: 'default#image',
@@ -121,11 +128,18 @@ class Ylist {
             iconImageSize: this.options.icons[0].size,
             // Смещение левого верхнего угла иконки относительно
             // её "ножки" (точки привязки).
-            iconImageOffset: this.options.icons[0].offset,
-
-            balloonLayout: this.options.balloon ? this._createBalloonLayout() : false,
-            balloonContentLayout: this.options.balloon ? this._createBalloonContentLayout() : false
+            iconImageOffset: this.options.icons[0].offset
         };
+
+        if (this.isLessThanAdaptiveBreakpoint && this.options.balloon) {
+            placemarkOptions.balloonLayout = this._createBalloonLayout();
+            placemarkOptions.balloonContentLayout = this._createBalloonContentLayout();
+            placemarkOptions.balloonAutoPan = false;
+            placemarkOptions.balloonShadow = false;
+            placemarkOptions.balloonPanelMaxMapArea = 0;
+        }
+
+        return placemarkOptions;
     }
 
 
@@ -396,7 +410,8 @@ class Ylist {
      * Создает элемент список, наполняет его содержимым и добавляет в DOM
      */
     _createPointsList() {
-        var $list = $('<ul/>', {class: this.listClassName});
+        let self = this,
+            $list = $('<ul/>', {class: this.listClassName});
 
         for (let i = 0; i < this.points.length; i++) {
             let point = this.points[i];
@@ -405,6 +420,21 @@ class Ylist {
         }
 
         $('#' + this.options.listContainer).html('').append($list);
+
+
+        // При клике на элемент списка, срабатывает соответстующая точка на карте
+        $(document).on('click', '.' + self.listClassName + '__title', function(e) {
+            let listItemId = $(this).closest('.' + self.listClassName + '__item').attr('id');
+
+            for (let i = 0; i < self.placemarks.length; i++) {
+                let placemark = self.placemarks[i];
+
+                if (placemark.id == listItemId) {
+                    self._listItemClickHandler(e, placemark);
+                    break;
+                }
+            }
+        });
     }
 
 
@@ -429,29 +459,121 @@ class Ylist {
         let placemark = e.get('target');
         self.activePlacemark = placemark;
 
-        /**
-         * Расчитывает координаты центра, с учетом размеров балуна,
-         * и центрирует карту относительно балуна
-         */
-        function setBalloonToCenter() {
-            let coords, newCoords;
+        this._commonClickHandler(placemark);
 
-            coords = self.map.options.get('projection').toGlobalPixels(
-                    placemark.geometry.getCoordinates(),
-                    self.map.getZoom()
-            );
+        if (!this.isLessThanAdaptiveBreakpoint) {
+            /**
+             * Расчитывает координаты центра, с учетом размеров балуна,
+             * и центрирует карту относительно балуна
+             */
+            function setBalloonToCenter() {
+                let coords, newCoords;
 
-            // Сдвигаем координаты на половину высоты балуна
-            coords[1] -= self.ballonParams.balloonHeight / 2;
+                coords = self.map.options.get('projection').toGlobalPixels(
+                        placemark.geometry.getCoordinates(),
+                        self.map.getZoom()
+                );
 
-            newCoords = self.map.options.get('projection').fromGlobalPixels(coords, self.map.getZoom());
+                // Сдвигаем координаты на половину высоты балуна
+                coords[1] -= self.ballonParams.balloonHeight / 2;
 
-            self.map.panTo(newCoords, {flying: true});
+                newCoords = self.map.options.get('projection').fromGlobalPixels(coords, self.map.getZoom());
 
-            // После выполнения функции удаляем обработчик
-            self.map.geoObjects.events.remove('balloonopen', setBalloonToCenter);
+                self.map.panTo(newCoords, {flying: true});
+
+                // После выполнения функции удаляем обработчик
+                self.map.geoObjects.events.remove('balloonopen', setBalloonToCenter);
+            }
+
+            self.map.geoObjects.events.add('balloonopen', setBalloonToCenter);
+        } else {
+            self.map.panTo(placemark.geometry.getCoordinates(), {flying: true});
+        }
+    }
+
+
+    /**
+     * Обработчик клика на элемент списка
+     * @param {Object} e         event
+     * @param {Object} placemark объект метки
+     */
+    _listItemClickHandler(e, placemark) {
+        this._commonClickHandler(placemark);
+
+        if (this.activePlacemark && this.map.getZoom() < 11) {
+            let prevClustered = this.clusterer.getObjectState(this.activePlacemark).isClustered,
+                currentClustered = this.clusterer.getObjectState(placemark).isClustered;
+
+            // Если оба элемента на небольшом зуме не кластеризованы, просто подвинем карту к ним
+            if (!prevClustered && !currentClustered) {
+                this.map.panTo(placemark.geometry.getCoordinates(), {flying: true});
+
+                this.activePlacemark = placemark;
+                return;
+            }
         }
 
-        self.map.geoObjects.events.add('balloonopen', setBalloonToCenter);
+        // Устанавливаем минимальное значение зума, при котором активная метка находится вне кластера
+        var zoom = this.map.getZoom() === 9 ? this.map.getZoom() : 9;
+        while (true) {
+            this.map.setCenter(placemark.geometry.getCoordinates(), zoom++);
+
+            if (!this.clusterer.getObjectState(placemark).isClustered) {
+                break;
+            }
+        }
+
+        this.activePlacemark = placemark;
+    }
+
+
+    /**
+     * Общий обработчик клика на метку и на элемент списка
+     * @param {Object} placemark объект метки
+     */
+    _commonClickHandler(placemark) {
+        var $listContainer = $('#' + this.options.listContainer),
+            $listItem = $('#' + placemark.id);
+
+        // Возвращаем всем меткам и кластерам исходный вид
+        for (let i = 0; i < this.placemarks.length; i++) {
+            let placemark = this.placemarks[i];
+
+            placemark.options.set('iconImageHref', this.options.icons[0].href);
+
+            if (this.clusterer.getObjectState(placemark).cluster) {
+                this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[0]);
+            }
+
+            placemark.isActive = false;
+        }
+
+        // Если метка в кластере, соответствующий кластер будет подсвечен
+        if (this.clusterer.getObjectState(placemark).isClustered) {
+            this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[2]);
+        }
+
+        // Подсветка метки на карте
+        placemark.options.set('iconImageHref', this.options.icons[1].href);
+        placemark.isActive = true;
+
+        // Подсветка элемента списка
+        $listContainer.find('.is-active').removeClass('is-active');
+        $listItem.addClass('is-active');
+
+        // Скроллим спсиок к нужному элементу
+        $listContainer.scrollTop($listItem.position().top + $listContainer.scrollTop());
+    }
+
+
+    /**
+     * Выставляет флаг является ли текущая ширина окна меньше заданного брейкпоинта или нет
+     */
+    _setAdaptiveParams() {
+        if ($(window).width() >= this.options.adaptiveBreakpoint) {
+            this.isLessThanAdaptiveBreakpoint = false;
+        } else {
+            this.isLessThanAdaptiveBreakpoint = true;
+        }
     }
 }
