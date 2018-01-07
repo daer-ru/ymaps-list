@@ -1,3 +1,34 @@
+/* List and map */
+
+.ylist {
+    position: relative;
+    overflow: hidden;
+}
+
+    .ylist__list-container,
+    .ylist__map-container {
+        position: relative;
+    }
+
+    .ylist__map-container {
+        overflow: hidden;
+    }
+
+        .ylist-list {
+            margin: 0;
+            padding: 0;
+        }
+
+            .ylist-list__item {
+                list-style: none outside;
+                margin: 0;
+                padding: 0;
+            }
+
+/* /List and map */
+
+/* Balloon */
+
 .ylist-balloon {
     position: relative;
 }
@@ -19,3 +50,5 @@
         padding: 0;
         cursor: pointer;
     }
+
+/* /Balloon */
