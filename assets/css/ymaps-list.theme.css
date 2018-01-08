@@ -53,6 +53,18 @@
                     text-decoration: underline;
                 }
 
+    .ylist__switch {
+        display: none;
+    }
+
+    .ylist__switch.is-visible {
+        display: block;
+    }
+
+        .ylist__switch [data-ylist-switch].is-active {
+            background: #ccc;
+        }
+
 /* /List and map */
 
 /* Balloon */

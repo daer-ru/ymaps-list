@@ -12,6 +12,10 @@
 
 <body>
     <div id="ymaps" class="ylist">
+        <div id="ymaps-switch" class="ylist__switch">
+            <button type="button" data-ylist-switch="list">Список</button>
+            <button type="button" data-ylist-switch="map">Карта</button>
+        </div>
         <div id="ymaps-list" class="ylist__list-container"></div>
         <div id="ymaps-map" class="ylist__map-container"></div>
     </div>
@@ -35,6 +39,7 @@
             // listScroll: function($listContainer) {
             // },
             listScroll: false,
+            switchContainer: 'ymaps-switch',
             // cluster либо false, либо объект с настройками
             cluster: {
                 // style либо false, либо строка
