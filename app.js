@@ -562,7 +562,12 @@ class Ylist {
         $listItem.addClass('is-active');
 
         // Скроллим спсиок к нужному элементу
-        $listContainer.scrollTop($listItem.position().top + $listContainer.scrollTop());
+        if (typeof this.options.listScroll == 'boolean' && !this.options.listScroll) {
+            $listContainer.scrollTop($listItem.position().top + $listContainer.scrollTop());
+        } else {
+            this.options.listScroll($listContainer);
+        }
+        
     }
 
 
