@@ -25,6 +25,14 @@
                 padding: 0;
             }
 
+    .ylist__switch {
+        position: relative;
+    }
+
+        .ylist__switch [data-ylist-switch] * {
+            pointer-events: none;
+        }
+
 /* /List and map */
 
 /* Balloon */

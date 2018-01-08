@@ -15,16 +15,19 @@ class Ylist {
         };
         this.listClassName = 'ylist-list';
         this.isLessThanAdaptiveBreakpoint = false;
+        this.mqlAdaptiveBreakpoint = window.matchMedia('(max-width: ' + (this.options.adaptiveBreakpoint - 1) + 'px)');
+        this.needReloadMap = true;
     }
 
 
     init() {
         let self = this;
 
-        this._setAdaptiveParams();
-
         ymaps.ready(function() {
-            self._initMap();
+            self.mqlAdaptiveBreakpoint.addListener(function() {
+                self._adaptiveHandle(this, self);
+            });
+            self._adaptiveHandle(self.mqlAdaptiveBreakpoint, self);
         });
 
         if (this.options.list) {
@@ -75,6 +78,9 @@ class Ylist {
         if (this.isLessThanAdaptiveBreakpoint) {
             this.map.behaviors.disable('drag');
         }
+
+        // Карта инициализирована
+        this.needReloadMap = false;
     }
 
 
@@ -567,18 +573,63 @@ class Ylist {
         } else {
             this.options.listScroll($listContainer);
         }
-        
     }
 
 
-    /**
-     * Выставляет флаг является ли текущая ширина окна меньше заданного брейкпоинта или нет
-     */
-    _setAdaptiveParams() {
-        if ($(window).width() >= this.options.adaptiveBreakpoint) {
-            this.isLessThanAdaptiveBreakpoint = false;
+    _adaptiveHandle(mql, self) {
+        if (mql.matches) {
+            // Переключение с десктопа на мобильные устройства
+
+            self.isLessThanAdaptiveBreakpoint = true;
+            self.needReloadMap = true;
+
+            // Показываем блок с кнопками
+            $('#' + self.options.switchContainer).addClass('is-visible');
+            $('#' + self.options.mapContainer).addClass('is-adaptive');
+            $('#' + self.options.listContainer).addClass('is-adaptive');
+
+            // Добавляем обработчик клика на элементы переключения
+            $(document).on('click', '[data-ylist-switch]', function(e) {
+                self._switchHandler(e, self);
+            });
         } else {
-            this.isLessThanAdaptiveBreakpoint = true;
+            // Переключение с мобильного устройства на десктоп
+
+            self.isLessThanAdaptiveBreakpoint = false;
+
+            // Скрываем блок с кнопками
+            $('#' + self.options.switchContainer).removeClass('is-visible');
+            $('#' + self.options.mapContainer).removeClass('is-adaptive');
+            $('#' + self.options.listContainer).removeClass('is-adaptive');
+
+            self._initMap();
+
+            // Удаляем обработчик клика на элементы переключения
+            $(document).off('click', '[data-ylist-switch]', self._switchHandler);
         }
+    }
+
+
+    _switchHandler(e, self) {
+        var $elem = $(e.target);
+
+        if (!$elem.length || $elem.hasClass('is-active')) {
+            return;
+        }
+
+        if ($elem.attr('data-ylist-switch') === 'map') {
+            $('.js-storage__panel').hide();
+            $('.js-storage__map').show();
+
+            if (self.needReloadMap) {
+                self._initMap();
+            }
+        } else if ($elem.attr('data-ylist-switch') === 'list') {
+            $('.js-storage__map').hide();
+            $('.js-storage__panel').show();
+        }
+
+        $('[data-ylist-switch]').removeClass('is-active');
+        $elem.addClass('is-active');
     }
 }
