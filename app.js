@@ -5,9 +5,9 @@ class Ylist {
         this.points = JSON.parse(this.options.data).data;
         this.placemarks = [];
         this.activePlacemark = null;
+        this.activeListItem = null;
         this.clusterer = null;
         this.balloonLayout = null;
-        this.balloonContentLayout = null;
         this.ballonParams = {
             balloonWidth: null,
             balloonHeight: null,
@@ -41,6 +41,10 @@ class Ylist {
         if (this.map) {
             this.map.destroy();
             this.map = null;
+            this.placemarks = [];
+            this.activePlacemark = null;
+            this.clusterer = null;
+            this.balloonLayout = null;
         }
 
         // Создаем яндекс карту
@@ -103,6 +107,12 @@ class Ylist {
             placemark.events.add('click', function(e) {
                 self._placemarkClickHandler(e, self);
             });
+
+            if (this.activeListItem && this.activeListItem == point.id) {
+                // Подсветка метки если есть активный элемент списка
+                placemark.options.set('iconImageHref', this.options.icons[1].href);
+                placemark.isActive = true;
+            }
 
             this.placemarks.push(placemark);
         }
@@ -432,13 +442,18 @@ class Ylist {
         $(document).on('click', '.' + self.listClassName + '__title', function(e) {
             let listItemId = $(this).closest('.' + self.listClassName + '__item').attr('id');
 
-            for (let i = 0; i < self.placemarks.length; i++) {
-                let placemark = self.placemarks[i];
+            if (self.placemarks.length > 0) {
+                // Если карта еще не инициализирована
+                for (let i = 0; i < self.placemarks.length; i++) {
+                    let placemark = self.placemarks[i];
 
-                if (placemark.id == listItemId) {
-                    self._listItemClickHandler(e, placemark);
-                    break;
+                    if (placemark.id == listItemId) {
+                        self._listItemClickHandler(e, placemark);
+                        break;
+                    }
                 }
+            } else {
+                self._listItemClickHandler(e, listItemId);
             }
         });
     }
@@ -467,7 +482,7 @@ class Ylist {
 
         this._commonClickHandler(placemark);
 
-        if (!this.isLessThanAdaptiveBreakpoint) {
+        if (this.isLessThanAdaptiveBreakpoint) {
             /**
              * Расчитывает координаты центра, с учетом размеров балуна,
              * и центрирует карту относительно балуна
@@ -501,67 +516,81 @@ class Ylist {
     /**
      * Обработчик клика на элемент списка
      * @param {Object} e         event
-     * @param {Object} placemark объект метки
+     * @param {Object} placemark объект метки или id
      */
     _listItemClickHandler(e, placemark) {
         this._commonClickHandler(placemark);
 
-        if (this.activePlacemark && this.map.getZoom() < 11) {
-            let prevClustered = this.clusterer.getObjectState(this.activePlacemark).isClustered,
-                currentClustered = this.clusterer.getObjectState(placemark).isClustered;
+        if (typeof placemark !== 'string') {
+            if (this.activePlacemark && this.map.getZoom() < 11) {
+                let prevClustered = this.clusterer.getObjectState(this.activePlacemark).isClustered,
+                    currentClustered = this.clusterer.getObjectState(placemark).isClustered;
 
-            // Если оба элемента на небольшом зуме не кластеризованы, просто подвинем карту к ним
-            if (!prevClustered && !currentClustered) {
-                this.map.panTo(placemark.geometry.getCoordinates(), {flying: true});
+                // Если оба элемента на небольшом зуме не кластеризованы, просто подвинем карту к ним
+                if (!prevClustered && !currentClustered) {
+                    this.map.panTo(placemark.geometry.getCoordinates(), {flying: true});
 
-                this.activePlacemark = placemark;
-                return;
+                    this.activePlacemark = placemark;
+                    return;
+                }
             }
-        }
 
-        // Устанавливаем минимальное значение зума, при котором активная метка находится вне кластера
-        var zoom = this.map.getZoom() === 9 ? this.map.getZoom() : 9;
-        while (true) {
-            this.map.setCenter(placemark.geometry.getCoordinates(), zoom++);
+            // Устанавливаем минимальное значение зума, при котором активная метка находится вне кластера
+            let zoom = this.map.getZoom() === 9 ? this.map.getZoom() : 9;
+            while (true) {
+                this.map.setCenter(placemark.geometry.getCoordinates(), zoom++);
 
-            if (!this.clusterer.getObjectState(placemark).isClustered) {
-                break;
+                if (!this.clusterer.getObjectState(placemark).isClustered) {
+                    break;
+                }
             }
-        }
 
-        this.activePlacemark = placemark;
+            this.activePlacemark = placemark;
+        }
     }
 
 
     /**
      * Общий обработчик клика на метку и на элемент списка
-     * @param {Object} placemark объект метки
+     * @param {Object} placemark объект метки или id
      */
     _commonClickHandler(placemark) {
-        var $listContainer = $('#' + this.options.listContainer),
+        let $listContainer = $('#' + this.options.listContainer),
+            $listItem = null,
+            activeListItemId = null;
+
+        if (typeof placemark == 'string') {
+            $listItem = $('#' + placemark);
+            activeListItemId = placemark;
+        } else {
             $listItem = $('#' + placemark.id);
+            activeListItemId = placemark.id;
 
-        // Возвращаем всем меткам и кластерам исходный вид
-        for (let i = 0; i < this.placemarks.length; i++) {
-            let placemark = this.placemarks[i];
+            // Возвращаем всем меткам и кластерам исходный вид
+            for (let i = 0; i < this.placemarks.length; i++) {
+                let placemark = this.placemarks[i];
 
-            placemark.options.set('iconImageHref', this.options.icons[0].href);
+                placemark.options.set('iconImageHref', this.options.icons[0].href);
+                placemark.balloon.close();
 
-            if (this.clusterer.getObjectState(placemark).cluster) {
-                this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[0]);
+                if (this.clusterer.getObjectState(placemark).cluster) {
+                    this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[0]);
+                }
+
+                placemark.isActive = false;
             }
 
-            placemark.isActive = false;
+            // Если метка в кластере, соответствующий кластер будет подсвечен
+            if (this.clusterer.getObjectState(placemark).isClustered) {
+                this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[2]);
+            }
+
+            // Подсветка метки на карте
+            placemark.options.set('iconImageHref', this.options.icons[1].href);
+            placemark.isActive = true;
         }
 
-        // Если метка в кластере, соответствующий кластер будет подсвечен
-        if (this.clusterer.getObjectState(placemark).isClustered) {
-            this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[2]);
-        }
-
-        // Подсветка метки на карте
-        placemark.options.set('iconImageHref', this.options.icons[1].href);
-        placemark.isActive = true;
+        this.activeListItem = activeListItemId;
 
         // Подсветка элемента списка
         $listContainer.find('.is-active').removeClass('is-active');
@@ -589,6 +618,7 @@ class Ylist {
 
             $('#' + self.options.mapContainer).addClass('is-adaptive is-hidden');
             $('#' + self.options.listContainer).addClass('is-adaptive');
+            $('#' + self.options.container).addClass('is-adaptive');
 
             // Добавляем обработчик клика на элементы переключения
             $(document).on('click', '[data-ylist-switch]', function(e) {
@@ -605,6 +635,7 @@ class Ylist {
 
             $('#' + self.options.mapContainer).removeClass('is-adaptive is-hidden');
             $('#' + self.options.listContainer).removeClass('is-adaptive is-hidden');
+            $('#' + self.options.container).removeClass('is-adaptive');
 
             self._initMap();
 

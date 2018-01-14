@@ -4,6 +4,10 @@
     height: 500px;
 }
 
+.ylist.is-adaptive {
+    height: auto;
+}
+
     .ylist__list-container,
     .ylist__map-container {
         height: 100%;
@@ -16,8 +20,20 @@
         width: 400px;
     }
 
-    .ylist__map-container {
-        
+    .ylist__list-container.is-adaptive {
+        overflow: visible;
+        float: none;
+        width: auto;
+        height: auto;
+    }
+
+    .ylist__map-container.is-adaptive {
+        height: 500px;
+    }
+
+    .ylist__list-container.is-adaptive.is-hidden,
+    .ylist__map-container.is-adaptive.is-hidden {
+        display: none;
     }
 
         .ylist-list {
