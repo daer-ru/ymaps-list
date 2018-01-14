@@ -585,7 +585,9 @@ class Ylist {
 
             // Показываем блок с кнопками
             $('#' + self.options.switchContainer).addClass('is-visible');
-            $('#' + self.options.mapContainer).addClass('is-adaptive');
+            $('#' + self.options.switchContainer).find('[data-ylist-switch="list"]').addClass('is-active');
+
+            $('#' + self.options.mapContainer).addClass('is-adaptive is-hidden');
             $('#' + self.options.listContainer).addClass('is-adaptive');
 
             // Добавляем обработчик клика на элементы переключения
@@ -599,8 +601,10 @@ class Ylist {
 
             // Скрываем блок с кнопками
             $('#' + self.options.switchContainer).removeClass('is-visible');
-            $('#' + self.options.mapContainer).removeClass('is-adaptive');
-            $('#' + self.options.listContainer).removeClass('is-adaptive');
+            $('#' + self.options.switchContainer).find('[data-ylist-switch]').removeClass('is-active');
+
+            $('#' + self.options.mapContainer).removeClass('is-adaptive is-hidden');
+            $('#' + self.options.listContainer).removeClass('is-adaptive is-hidden');
 
             self._initMap();
 
@@ -611,22 +615,22 @@ class Ylist {
 
 
     _switchHandler(e, self) {
-        var $elem = $(e.target);
+        let $elem = $(e.target);
 
         if (!$elem.length || $elem.hasClass('is-active')) {
             return;
         }
 
         if ($elem.attr('data-ylist-switch') === 'map') {
-            $('.js-storage__panel').hide();
-            $('.js-storage__map').show();
+            $('#' + self.options.mapContainer).removeClass('is-hidden');
+            $('#' + self.options.listContainer).addClass('is-hidden');
 
             if (self.needReloadMap) {
                 self._initMap();
             }
         } else if ($elem.attr('data-ylist-switch') === 'list') {
-            $('.js-storage__map').hide();
-            $('.js-storage__panel').show();
+            $('#' + self.options.mapContainer).addClass('is-hidden');
+            $('#' + self.options.listContainer).removeClass('is-hidden');
         }
 
         $('[data-ylist-switch]').removeClass('is-active');
