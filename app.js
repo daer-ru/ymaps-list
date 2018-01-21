@@ -2,7 +2,13 @@ class Ylist {
     constructor(options) {
         this.options = options;
         this.map = null;
-        this.points = JSON.parse(this.options.data).data;
+
+        if (!options.hasOwnProperty('data')) {
+            this.points = null;
+        } else {
+            this.points = JSON.parse(this.options.data).data;
+        }
+
         this.placemarks = [];
         this.activePlacemark = null;
         this.activeListItem = null;
@@ -21,6 +27,8 @@ class Ylist {
 
 
     init() {
+        this._checkRequiredOptions();
+
         let self = this;
 
         ymaps.ready(function() {
@@ -32,6 +40,43 @@ class Ylist {
 
         if (this.options.list) {
             this._initList();
+        }
+    }
+
+
+    // Проверяет наличие всех обязательных параметров
+    _checkRequiredOptions() {
+        if (!this.points) {
+            console.log('You need to JSON data');
+            return;
+        }
+
+        if (!this.options.hasOwnProperty('container')) {
+            console.log('You need to set container option');
+            return;
+        }
+
+        if (!this.options.hasOwnProperty('mapCenter')) {
+            console.log('You need to set mapCenter option');
+            return;
+        }
+
+        if (!this.options.hasOwnProperty('mapContainer')) {
+            console.log('You need to set mapContainer option');
+            return;
+        }
+
+        if (!this.options.hasOwnProperty('list')) {
+            this.options.list = false;
+        }
+
+        if (this.options.hasOwnProperty('list') && this.options.list && !this.options.hasOwnProperty('listContainer')) {
+            console.log('You need to set listContainer option');
+            return;
+        }
+
+        if (!this.options.hasOwnProperty('listScroll')) {
+            this.options.listScroll = false;
         }
     }
 
