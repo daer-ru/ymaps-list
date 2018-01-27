@@ -6,7 +6,7 @@ class Ylist {
         if (!options.hasOwnProperty('data')) {
             this.points = null;
         } else {
-            this.points = JSON.parse(this.options.data).data;
+            this.points = this.options.data;
         }
 
         this.placemarks = [];
@@ -436,34 +436,17 @@ class Ylist {
      * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/GeoObject.xml
      */
     _setBalloonData(index) {
-        let ballonAddres = '',
-            balloonPhone = '',
-            balloneEmail = '',
-            balloonDescription = '';
+        let balloonContent = ``;
 
-        if (this.points[index].address && this.points[index].address.length > 0) {
-            ballonAddres = `<p class="ylist-balloon__address">${this.points[index].address}</p>`;
-        }
+        for (let i = 0; i < this.options.dataOrder.length; i++) {
+            let dataOption = this.options.dataOrder[i];
 
-        if (this.points[index].phone && this.points[index].phone.length > 0) {
-            balloonPhone = `<p class="ylist-balloon__phone">${this.points[index].phone}</p>`;
-        }
-
-        if (this.points[index].email && this.points[index].email.length > 0) {
-            balloneEmail = `<p class="ylist-balloon__email">${this.points[index].email}</p>`;
-        }
-
-        if (this.points[index].description && this.points[index].description.length > 0) {
-            balloonDescription = `<p class="ylist-balloon__description">${this.points[index].description}</p>`;
+            balloonContent += `<p class="ylist-balloon__${dataOption}">${this.points[index][dataOption]}</p>`;
         }
 
         return {
             balloonHeader: this.points[index].name,
-            balloonContent:
-                ballonAddres +
-                balloonPhone +
-                balloneEmail +
-                balloonDescription
+            balloonContent: balloonContent
         };
     }
 
@@ -475,10 +458,12 @@ class Ylist {
      */
     _createListElement(point) {
         let $elementTitle = $('<h3/>', {class: this.listClassName + '__title'}),
-            $elementAddress = $('<p/>', {class: this.listClassName + '__address'}),
-            $elementPhone = $('<p/>', {class: this.listClassName + '__phone'}),
-            $elementEmail = $('<p/>', {class: this.listClassName + '__email'}),
-            $elementDescription = $('<p/>', {class: this.listClassName + '__description'});
+            $elementContent = ``;
+
+        var $listElement = $('<li/>', {
+            id: point.id,
+            class: this.listClassName + '__item'
+        });
 
 
         if (typeof point.name === 'string') {
@@ -487,34 +472,13 @@ class Ylist {
             $elementTitle = null;
         }
 
-        if (typeof point.address === 'string') {
-            $elementAddress.html(point.address);
-        } else {
-            $elementAddress = null;
+        for (let i = 0; i < this.options.dataOrder.length; i++) {
+            let dataOption = this.options.dataOrder[i];
+
+            $elementContent += `<p class="${this.listClassName}__${dataOption}">${point[dataOption]}</p>`;
         }
 
-        if (typeof point.phone === 'string') {
-            $elementPhone.html('<a href="tel:' + point.phoneLink + '">' + point.phone + '</a>');
-        } else {
-            $elementPhone = null;
-        }
-
-        if (typeof point.email === 'string') {
-            $elementEmail.html('<a href="mailto:' + point.email + '">' + point.email + '</a>');
-        } else {
-            $elementEmail = null;
-        }
-
-        if (typeof point.description === 'string') {
-            $elementDescription.html(point.description);
-        } else {
-            $elementDescription = null;
-        }
-
-        var $listElement = $('<li/>', {
-            id: point.id,
-            class: this.listClassName + '__item'
-        }).append($elementTitle, $elementAddress, $elementPhone, $elementEmail, $elementDescription);
+        $listElement.append($elementTitle, $elementContent);
 
         return $listElement;
     }
