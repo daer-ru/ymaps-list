@@ -24,24 +24,72 @@
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
     <script src="app.js" type="text/javascript"></script>
     <script>
-        var listElem = document.getElementById('ymaps-list');
-
-        var data = '{"data": [{"id": "ylist-1", "name": "Элемент списка №1", "coords": [55.790464, 37.530409], "address": "Ходынский бульвар, д. 4", "phone": "8 (999) 999-99-99", "phoneLink": "89999999999", "email": "email@domain.com", "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."}, {"id": "ylist-2", "name": "Элемент списка №2", "coords": [55.861954, 37.687713], "address": "ул. Дудинка, д. 3", "phone": "8 (999) 999-99-99", "phoneLink": "89999999999", "email": "email@domain.com", "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."}, {"id": "ylist-3", "name": "Элемент списка №3", "coords": [55.783944, 37.624642], "address": "Олимпийский проспект, д. 16, стр. 5, БЦ Олимпик-холл", "phone": "8 (999) 999-99-99", "phoneLink": "89999999999", "email": "email@domain.com", "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."}, {"id": "ylist-4", "name": "Элемент списка №4", "coords": [55.706431, 37.022618], "address": "Рублево-Успенское шоссе, пос. Горки-10, д. 24А", "phone": "8 (999) 999-99-99", "phoneLink": "89999999999", "email": "email@domain.com", "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."}, {"id": "ylist-5", "name": "Элемент списка №5", "coords": [55.451967, 37.763198], "address": "Советский пр-т, д. 2А", "phone": "8 (999) 999-99-99", "phoneLink": "89999999999", "email": "email@domain.com", "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."}]}';
+        var data = [
+                {
+                    "id": "ylist-1",
+                    "name": "Элемент списка №1",
+                    "coords": [55.790464, 37.530409],
+                    "address": "Ходынский бульвар, д. 4",
+                    "phone": "<a href=\"tel:89999999999\">8 (999) 999-99-99</a>",
+                    "email": "<a href=\"mailto:email@domain.com\">email@domain.com</a>",
+                    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+                },
+                {
+                    "id": "ylist-2",
+                    "name": "Элемент списка №2",
+                    "coords": [55.861954, 37.687713],
+                    "address": "ул. Дудинка, д. 3",
+                    "phone": "<a href=\"tel:89999999999\">8 (999) 999-99-99</a>",
+                    "email": "<a href=\"mailto:email@domain.com\">email@domain.com</a>",
+                    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+                },
+                {
+                    "id": "ylist-3",
+                    "name": "Элемент списка №3",
+                    "coords": [55.783944, 37.624642],
+                    "address": "Олимпийский проспект, д. 16, стр. 5, БЦ Олимпик-холл",
+                    "phone": "<a href=\"tel:89999999999\">8 (999) 999-99-99</a>",
+                    "email": "<a href=\"mailto:email@domain.com\">email@domain.com</a>",
+                    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+                },
+                {
+                    "id": "ylist-4",
+                    "name": "Элемент списка №4",
+                    "coords": [55.706431, 37.022618],
+                    "address": "Рублево-Успенское шоссе, пос. Горки-10, д. 24А",
+                    "phone": "<a href=\"tel:89999999999\">8 (999) 999-99-99</a>",
+                    "email": "<a href=\"mailto:email@domain.com\">email@domain.com</a>",
+                    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+                },
+                {
+                    "id": "ylist-5",
+                    "name": "Элемент списка №5",
+                    "coords": [55.451967, 37.763198],
+                    "address": "Советский пр-т, д. 2А",
+                    "phone": "<a href=\"tel:89999999999\">8 (999) 999-99-99</a>",
+                    "email": "<a href=\"mailto:email@domain.com\">email@domain.com</a>",
+                    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+                }
+            ];
 
 
         var list = new Ylist({
             data: data,
+            dataOrder: [
+                'address',
+                'phone',
+                'email',
+                'description'
+            ],
             container: 'ymaps',
             mapCenter: [55.751574, 37.573856],
             mapContainer: 'ymaps-map',
             list: true,
             listContainer: 'ymaps-list',
-            // Функция проскролливания к выбранному элементу спсика, по дефолту false
             // listScroll: function($listContainer) {
             // },
             listScroll: false,
             switchContainer: 'ymaps-switch',
-            // cluster либо false, либо объект с настройками
             cluster: {
                 icons: [
                     [
