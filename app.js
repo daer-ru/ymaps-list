@@ -44,7 +44,9 @@ class Ylist {
     }
 
 
-    // Проверяет наличие всех обязательных параметров
+    /**
+     * Проверяет наличие всех обязательных параметров, устанавливает дефольные значения
+     */
     _checkRequiredOptions() {
         if (!this.points) {
             console.log('You need to JSON data');
@@ -115,6 +117,9 @@ class Ylist {
     }
 
 
+    /**
+     * Инициализация карты
+     */
     _initMap() {
         // Если карта уже создана, то дистроим её
         if (this.map) {
@@ -167,6 +172,9 @@ class Ylist {
     }
 
 
+    /**
+     * Инициализация спсика меток
+     */
     _initList() {
         this._createPointsList();
     }
@@ -714,6 +722,11 @@ class Ylist {
     }
 
 
+    /**
+     * Обработчик перехода через разрешения через adaptiveBreakpoint
+     * @param {Object} mql  MediaQueryList
+     * @param {Object} self экземпляр класса
+     */
     _adaptiveHandle(mql, self) {
         if (mql.matches) {
             // Переключение с десктопа на мобильные устройства
@@ -758,6 +771,11 @@ class Ylist {
     }
 
 
+    /**
+     * Обработчик переключения карта-список на разрешении <adaptiveBreakpoint
+     * @param {Object} e    event
+     * @param {Object} self экземпляр класса
+     */
     _switchHandler(e, self) {
         let $elem = $(e.target);
 
