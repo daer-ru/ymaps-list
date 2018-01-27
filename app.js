@@ -2,7 +2,13 @@ class Ylist {
     constructor(options) {
         this.options = options;
         this.map = null;
-        this.points = JSON.parse(this.options.data).data;
+
+        if (!options.hasOwnProperty('data')) {
+            this.points = null;
+        } else {
+            this.points = JSON.parse(this.options.data).data;
+        }
+
         this.placemarks = [];
         this.activePlacemark = null;
         this.activeListItem = null;
@@ -21,6 +27,8 @@ class Ylist {
 
 
     init() {
+        this._checkRequiredOptions();
+
         let self = this;
 
         ymaps.ready(function() {
@@ -32,6 +40,77 @@ class Ylist {
 
         if (this.options.list) {
             this._initList();
+        }
+    }
+
+
+    // Проверяет наличие всех обязательных параметров
+    _checkRequiredOptions() {
+        if (!this.points) {
+            console.log('You need to JSON data');
+            return;
+        }
+
+        if (!this.options.hasOwnProperty('container')) {
+            console.log('You need to set container option');
+            return;
+        }
+
+        if (!this.options.hasOwnProperty('mapCenter')) {
+            console.log('You need to set mapCenter option');
+            return;
+        }
+
+        if (!this.options.hasOwnProperty('mapContainer')) {
+            console.log('You need to set mapContainer option');
+            return;
+        }
+
+        if (!this.options.hasOwnProperty('list')) {
+            this.options.list = false;
+        }
+
+        if (this.options.hasOwnProperty('list') && this.options.list && !this.options.hasOwnProperty('listContainer')) {
+            console.log('You need to set listContainer option');
+            return;
+        }
+
+        if (!this.options.hasOwnProperty('listScroll')) {
+            this.options.listScroll = false;
+        }
+
+        if (!this.options.hasOwnProperty('switchContainer')) {
+            this.options.switchContainer = false;
+        }
+
+        if (!this.options.hasOwnProperty('cluster')) {
+            this.options.cluster = {};
+        }
+
+        if (this.options.hasOwnProperty('cluster') && typeof this.options.cluster == 'object' && !this.options.cluster.hasOwnProperty('icons')) {
+            this.options.cluster.icons = [
+                'islands#invertedRedClusterIcons',
+                'islands#invertedBlueClusterIcons'
+            ];
+        }
+
+        if (!this.options.hasOwnProperty('balloon')) {
+            this.options.balloon = false;
+        }
+
+        if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
+            this.options.adaptiveBreakpoint = 1024;
+        }
+
+        if (!this.options.hasOwnProperty('placemark')) {
+            this.options.placemark = {};
+        }
+
+        if (this.options.hasOwnProperty('placemark') && typeof this.options.placemark == 'object' && !this.options.placemark.hasOwnProperty('icons')) {
+            this.options.placemark.icons = [
+                'islands#redDotIcon',
+                'islands#blueDotIcon'
+            ];
         }
     }
 
@@ -110,7 +189,12 @@ class Ylist {
 
             if (this.activeListItem && this.activeListItem == point.id) {
                 // Подсветка метки если есть активный элемент списка
-                placemark.options.set('iconImageHref', this.options.icons[1].href);
+                if (typeof this.options.placemark.icons[0] == 'string') {
+                    placemark.options.set('preset', this.options.placemark.icons[1]);
+                } else {
+                    placemark.options.set('iconImageHref', this.options.placemark.icons[1].href);
+                }
+
                 placemark.isActive = true;
             }
 
@@ -134,18 +218,24 @@ class Ylist {
      * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/GeoObject.xml
      */
     _setPlacemarkOptions(index) {
-        let placemarkOptions = {
+        let placemarkOptions = {};
+
+        if (typeof this.options.placemark.icons[0] == 'string') {
+            // Если задаем стандартную иконку метки из набора яндекса
+            placemarkOptions.preset = this.options.placemark.icons[0];
+        } else {
+            // Если задаем кастомную иконку метки
             // Опции.
             // Необходимо указать данный тип макета.
-            iconLayout: 'default#image',
+            placemarkOptions.iconLayout = 'default#image',
             // Своё изображение иконки метки.
-            iconImageHref: this.options.icons[0].href,
+            placemarkOptions.iconImageHref = this.options.placemark.icons[0].href,
             // Размеры метки.
-            iconImageSize: this.options.icons[0].size,
+            placemarkOptions.iconImageSize = this.options.placemark.icons[0].size,
             // Смещение левого верхнего угла иконки относительно
             // её "ножки" (точки привязки).
-            iconImageOffset: this.options.icons[0].offset
-        };
+            placemarkOptions.iconImageOffset = this.options.placemark.icons[0].offset
+        }
 
         if (this.isLessThanAdaptiveBreakpoint && this.options.balloon) {
             placemarkOptions.balloonLayout = this._createBalloonLayout();
@@ -188,7 +278,7 @@ class Ylist {
         });
 
 
-        if (typeof this.options.cluster.style == 'string') {
+        if (typeof this.options.cluster.icons[0] == 'string') {
             // Если задаем стандартную иконку кластера из набора яндекса
             this.clusterer.options.set({
                 /**
@@ -196,7 +286,7 @@ class Ylist {
                  * стили для меток нужно назначать каждой метке отдельно.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/option.presetStorage.xml
                  */
-                preset: this.options.cluster.style
+                preset: this.options.cluster.icons[0]
             });
         } else {
             // Если задаем для кластера кастомную иконку
@@ -570,11 +660,21 @@ class Ylist {
             for (let i = 0; i < this.placemarks.length; i++) {
                 let placemark = this.placemarks[i];
 
-                placemark.options.set('iconImageHref', this.options.icons[0].href);
+                if (typeof this.options.placemark.icons[0] == 'string') {
+                    placemark.options.set('preset', this.options.placemark.icons[0]);
+                } else {
+                    placemark.options.set('iconImageHref', this.options.placemark.icons[0].href);
+                }
+
                 placemark.balloon.close();
 
                 if (this.clusterer.getObjectState(placemark).cluster) {
-                    this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[0]);
+                    if (typeof this.options.cluster.icons[0] == 'string') {
+                        this.clusterer.getObjectState(placemark).cluster.options.set('preset', this.options.cluster.icons[0]);
+                    } else {
+                        this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[0]);
+                    }
+                    
                 }
 
                 placemark.isActive = false;
@@ -582,11 +682,20 @@ class Ylist {
 
             // Если метка в кластере, соответствующий кластер будет подсвечен
             if (this.clusterer.getObjectState(placemark).isClustered) {
-                this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[2]);
+                if (typeof this.options.cluster.icons[0] == 'string') {
+                    this.clusterer.getObjectState(placemark).cluster.options.set('preset', this.options.cluster.icons[1]);
+                } else {
+                    this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[1]);
+                }
             }
 
             // Подсветка метки на карте
-            placemark.options.set('iconImageHref', this.options.icons[1].href);
+            if (typeof this.options.placemark.icons[0] == 'string') {
+                placemark.options.set('preset', this.options.placemark.icons[1]);
+            } else {
+                placemark.options.set('iconImageHref', this.options.placemark.icons[1].href);
+            }
+
             placemark.isActive = true;
         }
 
@@ -612,9 +721,11 @@ class Ylist {
             self.isLessThanAdaptiveBreakpoint = true;
             self.needReloadMap = true;
 
-            // Показываем блок с кнопками
-            $('#' + self.options.switchContainer).addClass('is-visible');
-            $('#' + self.options.switchContainer).find('[data-ylist-switch="list"]').addClass('is-active');
+            if (self.options.switchContainer != false) {
+                // Показываем блок с кнопками
+                $('#' + self.options.switchContainer).addClass('is-visible');
+                $('#' + self.options.switchContainer).find('[data-ylist-switch="list"]').addClass('is-active');
+            }
 
             $('#' + self.options.mapContainer).addClass('is-adaptive is-hidden');
             $('#' + self.options.listContainer).addClass('is-adaptive');
@@ -629,9 +740,11 @@ class Ylist {
 
             self.isLessThanAdaptiveBreakpoint = false;
 
-            // Скрываем блок с кнопками
-            $('#' + self.options.switchContainer).removeClass('is-visible');
-            $('#' + self.options.switchContainer).find('[data-ylist-switch]').removeClass('is-active');
+            if (self.options.switchContainer != false) {
+                // Скрываем блок с кнопками
+                $('#' + self.options.switchContainer).removeClass('is-visible');
+                $('#' + self.options.switchContainer).find('[data-ylist-switch]').removeClass('is-active');
+            }
 
             $('#' + self.options.mapContainer).removeClass('is-adaptive is-hidden');
             $('#' + self.options.listContainer).removeClass('is-adaptive is-hidden');
