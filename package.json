@@ -1,0 +1,25 @@
+
+{
+  "name": "ymaps-list",
+  "version": "0.8.0",
+  "description": "прагин для создания карты с произвольным набором меток",
+  "main": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daer-ru/ymaps-list"
+  },
+  "keywords": [
+    "maps",
+    "yandex",
+    "responsive",
+    "js"
+  ],
+  "author": "Anastasiya Simonova",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/daer-ru/ymaps-list/issues"
+  },
+  "peerDependencies": {
+    "jquery": ">=2.2.4"
+  }
+}
