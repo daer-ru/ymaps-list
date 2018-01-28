@@ -96,8 +96,12 @@ class Ylist {
             ];
         }
 
-        if (!this.options.hasOwnProperty('balloon')) {
-            this.options.balloon = false;
+        if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
+            this.options.balloonBeforeBreakpoint = false;
+        }
+
+        if (!this.options.hasOwnProperty('balloonAfterBreakpoint')) {
+            this.options.balloonAfterBreakpoint = false;
         }
 
         if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
@@ -173,6 +177,23 @@ class Ylist {
 
 
     /**
+     * Дестроит карту
+     */
+    _destroyMap() {
+        if (this.map) {
+            this.map.destroy();
+            this.map = null;
+            this.placemarks = [];
+            this.activePlacemark = null;
+            this.clusterer = null;
+            this.balloonLayout = null;
+        } else {
+            return;
+        }
+    }
+
+
+    /**
      * Инициализация спсика меток
      */
     _initList() {
@@ -185,9 +206,19 @@ class Ylist {
      */
     _createPlacemarks() {
         let self = this;
+
         for (let i = 0; i < this.points.length; i++) {
+            let balloonData;
+
+            if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint ||
+                this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
+                !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+                balloonData = this._setBalloonData(i);
+            } else {
+                balloonData = {};
+            }
+
             let point = this.points[i],
-                balloonData = this.isLessThanAdaptiveBreakpoint && this.options.balloon ? this._setBalloonData(i) : {},
                 placemark = new ymaps.Placemark(point.coords, balloonData, this._setPlacemarkOptions(i));
 
             placemark.id = point.id;
@@ -245,7 +276,9 @@ class Ylist {
             placemarkOptions.iconImageOffset = this.options.placemark.icons[0].offset
         }
 
-        if (this.isLessThanAdaptiveBreakpoint && this.options.balloon) {
+        if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint ||
+            this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
+            !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
             placemarkOptions.balloonLayout = this._createBalloonLayout();
             placemarkOptions.balloonContentLayout = this._createBalloonContentLayout();
             placemarkOptions.balloonAutoPan = false;
@@ -544,7 +577,9 @@ class Ylist {
 
         this._commonClickHandler(placemark);
 
-        if (this.isLessThanAdaptiveBreakpoint) {
+        if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint ||
+            this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
+            !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
             /**
              * Расчитывает координаты центра, с учетом размеров балуна,
              * и центрирует карту относительно балуна
@@ -677,11 +712,13 @@ class Ylist {
         $listContainer.find('.is-active').removeClass('is-active');
         $listItem.addClass('is-active');
 
-        // Скроллим спсиок к нужному элементу
-        if (typeof this.options.listScroll == 'boolean' && !this.options.listScroll) {
-            $listContainer.scrollTop($listItem.position().top + $listContainer.scrollTop());
-        } else {
-            this.options.listScroll($listContainer);
+        if (this.options.list) {
+            // Скроллим список к нужному элементу
+            if (typeof this.options.listScroll == 'boolean' && !this.options.listScroll) {
+                $listContainer.scrollTop($listItem.position().top + $listContainer.scrollTop());
+            } else {
+                this.options.listScroll($listContainer);
+            }
         }
     }
 
@@ -698,15 +735,27 @@ class Ylist {
             self.isLessThanAdaptiveBreakpoint = true;
             self.needReloadMap = true;
 
+            if (self.options.list) {
+                self._destroyMap();
+            }
+
             if (self.options.switchContainer != false) {
                 // Показываем блок с кнопками
                 $('#' + self.options.switchContainer).addClass('is-visible');
                 $('#' + self.options.switchContainer).find('[data-ylist-switch="list"]').addClass('is-active');
             }
 
-            $('#' + self.options.mapContainer).addClass('is-adaptive is-hidden');
+            if (self.options.list) {
+                $('#' + self.options.mapContainer).addClass('is-hidden');
+            }
+            $('#' + self.options.mapContainer).addClass('is-adaptive');
             $('#' + self.options.listContainer).addClass('is-adaptive');
             $('#' + self.options.container).addClass('is-adaptive');
+
+            if (!self.options.list && !self.map) {
+                // Если список отключен и карта не инициализирована, то инитим карту на адаптиве сразу
+                self._initMap();
+            }
 
             // Добавляем обработчик клика на элементы переключения
             $(document).on('click', '[data-ylist-switch]', function(e) {
@@ -727,7 +776,9 @@ class Ylist {
             $('#' + self.options.listContainer).removeClass('is-adaptive is-hidden');
             $('#' + self.options.container).removeClass('is-adaptive');
 
-            self._initMap();
+            if (self.options.list) {
+                self._initMap();
+            }
 
             // Удаляем обработчик клика на элементы переключения
             $(document).off('click', '[data-ylist-switch]', self._switchHandler);
