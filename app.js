@@ -53,6 +53,11 @@ class Ylist {
             return;
         }
 
+        if (!this.options.hasOwnProperty('dataOrder') || this.options.hasOwnProperty('dataOrder') && this.options.dataOrder.length == 0) {
+            console.log('You need to set dataOrder option');
+            return;
+        }
+
         if (!this.options.hasOwnProperty('container')) {
             console.log('You need to set container option');
             return;
@@ -339,9 +344,9 @@ class Ylist {
             this.clusterer.options.set({
                 clusterIcons: this.options.cluster.icons[0],
                 // Эта опция отвечает за размеры кластеров.
-                // В данном случае для кластеров, содержащих до 10 элементов,
+                // В данном случае для кластеров, содержащих до 100 элементов,
                 // будет показываться маленькая иконка. Для остальных - большая.
-                clusterNumbers: [10],
+                clusterNumbers: [100],
                 clusterIconContentLayout: MyClustererIconContentLayout
             });
         }
@@ -717,7 +722,7 @@ class Ylist {
             if (typeof this.options.listScroll == 'boolean' && !this.options.listScroll) {
                 $listContainer.scrollTop($listItem.position().top + $listContainer.scrollTop());
             } else {
-                this.options.listScroll($listContainer);
+                this.options.listScroll($listContainer, $listItem);
             }
         }
     }
