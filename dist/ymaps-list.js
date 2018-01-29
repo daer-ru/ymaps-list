@@ -1,3 +1,5 @@
+'use strict';
+
 class Ylist {
     constructor(options) {
         this.options = options;
@@ -25,14 +27,13 @@ class Ylist {
         this.needReloadMap = true;
     }
 
-
     init() {
         this._checkRequiredOptions();
 
         let self = this;
 
-        ymaps.ready(function() {
-            self.mqlAdaptiveBreakpoint.addListener(function() {
+        ymaps.ready(function () {
+            self.mqlAdaptiveBreakpoint.addListener(function () {
                 self._adaptiveHandle(this, self);
             });
             self._adaptiveHandle(self.mqlAdaptiveBreakpoint, self);
@@ -42,7 +43,6 @@ class Ylist {
             this._initList();
         }
     }
-
 
     /**
      * Проверяет наличие всех обязательных параметров, устанавливает дефольные значения
@@ -95,10 +95,7 @@ class Ylist {
         }
 
         if (this.options.hasOwnProperty('cluster') && typeof this.options.cluster == 'object' && !this.options.cluster.hasOwnProperty('icons')) {
-            this.options.cluster.icons = [
-                'islands#invertedRedClusterIcons',
-                'islands#invertedBlueClusterIcons'
-            ];
+            this.options.cluster.icons = ['islands#invertedRedClusterIcons', 'islands#invertedBlueClusterIcons'];
         }
 
         if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
@@ -118,13 +115,9 @@ class Ylist {
         }
 
         if (this.options.hasOwnProperty('placemark') && typeof this.options.placemark == 'object' && !this.options.placemark.hasOwnProperty('icons')) {
-            this.options.placemark.icons = [
-                'islands#redDotIcon',
-                'islands#blueDotIcon'
-            ];
+            this.options.placemark.icons = ['islands#redDotIcon', 'islands#blueDotIcon'];
         }
     }
-
 
     /**
      * Инициализация карты
@@ -180,7 +173,6 @@ class Ylist {
         this.needReloadMap = false;
     }
 
-
     /**
      * Дестроит карту
      */
@@ -197,14 +189,12 @@ class Ylist {
         }
     }
 
-
     /**
      * Инициализация спсика меток
      */
     _initList() {
         this._createPointsList();
     }
-
 
     /**
      * Создание массива меток из входящего массива данных
@@ -215,9 +205,7 @@ class Ylist {
         for (let i = 0; i < this.points.length; i++) {
             let balloonData;
 
-            if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint ||
-                this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
-                !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+            if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint || this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
                 balloonData = this._setBalloonData(i);
             } else {
                 balloonData = {};
@@ -227,7 +215,7 @@ class Ylist {
                 placemark = new ymaps.Placemark(point.coords, balloonData, this._setPlacemarkOptions(i));
 
             placemark.id = point.id;
-            placemark.events.add('click', function(e) {
+            placemark.events.add('click', function (e) {
                 self._placemarkClickHandler(e, self);
             });
 
@@ -246,7 +234,6 @@ class Ylist {
         }
     }
 
-
     /**
      * Добавление всех меток на карту
      */
@@ -255,7 +242,6 @@ class Ylist {
             this.map.geoObjects.add(this.placemarks[i]);
         }
     }
-
 
     /**
      * Возвращает объект, содержащий опции метки.
@@ -278,12 +264,10 @@ class Ylist {
             placemarkOptions.iconImageSize = this.options.placemark.icons[0].size,
             // Смещение левого верхнего угла иконки относительно
             // её "ножки" (точки привязки).
-            placemarkOptions.iconImageOffset = this.options.placemark.icons[0].offset
+            placemarkOptions.iconImageOffset = this.options.placemark.icons[0].offset;
         }
 
-        if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint ||
-            this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
-            !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+        if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint || this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
             placemarkOptions.balloonLayout = this._createBalloonLayout();
             placemarkOptions.balloonContentLayout = this._createBalloonContentLayout();
             placemarkOptions.balloonAutoPan = false;
@@ -293,7 +277,6 @@ class Ylist {
 
         return placemarkOptions;
     }
-
 
     /**
      * Создание кластера из массива меток
@@ -323,7 +306,6 @@ class Ylist {
             zoomMargin: 40
         });
 
-
         if (typeof this.options.cluster.icons[0] == 'string') {
             // Если задаем стандартную иконку кластера из набора яндекса
             this.clusterer.options.set({
@@ -338,8 +320,7 @@ class Ylist {
             // Если задаем для кластера кастомную иконку
 
             // Сделаем макет содержимого иконки кластера
-            var MyClustererIconContentLayout = ymaps.templateLayoutFactory.createClass(
-                '<div style="color: #fff; font-weight: 800; padding-left: 2px; line-height: 42px; font-size: 15px; text-align: center; font-family: circle, Helvetica, Helvetica CY, Arial, Nimbus Sans L, sans-serif;">{{ properties.geoObjects.length }}</div>');
+            var MyClustererIconContentLayout = ymaps.templateLayoutFactory.createClass('<div style="color: #fff; font-weight: 800; padding-left: 2px; line-height: 42px; font-size: 15px; text-align: center; font-family: circle, Helvetica, Helvetica CY, Arial, Nimbus Sans L, sans-serif;">{{ properties.geoObjects.length }}</div>');
 
             this.clusterer.options.set({
                 clusterIcons: this.options.cluster.icons[0],
@@ -358,7 +339,6 @@ class Ylist {
         this.clusterer.add(this.placemarks);
     }
 
-
     /**
      * Добавление кластера на карту
      */
@@ -366,108 +346,100 @@ class Ylist {
         this.map.geoObjects.add(this.clusterer);
     }
 
-
     /**
      * Создание макета балуна на основе фабрики макетов с помощью текстового шаблона
      */
     _createBalloonLayout() {
         let self = this;
 
-        let balloonLayout = ymaps.templateLayoutFactory.createClass(
-            `<div class="ylist-balloon">
+        let balloonLayout = ymaps.templateLayoutFactory.createClass(`<div class="ylist-balloon">
                 <button class="ylist-balloon__close" type="button">x</button>
                 <div class="ylist-balloon__inner">
                     $[[options.contentLayout]]
                 </div>
             </div>`, {
-                /**
-                 * Строит экземпляр макета на основе шаблона и добавляет его в родительский HTML-элемент.
-                 * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#build
-                 */
-                build: function () {
-                    this.constructor.superclass.build.call(this);
-                    this._$element = $('.ylist-balloon', this.getParentElement());
-                    this.applyElementOffset();
-                    this._$element.find('.ylist-balloon__close')
-                        .on('click', $.proxy(this.onCloseClick, this));
+            /**
+             * Строит экземпляр макета на основе шаблона и добавляет его в родительский HTML-элемент.
+             * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#build
+             */
+            build: function () {
+                this.constructor.superclass.build.call(this);
+                this._$element = $('.ylist-balloon', this.getParentElement());
+                this.applyElementOffset();
+                this._$element.find('.ylist-balloon__close').on('click', $.proxy(this.onCloseClick, this));
 
-                    self.ballonParams.balloonWidth = this._$element[0].offsetWidth;
-                    self.ballonParams.balloonHeight = this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight;
-                },
+                self.ballonParams.balloonWidth = this._$element[0].offsetWidth;
+                self.ballonParams.balloonHeight = this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight;
+            },
 
-                /**
-                 * Удаляет содержимое макета из DOM.
-                 * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#clear
-                 */
-                clear: function () {
-                    this._$element.find('.ylist-balloon__close')
-                        .off('click');
-                    this.constructor.superclass.clear.call(this);
-                },
+            /**
+             * Удаляет содержимое макета из DOM.
+             * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#clear
+             */
+            clear: function () {
+                this._$element.find('.ylist-balloon__close').off('click');
+                this.constructor.superclass.clear.call(this);
+            },
 
-                /**
-                 * Метод будет вызван системой шаблонов АПИ при изменении размеров вложенного макета.
-                 * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
-                 */
-                onSublayoutSizeChange: function () {
-                    this.balloonLayout.superclass.onSublayoutSizeChange.apply(this, arguments);
+            /**
+             * Метод будет вызван системой шаблонов АПИ при изменении размеров вложенного макета.
+             * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
+             */
+            onSublayoutSizeChange: function () {
+                this.balloonLayout.superclass.onSublayoutSizeChange.apply(this, arguments);
 
-                    if(!this._isElement(this._$element)) {
-                        return;
-                    }
-
-                    this.applyElementOffset();
-
-                    this.events.fire('shapechange');
-                },
-
-                /**
-                 * Сдвигаем балун, чтобы "хвостик" указывал на точку привязки.
-                 * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
-                 */
-                applyElementOffset: function () {
-                    this._$element.css({
-                        left: -(this._$element[0].offsetWidth / 2),
-                        top: -(this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight)
-                    });
-                },
-
-                /**
-                 * Закрывает балун при клике на крестик, кидая событие "userclose" на макете.
-                 * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
-                 */
-                onCloseClick: function (e) {
-                    e.preventDefault();
-
-                    this.events.fire('userclose');
-                },
-
-                /**
-                 * Проверяем наличие элемента (в ИЕ и Опере его еще может не быть).
-                 * @param {jQuery} [element] Элемент.
-                 * @returns {Boolean} Флаг наличия.
-                 */
-                _isElement: function (element) {
-                    return element && element[0] && element.find('.ylist-balloon__inner')[0];
+                if (!this._isElement(this._$element)) {
+                    return;
                 }
-            });
+
+                this.applyElementOffset();
+
+                this.events.fire('shapechange');
+            },
+
+            /**
+             * Сдвигаем балун, чтобы "хвостик" указывал на точку привязки.
+             * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
+             */
+            applyElementOffset: function () {
+                this._$element.css({
+                    left: -(this._$element[0].offsetWidth / 2),
+                    top: -(this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight)
+                });
+            },
+
+            /**
+             * Закрывает балун при клике на крестик, кидая событие "userclose" на макете.
+             * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
+             */
+            onCloseClick: function (e) {
+                e.preventDefault();
+
+                this.events.fire('userclose');
+            },
+
+            /**
+             * Проверяем наличие элемента (в ИЕ и Опере его еще может не быть).
+             * @param {jQuery} [element] Элемент.
+             * @returns {Boolean} Флаг наличия.
+             */
+            _isElement: function (element) {
+                return element && element[0] && element.find('.ylist-balloon__inner')[0];
+            }
+        });
 
         return balloonLayout;
     }
-
 
     /**
      * Создание вложенного макета содержимого балуна
      */
     _createBalloonContentLayout() {
-        let balloonContentLayout = ymaps.templateLayoutFactory.createClass(
-            `<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>
-            <div class="ylist-balloon__content">$[properties.balloonContent]</div>`
-        );
+        let balloonContentLayout = ymaps.templateLayoutFactory.createClass(`<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>
+            <div class="ylist-balloon__content">$[properties.balloonContent]</div>`);
 
         return balloonContentLayout;
     }
-
 
     /**
      * Возвращает объект, содержащий данные метки.
@@ -488,21 +460,19 @@ class Ylist {
         };
     }
 
-
     /**
      * Создает DOM элемент списка
      * @param  {Array}   point данные точки из входящего json
      * @return {Element}       DOM элемент спсика с содержимым
      */
     _createListElement(point) {
-        let $elementTitle = $('<h3/>', {class: this.listClassName + '__title'}),
+        let $elementTitle = $('<h3/>', { class: this.listClassName + '__title' }),
             $elementContent = ``;
 
         var $listElement = $('<li/>', {
             id: point.id,
             class: this.listClassName + '__item'
         });
-
 
         if (typeof point.name === 'string') {
             $elementTitle.html('<a>' + point.name + '</a>');
@@ -521,13 +491,12 @@ class Ylist {
         return $listElement;
     }
 
-
     /**
      * Создает элемент список, наполняет его содержимым и добавляет в DOM
      */
     _createPointsList() {
         let self = this,
-            $list = $('<ul/>', {class: this.listClassName});
+            $list = $('<ul/>', { class: this.listClassName });
 
         for (let i = 0; i < this.points.length; i++) {
             let point = this.points[i];
@@ -537,9 +506,8 @@ class Ylist {
 
         $('#' + this.options.listContainer).html('').append($list);
 
-
         // При клике на элемент списка, срабатывает соответстующая точка на карте
-        $(document).on('click', '.' + self.listClassName + '__title', function(e) {
+        $(document).on('click', '.' + self.listClassName + '__title', function (e) {
             let listItemId = $(this).closest('.' + self.listClassName + '__item').attr('id');
 
             if (self.placemarks.length > 0) {
@@ -558,7 +526,6 @@ class Ylist {
         });
     }
 
-
     /**
      * Масштабирование карты так, чтобы были видны все объекты
      * @param {Object} objects массив геобъектов или кластер
@@ -569,7 +536,6 @@ class Ylist {
             zoomMargin: 10
         });
     }
-
 
     /**
      * Обработчик клика на метку
@@ -582,9 +548,7 @@ class Ylist {
 
         this._commonClickHandler(placemark);
 
-        if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint ||
-            this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
-            !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+        if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint || this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
             /**
              * Расчитывает координаты центра, с учетом размеров балуна,
              * и центрирует карту относительно балуна
@@ -592,17 +556,14 @@ class Ylist {
             function setBalloonToCenter() {
                 let coords, newCoords;
 
-                coords = self.map.options.get('projection').toGlobalPixels(
-                        placemark.geometry.getCoordinates(),
-                        self.map.getZoom()
-                );
+                coords = self.map.options.get('projection').toGlobalPixels(placemark.geometry.getCoordinates(), self.map.getZoom());
 
                 // Сдвигаем координаты на половину высоты балуна
                 coords[1] -= self.ballonParams.balloonHeight / 2;
 
                 newCoords = self.map.options.get('projection').fromGlobalPixels(coords, self.map.getZoom());
 
-                self.map.panTo(newCoords, {flying: true});
+                self.map.panTo(newCoords, { flying: true });
 
                 // После выполнения функции удаляем обработчик
                 self.map.geoObjects.events.remove('balloonopen', setBalloonToCenter);
@@ -610,10 +571,9 @@ class Ylist {
 
             self.map.geoObjects.events.add('balloonopen', setBalloonToCenter);
         } else {
-            self.map.panTo(placemark.geometry.getCoordinates(), {flying: true});
+            self.map.panTo(placemark.geometry.getCoordinates(), { flying: true });
         }
     }
-
 
     /**
      * Обработчик клика на элемент списка
@@ -630,7 +590,7 @@ class Ylist {
 
                 // Если оба элемента на небольшом зуме не кластеризованы, просто подвинем карту к ним
                 if (!prevClustered && !currentClustered) {
-                    this.map.panTo(placemark.geometry.getCoordinates(), {flying: true});
+                    this.map.panTo(placemark.geometry.getCoordinates(), { flying: true });
 
                     this.activePlacemark = placemark;
                     return;
@@ -650,7 +610,6 @@ class Ylist {
             this.activePlacemark = placemark;
         }
     }
-
 
     /**
      * Общий обработчик клика на метку и на элемент списка
@@ -686,7 +645,6 @@ class Ylist {
                     } else {
                         this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[0]);
                     }
-                    
                 }
 
                 placemark.isActive = false;
@@ -727,7 +685,6 @@ class Ylist {
         }
     }
 
-
     /**
      * Обработчик перехода через разрешения через adaptiveBreakpoint
      * @param {Object} mql  MediaQueryList
@@ -763,7 +720,7 @@ class Ylist {
             }
 
             // Добавляем обработчик клика на элементы переключения
-            $(document).on('click', '[data-ylist-switch]', function(e) {
+            $(document).on('click', '[data-ylist-switch]', function (e) {
                 self._switchHandler(e, self);
             });
         } else {
@@ -789,7 +746,6 @@ class Ylist {
             $(document).off('click', '[data-ylist-switch]', self._switchHandler);
         }
     }
-
 
     /**
      * Обработчик переключения карта-список на разрешении <adaptiveBreakpoint
