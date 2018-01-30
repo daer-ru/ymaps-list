@@ -1,0 +1,62 @@
+/* List and map */
+
+.ylist {
+    position: relative;
+    overflow: hidden;
+}
+
+    .ylist__list-container,
+    .ylist__map-container {
+        position: relative;
+    }
+
+    .ylist__map-container {
+        overflow: hidden;
+    }
+
+        .ylist-list {
+            margin: 0;
+            padding: 0;
+        }
+
+            .ylist-list__item {
+                list-style: none outside;
+                margin: 0;
+                padding: 0;
+            }
+
+    .ylist__switch {
+        position: relative;
+    }
+
+        .ylist__switch [data-ylist-switch] * {
+            pointer-events: none;
+        }
+
+/* /List and map */
+
+/* Balloon */
+
+.ylist-balloon {
+    position: relative;
+}
+
+    .ylist-balloon::after {
+        content: '';
+        border-bottom-width: 0;
+        display: block;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .ylist-balloon__close {
+        display: block;
+        position: absolute;
+        margin: 0;
+        padding: 0;
+        cursor: pointer;
+    }
+
+/* /Balloon */
