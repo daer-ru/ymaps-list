@@ -1,5 +1,7 @@
 var gulp        = require('gulp');
+var rename      = require('gulp-rename');
 var babel       = require('gulp-babel');
+var env         = require('babel-preset-env');
 var uglify      = require('gulp-uglify');
 var concat      = require('gulp-concat');
 var postcss     = require('gulp-postcss');
@@ -10,7 +12,7 @@ var rimraf      = require('rimraf');
 var runSequence = require('run-sequence');
 
 gulp.task('build', function(cb) {
-    runSequence('clean', ['scripts', 'styles'], cb);
+    runSequence('clean', ['scripts', 'scripts-min', 'styles', 'styles-min'], cb);
 });
 
 gulp.task('clean', function(cb) {
@@ -25,31 +27,49 @@ gulp.task('scripts', function() {
                 message: err.toString()
             }))
         }))
-        .pipe(babel())
-        .pipe(concat('ymaps-list.js'))
-        .pipe(uglify({
-            mangle: {
-                keep_fnames: true
-            },
-            compress: {
-                unsafe: false,
-                unsafe_comps: false,
-                unsafe_Func: false,
-                unsafe_math: false,
-                unsafe_proto: false,
-                unsafe_regexp: false,
-                typeofs: false,
-                reduce_vars: false,
-                reduce_funcs: false,
-                pure_getters: true,
-                properties: false,
-                collapse_vars: false
-            }
+        .pipe(babel({
+            'presets': [['env', {
+                'targets': {
+                    'browsers': ['>=5%', 'ie >= 10']
+                }
+            }]]
         }))
+        .pipe(concat('ymaps-list.js'))
+        .pipe(gulp.dest('dist'));
+});
+
+gulp.task('scripts-min', function() {
+    return gulp.src('src/assets/js/*.js')
+        .pipe(plumber({
+            errorHandler: notify.onError(err => ({
+                title: 'scripts',
+                message: err.toString()
+            }))
+        }))
+        .pipe(babel({
+            'presets': [['env', {
+                'targets': {
+                    'browsers': ['>=5%', 'ie >= 10']
+                }
+            }]]
+        }))
+        .pipe(concat('ymaps-list.min.js'))
+        .pipe(uglify())
         .pipe(gulp.dest('dist'));
 });
 
 gulp.task('styles', function() {
+    return gulp.src('src/assets/css/*.css')
+        .pipe(plumber({
+            errorHandler: notify.onError(err => ({
+                title: 'styles',
+                message: err.toString()
+            }))
+        }))
+        .pipe(gulp.dest('dist'));
+});
+
+gulp.task('styles-min', function() {
     return gulp.src('src/assets/css/*.css')
         .pipe(plumber({
             errorHandler: notify.onError(err => ({
@@ -64,5 +84,6 @@ gulp.task('styles', function() {
                 reduceIdents: false
             })
         ]))
-        .pipe(gulp.dest('dist/'));
+        .pipe(rename({suffix: '.min'}))
+        .pipe(gulp.dest('dist'));
 });
