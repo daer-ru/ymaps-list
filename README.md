@@ -68,3 +68,16 @@
 **balloonBeforeBreakpoint** | Boolean | false | Нет | Показывать ли балун метки на разрешениях `< adaptiveBreakpoint`.
 **balloonAfterBreakpoint** | Boolean | false | Нет | Показывать ли балун метки на разрешениях `> adaptiveBreakpoint`.
 **adaptiveBreakpoint** | Number | 1024 | Нет | Брейкпоинт, на котором происходит перестроение связки карта-список. Если разрешение `< adaptiveBreakpoint`, то становится видимым переключатель карта-список и соответственно отображается либо карта, либо список. Если разрешение `> adaptiveBreakpoint`, то карта и список видны обновременно, а переключатель скрывается.
+
+## Building
+
+1. Установить [Node.js](https://nodejs.org)
+2. Установить [Yarn](https://yarnpkg.com)
+3. Установить зависимости
+```bash
+yarn install
+```
+4. Запустить сборку
+```bash
+npm start
+```

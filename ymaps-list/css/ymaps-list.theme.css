@@ -1,0 +1,124 @@
+/* List and map */
+
+.ylist {
+    height: 500px;
+}
+
+.ylist.is-adaptive {
+    height: auto;
+}
+
+    .ylist__list-container,
+    .ylist__map-container {
+        height: 100%;
+    }
+
+    .ylist__list-container {
+        overflow-x: hidden;
+        overflow-y: auto;
+        float: left;
+        width: 400px;
+    }
+
+    .ylist__list-container.is-adaptive {
+        overflow: visible;
+        float: none;
+        width: auto;
+        height: auto;
+    }
+
+    .ylist__map-container.is-adaptive {
+        height: 500px;
+    }
+
+    .ylist__list-container.is-adaptive.is-hidden,
+    .ylist__map-container.is-adaptive.is-hidden {
+        display: none;
+    }
+
+        .ylist-list {
+            
+        }
+
+            .ylist-list__item {
+                border-top: 1px solid #f2f2f2;
+                padding: 20px;
+            }
+
+            .ylist-list__item:first-child {
+                border-top: none;
+            }
+
+            .ylist-list__item.is-active {
+                background: #f2f2f2;
+            }
+
+                .ylist-list__item *:first-child {
+                    margin-top: 0;
+                }
+
+                .ylist-list__item *:last-child {
+                    margin-bottom: 0;
+                }
+
+                .ylist-list__title a {
+                    cursor: pointer;
+                }
+
+                .ylist-list__title a:hover {
+                    text-decoration: underline;
+                }
+
+    .ylist__switch {
+        display: none;
+    }
+
+    .ylist__switch.is-visible {
+        display: block;
+    }
+
+        .ylist__switch [data-ylist-switch].is-active {
+            background: #ccc;
+        }
+
+/* /List and map */
+
+/* Balloon */
+
+.ylist-balloon {
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    width: 264px;
+    padding: 24px;
+}
+
+    .ylist-balloon::after {
+        border: 15px solid transparent;
+        border-top: 15px solid #fff;
+    }
+
+    .ylist-balloon__content *:last-child {
+        margin-bottom: 0;
+    }
+
+    .ylist-balloon__title {
+        border-bottom: 1px solid #ccc;
+        margin: 0 0 10px 0;
+        padding-bottom: 10px;
+    }
+
+    .ylist-balloon__close,
+    .ylist-balloon__close:active,
+    .ylist-balloon__close:hover,
+    .ylist-balloon__close:focus {
+        background: none;
+        border: none;
+        right: 11px;
+        top: 11px;
+        width: 11px;
+        height: 11px;
+        line-height: 11px;
+        text-align: center;
+    }
+
+/* /Balloon */
