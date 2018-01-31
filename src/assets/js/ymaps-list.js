@@ -125,6 +125,10 @@ class Ylist {
                 'islands#blueDotIcon'
             ];
         }
+
+        if (this.options.hasOwnProperty('placemark') && typeof this.options.placemark == 'object' && !this.options.placemark.hasOwnProperty('clicked')) {
+            this.options.placemark.clicked = true;
+        }
     }
 
 
@@ -217,9 +221,9 @@ class Ylist {
         for (let i = 0; i < this.points.length; i++) {
             let balloonData;
 
-            if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint ||
-                this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
-                !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+            if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && this.options.placemark.clicked ||
+                this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked ||
+                !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
                 balloonData = this._setBalloonData(i);
             } else {
                 balloonData = {};
@@ -283,14 +287,18 @@ class Ylist {
             placemarkOptions.iconImageOffset = this.options.placemark.icons[0].offset
         }
 
-        if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint ||
-            this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
-            !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+        if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && this.options.placemark.clicked ||
+            this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked ||
+            !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
             placemarkOptions.balloonLayout = this._createBalloonLayout();
             placemarkOptions.balloonContentLayout = this._createBalloonContentLayout();
             placemarkOptions.balloonAutoPan = false;
             placemarkOptions.balloonShadow = false;
             placemarkOptions.balloonPanelMaxMapArea = 0;
+        }
+
+        if (!this.options.placemark.clicked) {
+            placemarkOptions.cursor = 'default';
         }
 
         return placemarkOptions;
@@ -579,6 +587,10 @@ class Ylist {
      * @param {Object} self экземпляр класса
      */
     _placemarkClickHandler(e, self) {
+        if (!this.options.placemark.clicked) {
+            return;
+        }
+
         let placemark = e.get('target');
         self.activePlacemark = placemark;
 
@@ -659,15 +671,23 @@ class Ylist {
      * @param {Object} placemark объект метки или id
      */
     _commonClickHandler(placemark) {
-        let $listContainer = $('#' + this.options.listContainer),
+        let $listContainer = null,
             $listItem = null,
             activeListItemId = null;
 
+        if (this.options.list) {
+            $listContainer = $('#' + this.options.listContainer);
+        }
+
         if (typeof placemark == 'string') {
-            $listItem = $('#' + placemark);
+            if (this.options.list) {
+                $listItem = $('#' + placemark);
+            }
             activeListItemId = placemark;
         } else {
-            $listItem = $('#' + placemark.id);
+            if (this.options.list) {
+                $listItem = $('#' + placemark.id);
+            }
             activeListItemId = placemark.id;
 
             // Возвращаем всем меткам и кластерам исходный вид
@@ -688,7 +708,6 @@ class Ylist {
                     } else {
                         this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[0]);
                     }
-                    
                 }
 
                 placemark.isActive = false;
@@ -715,11 +734,11 @@ class Ylist {
 
         this.activeListItem = activeListItemId;
 
-        // Подсветка элемента списка
-        $listContainer.find('.is-active').removeClass('is-active');
-        $listItem.addClass('is-active');
-
         if (this.options.list) {
+            // Подсветка элемента списка
+            $listContainer.find('.is-active').removeClass('is-active');
+            $listItem.addClass('is-active');
+
             // Скроллим список к нужному элементу
             if (typeof this.options.listScroll == 'boolean' && !this.options.listScroll) {
                 $listContainer.scrollTop($listItem.position().top + $listContainer.scrollTop());
@@ -783,7 +802,7 @@ class Ylist {
             $('#' + self.options.listContainer).removeClass('is-adaptive is-hidden');
             $('#' + self.options.container).removeClass('is-adaptive');
 
-            if (self.options.list) {
+            if (self.options.list || !self.options.list && !self.isLessThanAdaptiveBreakpoint && !self.map) {
                 self._initMap();
             }
 

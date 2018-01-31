@@ -11,16 +11,79 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
     <script src="js/ymaps-list.js" type="text/javascript"></script>
+
+    <!-- For demo -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://use.fontawesome.com/fb9893811e.js"></script>
+
+    <style>
+        .btn:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .ylist-list__item p,
+        .ylist-balloon__content p {
+            margin-bottom: 0.5rem;
+        }
+
+        .ylist-list__title,
+        .ylist-balloon__title {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="ymaps" class="ylist">
-        <div id="ymaps-switch" class="ylist__switch">
-            <button type="button" data-ylist-switch="list">Список</button>
-            <button type="button" data-ylist-switch="map">Карта</button>
+    <div class="container-fluid">
+        <div class="jumbotron">
+            <h1 class="display-4">Ymaps-list <small class="text-muted">demo</small></h1>
+            <p class="lead">Плагин для создания карты с произвольным набором меток</p>
+            <hr class="my-4">
+            <p class="lead">
+                <a class="btn btn-dark" href="https://github.com/daer-ru/ymaps-list" role="button"><i class="fa fa-github" aria-hidden="true"></i> Github</a>
+            </p>
         </div>
-        <div id="ymaps-list" class="ylist__list-container"></div>
+
+        <h2 class="mb-5">Карта + список</h2>
+    </div>
+
+    <div id="ymaps-full" class="ylist">
+        <div id="ymaps-full-switch" class="ylist__switch">
+            <div class="container-fluid">
+                <div class="btn-group mb-3" role="group">
+                    <button type="button" class="btn btn-primary" data-ylist-switch="list">Список</button>
+                    <button type="button" class="btn btn-primary" data-ylist-switch="map">Карта</button>
+                </div>
+            </div>
+        </div>
+        <div id="ymaps-full-list" class="ylist__list-container"></div>
+        <div id="ymaps-full-map" class="ylist__map-container"></div>
+    </div>
+
+    <div class="container-fluid">
+        <hr class="my-5">
+        <h2 class="mb-5">Карта</h2>
+    </div>
+
+    <div id="ymaps" class="ylist">
         <div id="ymaps-map" class="ylist__map-container"></div>
+    </div>
+
+    <div class="container-fluid">
+        <hr class="my-5">
+        <h2 class="mb-5">Карта со статичными метками</h2>
+    </div>
+
+    <div id="ymaps-static" class="ylist">
+        <div id="ymaps-static-map" class="ylist__map-container"></div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="jumbotron mt-5 mb-0 pt-4 pb-4">
+            <a class="btn btn-dark btn-sm" href="https://github.com/daer-ru/ymaps-list" role="button"><i class="fa fa-github" aria-hidden="true"></i> Github</a>
+        </div>
     </div>
 
     <script>
@@ -73,7 +136,7 @@
             ];
 
 
-        var list = new Ylist({
+        var ymapsFull = new Ylist({
             data: data,
             dataOrder: [
                 'address',
@@ -81,14 +144,14 @@
                 'email',
                 'description'
             ],
-            container: 'ymaps',
+            container: 'ymaps-full',
             mapCenter: [55.751574, 37.573856],
-            mapContainer: 'ymaps-map',
+            mapContainer: 'ymaps-full-map',
             list: true,
-            listContainer: 'ymaps-list',
+            listContainer: 'ymaps-full-list',
             // listScroll: function($listContainer, $activeListItem) {},
             listScroll: false,
-            switchContainer: 'ymaps-switch',
+            switchContainer: 'ymaps-full-switch',
             cluster: {
                 icons: [
                     [
@@ -136,7 +199,135 @@
             adaptiveBreakpoint: 1024
         });
 
-        list.init();
+        ymapsFull.init();
+
+
+
+
+        var ymapsMap = new Ylist({
+            data: data,
+            dataOrder: [
+                'address',
+                'phone',
+                'email',
+                'description'
+            ],
+            container: 'ymaps',
+            mapCenter: [55.751574, 37.573856],
+            mapContainer: 'ymaps-map',
+            list: false,
+            cluster: {
+                icons: [
+                    [
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ],
+                    [
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ]
+                ]
+            },
+            placemark: {
+                icons: [
+                    {
+                        href: 'img/pin.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    },
+                    {
+                        href: 'img/pin_active.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    }
+                ]
+            },
+            balloonBeforeBreakpoint: true,
+            balloonAfterBreakpoint: true,
+            adaptiveBreakpoint: 1024
+        });
+
+        ymapsMap.init();
+
+
+
+        var ymapsStatic = new Ylist({
+            data: data,
+            dataOrder: [
+                'address',
+                'phone',
+                'email',
+                'description'
+            ],
+            container: 'ymaps-static',
+            mapCenter: [55.751574, 37.573856],
+            mapContainer: 'ymaps-static-map',
+            list: false,
+            cluster: {
+                icons: [
+                    [
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ],
+                    [
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ]
+                ]
+            },
+            placemark: {
+                icons: [
+                    {
+                        href: 'img/pin.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    },
+                    {
+                        href: 'img/pin_active.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    }
+                ],
+                clicked: false
+            },
+            balloonBeforeBreakpoint: true,
+            balloonAfterBreakpoint: true,
+            adaptiveBreakpoint: 1024
+        });
+
+        ymapsStatic.init();
     </script>
 </body>
 </html>
