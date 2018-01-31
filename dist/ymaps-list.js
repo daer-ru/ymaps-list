@@ -130,6 +130,10 @@ var Ylist = function () {
             if (this.options.hasOwnProperty('placemark') && _typeof(this.options.placemark) == 'object' && !this.options.placemark.hasOwnProperty('icons')) {
                 this.options.placemark.icons = ['islands#redDotIcon', 'islands#blueDotIcon'];
             }
+
+            if (this.options.hasOwnProperty('placemark') && _typeof(this.options.placemark) == 'object' && !this.options.placemark.hasOwnProperty('clicked')) {
+                this.options.placemark.clicked = true;
+            }
         }
 
         /**
@@ -230,7 +234,7 @@ var Ylist = function () {
             for (var i = 0; i < this.points.length; i++) {
                 var balloonData = void 0;
 
-                if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint || this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+                if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && this.options.placemark.clicked || this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
                     balloonData = this._setBalloonData(i);
                 } else {
                     balloonData = {};
@@ -298,12 +302,16 @@ var Ylist = function () {
                 placemarkOptions.iconImageOffset = this.options.placemark.icons[0].offset;
             }
 
-            if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint || this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+            if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && this.options.placemark.clicked || this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
                 placemarkOptions.balloonLayout = this._createBalloonLayout();
                 placemarkOptions.balloonContentLayout = this._createBalloonContentLayout();
                 placemarkOptions.balloonAutoPan = false;
                 placemarkOptions.balloonShadow = false;
                 placemarkOptions.balloonPanelMaxMapArea = 0;
+            }
+
+            if (!this.options.placemark.clicked) {
+                placemarkOptions.cursor = 'default';
             }
 
             return placemarkOptions;
@@ -595,6 +603,10 @@ var Ylist = function () {
     }, {
         key: '_placemarkClickHandler',
         value: function _placemarkClickHandler(e, self) {
+            if (!this.options.placemark.clicked) {
+                return;
+            }
+
             var placemark = e.get('target');
             self.activePlacemark = placemark;
 
@@ -675,15 +687,23 @@ var Ylist = function () {
     }, {
         key: '_commonClickHandler',
         value: function _commonClickHandler(placemark) {
-            var $listContainer = $('#' + this.options.listContainer),
+            var $listContainer = null,
                 $listItem = null,
                 activeListItemId = null;
 
+            if (this.options.list) {
+                $listContainer = $('#' + this.options.listContainer);
+            }
+
             if (typeof placemark == 'string') {
-                $listItem = $('#' + placemark);
+                if (this.options.list) {
+                    $listItem = $('#' + placemark);
+                }
                 activeListItemId = placemark;
             } else {
-                $listItem = $('#' + placemark.id);
+                if (this.options.list) {
+                    $listItem = $('#' + placemark.id);
+                }
                 activeListItemId = placemark.id;
 
                 // Возвращаем всем меткам и кластерам исходный вид
@@ -730,11 +750,11 @@ var Ylist = function () {
 
             this.activeListItem = activeListItemId;
 
-            // Подсветка элемента списка
-            $listContainer.find('.is-active').removeClass('is-active');
-            $listItem.addClass('is-active');
-
             if (this.options.list) {
+                // Подсветка элемента списка
+                $listContainer.find('.is-active').removeClass('is-active');
+                $listItem.addClass('is-active');
+
                 // Скроллим список к нужному элементу
                 if (typeof this.options.listScroll == 'boolean' && !this.options.listScroll) {
                     $listContainer.scrollTop($listItem.position().top + $listContainer.scrollTop());
@@ -800,7 +820,7 @@ var Ylist = function () {
                 $('#' + self.options.listContainer).removeClass('is-adaptive is-hidden');
                 $('#' + self.options.container).removeClass('is-adaptive');
 
-                if (self.options.list) {
+                if (self.options.list || !self.options.list && !self.isLessThanAdaptiveBreakpoint && !self.map) {
                     self._initMap();
                 }
 
