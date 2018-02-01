@@ -1,5 +1,7 @@
 # Ymaps-list
 
+[![npm version](https://badge.fury.io/js/ymaps-list.svg)](https://badge.fury.io/js/ymaps-list)
+
 **Ymaps-list** это плагин для создания карты с произвольным набором меток.
 
 Плагин использует [API Яндекс.Карт](https://tech.yandex.ru/maps/) версии 2.1.
