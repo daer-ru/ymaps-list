@@ -20,7 +20,7 @@ gulp.task('clean', function(cb) {
 });
 
 gulp.task('scripts', function() {
-    return gulp.src('src/assets/js/*.js')
+    return gulp.src('src/js/*.js')
         .pipe(plumber({
             errorHandler: notify.onError(err => ({
                 title: 'scripts',
@@ -39,7 +39,7 @@ gulp.task('scripts', function() {
 });
 
 gulp.task('scripts-min', function() {
-    return gulp.src('src/assets/js/*.js')
+    return gulp.src('src/js/*.js')
         .pipe(plumber({
             errorHandler: notify.onError(err => ({
                 title: 'scripts',
@@ -59,7 +59,7 @@ gulp.task('scripts-min', function() {
 });
 
 gulp.task('styles', function() {
-    return gulp.src('src/assets/css/*.css')
+    return gulp.src('src/css/*.css')
         .pipe(plumber({
             errorHandler: notify.onError(err => ({
                 title: 'styles',
@@ -70,7 +70,7 @@ gulp.task('styles', function() {
 });
 
 gulp.task('styles-min', function() {
-    return gulp.src('src/assets/css/*.css')
+    return gulp.src('src/css/*.css')
         .pipe(plumber({
             errorHandler: notify.onError(err => ({
                 title: 'styles',
