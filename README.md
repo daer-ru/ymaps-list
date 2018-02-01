@@ -12,6 +12,16 @@
 
 [Демо](http://daer-ru.github.io/ymaps-list/)
 
+## Package Managers
+
+```bash
+# NPM
+npm install ymaps-list
+
+# YARN
+yarn add ymaps-list
+```
+
 ## Подключение
 
 В html файле необходимо подключить jQuery, API Яндкс.Карт и js файл плагина:
