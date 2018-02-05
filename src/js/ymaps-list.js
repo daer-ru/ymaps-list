@@ -103,6 +103,10 @@ class Ylist {
             ];
         }
 
+        if (this.options.hasOwnProperty('cluster') && typeof this.options.cluster == 'object' && !this.options.cluster.hasOwnProperty('inlineStyle')) {
+            this.options.cluster.inlineStyle = '';
+        }
+
         if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
             this.options.balloonBeforeBreakpoint = false;
         }
@@ -349,7 +353,7 @@ class Ylist {
 
             // Сделаем макет содержимого иконки кластера
             var MyClustererIconContentLayout = ymaps.templateLayoutFactory.createClass(
-                '<div style="color: #fff; font-weight: 800; padding-left: 2px; line-height: 42px; font-size: 15px; text-align: center; font-family: circle, Helvetica, Helvetica CY, Arial, Nimbus Sans L, sans-serif;">{{ properties.geoObjects.length }}</div>');
+                `<div style="${this.options.cluster.inlineStyle}">{{ properties.geoObjects.length }}</div>`);
 
             this.clusterer.options.set({
                 clusterIcons: this.options.cluster.icons[0],

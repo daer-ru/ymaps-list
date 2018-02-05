@@ -111,6 +111,10 @@ var Ylist = function () {
                 this.options.cluster.icons = ['islands#invertedRedClusterIcons', 'islands#invertedBlueClusterIcons'];
             }
 
+            if (this.options.hasOwnProperty('cluster') && _typeof(this.options.cluster) == 'object' && !this.options.cluster.hasOwnProperty('inlineStyle')) {
+                this.options.cluster.inlineStyle = '';
+            }
+
             if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
                 this.options.balloonBeforeBreakpoint = false;
             }
@@ -362,7 +366,7 @@ var Ylist = function () {
                 // Если задаем для кластера кастомную иконку
 
                 // Сделаем макет содержимого иконки кластера
-                var MyClustererIconContentLayout = ymaps.templateLayoutFactory.createClass('<div style="color: #fff; font-weight: 800; padding-left: 2px; line-height: 42px; font-size: 15px; text-align: center; font-family: circle, Helvetica, Helvetica CY, Arial, Nimbus Sans L, sans-serif;">{{ properties.geoObjects.length }}</div>');
+                var MyClustererIconContentLayout = ymaps.templateLayoutFactory.createClass('<div style="' + this.options.cluster.inlineStyle + '">{{ properties.geoObjects.length }}</div>');
 
                 this.clusterer.options.set({
                     clusterIcons: this.options.cluster.icons[0],
