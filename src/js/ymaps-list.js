@@ -107,6 +107,14 @@ class Ylist {
             this.options.cluster.inlineStyle = '';
         }
 
+        if (!this.options.hasOwnProperty('ballonParams')) {
+            this.options.ballonParams = {};
+        }
+
+        if (this.options.hasOwnProperty('ballonParams') && typeof this.options.ballonParams == 'object' && !this.options.ballonParams.hasOwnProperty('balloonHeader')) {
+            this.options.ballonParams.balloonHeader = true;
+        }
+
         if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
             this.options.balloonBeforeBreakpoint = false;
         }
@@ -474,12 +482,16 @@ class Ylist {
      * Создание вложенного макета содержимого балуна
      */
     _createBalloonContentLayout() {
-        let balloonContentLayout = ymaps.templateLayoutFactory.createClass(
-            `<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>
-            <div class="ylist-balloon__content">$[properties.balloonContent]</div>`
-        );
+        let balloonContentLayout = ``;
 
-        return balloonContentLayout;
+        if(this.options.ballonParams.balloonHeader === false) {
+            balloonContentLayout = `<div class="ylist-balloon__content">$[properties.balloonContent]</div>`;
+        } else {
+            balloonContentLayout = `<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>
+                                    <div class="ylist-balloon__content">$[properties.balloonContent]</div>`;
+        }
+
+        return ymaps.templateLayoutFactory.createClass(balloonContentLayout);
     }
 
 

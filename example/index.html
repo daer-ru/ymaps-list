@@ -209,8 +209,11 @@
 
 
 
-
+        /* ballonParams.ballonHeader можно настраивать заголовок балуна  */
         var ymapsMap = new Ylist({
+            ballonParams: {
+                balloonHeader: true
+            },
             data: data,
             dataOrder: [
                 'address',

@@ -115,6 +115,14 @@ var Ylist = function () {
                 this.options.cluster.inlineStyle = '';
             }
 
+            if (!this.options.hasOwnProperty('ballonParams')) {
+                this.options.ballonParams = {};
+            }
+
+            if (this.options.hasOwnProperty('ballonParams') && _typeof(this.options.ballonParams) == 'object' && !this.options.ballonParams.hasOwnProperty('balloonHeader')) {
+                this.options.ballonParams.balloonHeader = true;
+            }
+
             if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
                 this.options.balloonBeforeBreakpoint = false;
             }
@@ -485,9 +493,15 @@ var Ylist = function () {
     }, {
         key: '_createBalloonContentLayout',
         value: function _createBalloonContentLayout() {
-            var balloonContentLayout = ymaps.templateLayoutFactory.createClass('<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>\n            <div class="ylist-balloon__content">$[properties.balloonContent]</div>');
+            var balloonContentLayout = '';
 
-            return balloonContentLayout;
+            if (this.options.ballonParams.balloonHeader === false) {
+                balloonContentLayout = '<div class="ylist-balloon__content">$[properties.balloonContent]</div>';
+            } else {
+                balloonContentLayout = '<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>\n                                    <div class="ylist-balloon__content">$[properties.balloonContent]</div>';
+            }
+
+            return ymaps.templateLayoutFactory.createClass(balloonContentLayout);
         }
 
         /**
