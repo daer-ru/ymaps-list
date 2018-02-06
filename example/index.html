@@ -81,6 +81,24 @@
     </div>
 
     <div class="container-fluid">
+        <hr class="my-5">
+        <h2 class="mb-5">Карта</h2>
+    </div>
+
+    <div id="ymaps-custom" class="ylist">
+        <div id="ymaps-custom-full-switch" class="ylist__switch">
+            <div class="container-fluid">
+                <div class="btn-group mb-3" role="group">
+                    <button type="button" class="btn btn-primary" data-ylist-switch="list">Список</button>
+                    <button type="button" class="btn btn-primary" data-ylist-switch="map">Карта</button>
+                </div>
+            </div>
+        </div>
+        <div id="ymaps-custom-full-list" class="ylist__list-container"></div>
+        <div id="ymaps-custom-map" class="ylist__map-container"></div>
+    </div>
+
+    <div class="container-fluid">
         <div class="jumbotron mt-5 mb-0 pt-4 pb-4">
             <a class="btn btn-dark btn-sm" href="https://github.com/daer-ru/ymaps-list" role="button"><i class="fa fa-github" aria-hidden="true"></i> Github</a>
         </div>
@@ -139,12 +157,7 @@
         var ymapsFull = new Ylist({
             data: data,
             dataOrder: [
-                {
-                    name: 'address',
-                    setValue: function(address) {
-                        return `Какой-то текст, иконка, все что угодно | ${address} | и еще какой-то текст`;
-                    }
-                },
+                'address',
                 'phone',
                 'email',
                 'description'
@@ -209,11 +222,8 @@
 
 
 
-        /* ballonParams.ballonHeader можно настраивать заголовок балуна  */
+
         var ymapsMap = new Ylist({
-            ballonParams: {
-                balloonHeader: true
-            },
             data: data,
             dataOrder: [
                 'address',
@@ -339,6 +349,95 @@
         });
 
         ymapsStatic.init();
+
+
+
+        /* balloonParams.ballonHeader можно настраивать заголовок балуна  */
+        var ymapsMap = new Ylist({
+            balloonParams: {
+                balloonHeader: true,
+                setValue: function(content) {
+                    return `${content}
+                            <br>
+                            <button>Кнопка</button>`
+                }
+            },
+            data: data,
+            dataOrder: [
+                {
+                    name: 'address',
+                    setValue: function(address) {
+                        return `Какой-то текст, иконка, все что угодно | ${address} | и еще какой-то текст`;
+                    }
+                },
+                'phone',
+                'email',
+                'description'
+            ],
+            container: 'ymaps-custom',
+            mapCenter: [55.751574, 37.573856],
+            mapContainer: 'ymaps-custom-map',
+            list: true,
+            listContainer: 'ymaps-custom-full-list',
+            // listScroll: function($listContainer, $activeListItem) {},
+            listScroll: false,
+            listParams: {
+                setValue: function(content) {
+                    return `${content}
+                            <br>
+                            <button>Кнопка</button>`
+                }
+            },
+            switchContainer: 'ymaps-custom-full-switch',
+            cluster: {
+                icons: [
+                    [
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ],
+                    [
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ]
+                ],
+                inlineStyle: 'color: #fff; padding-left: 2px; text-align: center; font: bold 16px/44px Helvetica, Helvetica CY, Arial, Nimbus Sans L, sans-serif;'
+            },
+            placemark: {
+                icons: [
+                    {
+                        href: 'img/pin.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    },
+                    {
+                        href: 'img/pin_active.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    }
+                ]
+            },
+            balloonBeforeBreakpoint: true,
+            balloonAfterBreakpoint: true,
+            adaptiveBreakpoint: 1024
+        });
+
+        ymapsMap.init();
     </script>
 </body>
 </html>

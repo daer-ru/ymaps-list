@@ -24,7 +24,7 @@ var Ylist = function () {
         this.activeListItem = null;
         this.clusterer = null;
         this.balloonLayout = null;
-        this.ballonParams = {
+        this.balloonParams = {
             balloonWidth: null,
             balloonHeight: null,
             balloonTailHeight: 15
@@ -99,6 +99,10 @@ var Ylist = function () {
                 this.options.listScroll = false;
             }
 
+            if (!this.options.hasOwnProperty('listParams')) {
+                this.options.listParams = {};
+            }
+
             if (!this.options.hasOwnProperty('switchContainer')) {
                 this.options.switchContainer = false;
             }
@@ -115,12 +119,15 @@ var Ylist = function () {
                 this.options.cluster.inlineStyle = '';
             }
 
-            if (!this.options.hasOwnProperty('ballonParams')) {
-                this.options.ballonParams = {};
+            if (!this.options.hasOwnProperty('balloonParams')) {
+                this.options.balloonParams = {};
             }
 
-            if (this.options.hasOwnProperty('ballonParams') && _typeof(this.options.ballonParams) == 'object' && !this.options.ballonParams.hasOwnProperty('balloonHeader')) {
-                this.options.ballonParams.balloonHeader = true;
+            if (this.options.hasOwnProperty('balloonParams') && _typeof(this.options.balloonParams) == 'object') {
+
+                if (!this.options.balloonParams.hasOwnProperty('balloonHeader')) {
+                    this.options.balloonParams.balloonHeader = true;
+                }
             }
 
             if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
@@ -423,8 +430,8 @@ var Ylist = function () {
                     this.applyElementOffset();
                     this._$element.find('.ylist-balloon__close').on('click', $.proxy(this.onCloseClick, this));
 
-                    self.ballonParams.balloonWidth = this._$element[0].offsetWidth;
-                    self.ballonParams.balloonHeight = this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight;
+                    self.balloonParams.balloonWidth = this._$element[0].offsetWidth;
+                    self.balloonParams.balloonHeight = this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight;
                 },
 
                 /**
@@ -459,7 +466,7 @@ var Ylist = function () {
                 applyElementOffset: function applyElementOffset() {
                     this._$element.css({
                         left: -(this._$element[0].offsetWidth / 2),
-                        top: -(this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight)
+                        top: -(this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight)
                     });
                 },
 
@@ -495,10 +502,14 @@ var Ylist = function () {
         value: function _createBalloonContentLayout() {
             var balloonContentLayout = '';
 
-            if (this.options.ballonParams.balloonHeader === false) {
+            if (this.options.balloonParams.balloonHeader === false) {
                 balloonContentLayout = '<div class="ylist-balloon__content">$[properties.balloonContent]</div>';
             } else {
                 balloonContentLayout = '<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>\n                                    <div class="ylist-balloon__content">$[properties.balloonContent]</div>';
+            }
+
+            if (this.options.balloonParams.hasOwnProperty('setValue') && typeof this.options.balloonParams.setValue === 'function') {
+                balloonContentLayout = this.options.balloonParams.setValue(balloonContentLayout);
             }
 
             return ymaps.templateLayoutFactory.createClass(balloonContentLayout);
@@ -517,7 +528,15 @@ var Ylist = function () {
             for (var i = 0; i < this.options.dataOrder.length; i++) {
                 var dataOption = this.options.dataOrder[i];
 
-                balloonContent += '<p class="ylist-balloon__' + dataOption + '">' + this.points[index][dataOption] + '</p>';
+                if ((typeof dataOption === 'undefined' ? 'undefined' : _typeof(dataOption)) === 'object' && dataOption !== null) {
+                    if (typeof dataOption.setValue !== 'function') {
+                        console.error('Значение setValue должно быть функцией!');
+                    }
+
+                    balloonContent += '<p class="ylist-balloon__' + dataOption.name + '">' + dataOption.setValue(this.points[index][dataOption.name]) + '</p>';
+                } else {
+                    balloonContent += '<p class="ylist-balloon__' + dataOption + '">' + this.points[index][dataOption] + '</p>';
+                }
             }
 
             return {
@@ -561,6 +580,10 @@ var Ylist = function () {
                 } else {
                     $elementContent += '<p class="' + this.listClassName + '__' + dataOption + '">' + point[dataOption] + '</p>';
                 }
+            }
+
+            if (this.options.listParams.hasOwnProperty('setValue') && typeof this.options.listParams.setValue === 'function') {
+                $elementContent = this.options.listParams.setValue($elementContent);
             }
 
             $listElement.append($elementTitle, $elementContent);
@@ -650,7 +673,7 @@ var Ylist = function () {
                     coords = self.map.options.get('projection').toGlobalPixels(placemark.geometry.getCoordinates(), self.map.getZoom());
 
                     // Сдвигаем координаты на половину высоты балуна
-                    coords[1] -= self.ballonParams.balloonHeight / 2;
+                    coords[1] -= self.balloonParams.balloonHeight / 2;
 
                     newCoords = self.map.options.get('projection').fromGlobalPixels(coords, self.map.getZoom());
 
