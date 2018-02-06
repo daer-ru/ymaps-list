@@ -527,7 +527,15 @@ class Ylist {
         for (let i = 0; i < this.options.dataOrder.length; i++) {
             let dataOption = this.options.dataOrder[i];
 
-            $elementContent += `<p class="${this.listClassName}__${dataOption}">${point[dataOption]}</p>`;
+            if(typeof dataOption === 'object' && dataOption !== null) {
+                if(typeof dataOption.setValue !== 'function') {
+                    console.error('Значение setValue должно быть функцией!');
+                }
+
+                $elementContent += `<p class="${this.listClassName}__${dataOption.name}">${dataOption.setValue(point[dataOption.name])}</p>`;
+            } else {
+                $elementContent += `<p class="${this.listClassName}__${dataOption}">${point[dataOption]}</p>`;
+            }
         }
 
         $listElement.append($elementTitle, $elementContent);

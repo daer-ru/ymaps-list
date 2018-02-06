@@ -139,7 +139,12 @@
         var ymapsFull = new Ylist({
             data: data,
             dataOrder: [
-                'address',
+                {
+                    name: 'address',
+                    setValue: function(address) {
+                        return `Какой-то текст, иконка, все что угодно | ${address} | и еще какой-то текст`;
+                    }
+                },
                 'phone',
                 'email',
                 'description'
