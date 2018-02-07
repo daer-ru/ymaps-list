@@ -694,10 +694,14 @@ var Ylist = function () {
     }, {
         key: '_setBounds',
         value: function _setBounds(objects) {
-            this.map.setBounds(objects.getBounds(), {
-                checkZoomRange: true,
-                zoomMargin: 10
-            });
+            if (_typeof(this.placemarks) === 'object' && this.placemarks.length === 1) {
+                this.map.setCenter(this.placemarks[0].geometry.getCoordinates(), 16);
+            } else {
+                this.map.setBounds(objects.getBounds(), {
+                    checkZoomRange: true,
+                    zoomMargin: 10
+                });
+            }
         }
 
         /**
