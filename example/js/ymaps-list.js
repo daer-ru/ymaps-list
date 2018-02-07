@@ -103,6 +103,13 @@ var Ylist = function () {
                 this.options.listParams = {};
             }
 
+            if (this.options.hasOwnProperty('listParams') && _typeof(this.options.listParams) == 'object') {
+
+                if (!this.options.listParams.hasOwnProperty('showHeader')) {
+                    this.options.listParams.showHeader = true;
+                }
+            }
+
             if (!this.options.hasOwnProperty('switchContainer')) {
                 this.options.switchContainer = false;
             }
@@ -125,8 +132,8 @@ var Ylist = function () {
 
             if (this.options.hasOwnProperty('balloonParams') && _typeof(this.options.balloonParams) == 'object') {
 
-                if (!this.options.balloonParams.hasOwnProperty('balloonHeader')) {
-                    this.options.balloonParams.balloonHeader = true;
+                if (!this.options.balloonParams.hasOwnProperty('showHeader')) {
+                    this.options.balloonParams.showHeader = true;
                 }
             }
 
@@ -502,7 +509,7 @@ var Ylist = function () {
         value: function _createBalloonContentLayout() {
             var balloonContentLayout = '';
 
-            if (this.options.balloonParams.balloonHeader === false) {
+            if (this.options.balloonParams.showHeader === false) {
                 balloonContentLayout = '<div class="ylist-balloon__content">$[properties.balloonContent]</div>';
             } else {
                 balloonContentLayout = '<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>\n                                    <div class="ylist-balloon__content">$[properties.balloonContent]</div>';
@@ -562,7 +569,7 @@ var Ylist = function () {
                 class: this.listClassName + '__item'
             });
 
-            if (typeof point.name === 'string') {
+            if (typeof point.name === 'string' && this.options.listParams.showHeader !== false) {
                 $elementTitle.html('<a>' + point.name + '</a>');
             } else {
                 $elementTitle = null;

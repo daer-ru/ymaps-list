@@ -351,11 +351,11 @@
         ymapsStatic.init();
 
 
-
-        /* balloonParams.ballonHeader можно настраивать заголовок балуна  */
+        
         var ymapsMap = new Ylist({
             balloonParams: {
-                balloonHeader: true,
+                /* Не обязательный параметр, по умолчанию true */
+                showHeader: false,
                 setValue: function(content) {
                     return `${content}
                             <br>
@@ -382,6 +382,8 @@
             // listScroll: function($listContainer, $activeListItem) {},
             listScroll: false,
             listParams: {
+                /* Не обязательный параметр, по умолчанию true */
+                showHeader: true,
                 setValue: function(content) {
                     return `${content}
                             <br>

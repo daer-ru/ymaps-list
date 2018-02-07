@@ -92,6 +92,13 @@ class Ylist {
             this.options.listParams = {};
         }
 
+        if (this.options.hasOwnProperty('listParams') && typeof this.options.listParams == 'object') {
+
+            if(!this.options.listParams.hasOwnProperty('showHeader')) {
+                this.options.listParams.showHeader = true;
+            }
+        }
+
         if (!this.options.hasOwnProperty('switchContainer')) {
             this.options.switchContainer = false;
         }
@@ -117,8 +124,8 @@ class Ylist {
 
         if (this.options.hasOwnProperty('balloonParams') && typeof this.options.balloonParams == 'object') {
 
-            if(!this.options.balloonParams.hasOwnProperty('balloonHeader')) {
-                this.options.balloonParams.balloonHeader = true;
+            if(!this.options.balloonParams.hasOwnProperty('showHeader')) {
+                this.options.balloonParams.showHeader = true;
             }
         }
 
@@ -491,7 +498,7 @@ class Ylist {
     _createBalloonContentLayout() {
         let balloonContentLayout = ``;
 
-        if(this.options.balloonParams.balloonHeader === false) {
+        if(this.options.balloonParams.showHeader === false) {
             balloonContentLayout = `<div class="ylist-balloon__content">$[properties.balloonContent]</div>`;
         } else {
             balloonContentLayout = `<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>
@@ -549,7 +556,7 @@ class Ylist {
         });
 
 
-        if (typeof point.name === 'string') {
+        if (typeof point.name === 'string' && this.options.listParams.showHeader !== false) {
             $elementTitle.html('<a>' + point.name + '</a>');
         } else {
             $elementTitle = null;
