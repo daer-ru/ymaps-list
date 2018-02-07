@@ -24,7 +24,7 @@ var Ylist = function () {
         this.activeListItem = null;
         this.clusterer = null;
         this.balloonLayout = null;
-        this.ballonParams = {
+        this.balloonParams = {
             balloonWidth: null,
             balloonHeight: null,
             balloonTailHeight: 15
@@ -99,6 +99,17 @@ var Ylist = function () {
                 this.options.listScroll = false;
             }
 
+            if (!this.options.hasOwnProperty('listParams')) {
+                this.options.listParams = {};
+            }
+
+            if (this.options.hasOwnProperty('listParams') && _typeof(this.options.listParams) == 'object') {
+
+                if (!this.options.listParams.hasOwnProperty('showHeader')) {
+                    this.options.listParams.showHeader = true;
+                }
+            }
+
             if (!this.options.hasOwnProperty('switchContainer')) {
                 this.options.switchContainer = false;
             }
@@ -115,6 +126,21 @@ var Ylist = function () {
                 this.options.cluster.inlineStyle = '';
             }
 
+            if (!this.options.hasOwnProperty('balloonParams')) {
+                this.options.balloonParams = {};
+            }
+
+            if (this.options.hasOwnProperty('balloonParams') && _typeof(this.options.balloonParams) == 'object') {
+
+                if (!this.options.balloonParams.hasOwnProperty('showHeader')) {
+                    this.options.balloonParams.showHeader = true;
+                }
+
+                if (!this.options.balloonParams.hasOwnProperty('closeButton')) {
+                    this.options.balloonParams.closeButton = 'x';
+                }
+            }
+
             if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
                 this.options.balloonBeforeBreakpoint = false;
             }
@@ -125,6 +151,21 @@ var Ylist = function () {
 
             if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
                 this.options.adaptiveBreakpoint = 1024;
+            }
+
+            if (!this.options.hasOwnProperty('drag')) {
+                this.options.drag = {};
+            }
+
+            if (this.options.hasOwnProperty('drag') && _typeof(this.options.drag) == 'object') {
+
+                if (!this.options.drag.hasOwnProperty('disableMobile')) {
+                    this.options.drag.disableMobile = true;
+                }
+
+                if (!this.options.drag.hasOwnProperty('disableDesktop')) {
+                    this.options.drag.disableDesktop = false;
+                }
             }
 
             if (!this.options.hasOwnProperty('placemark')) {
@@ -147,6 +188,8 @@ var Ylist = function () {
     }, {
         key: '_initMap',
         value: function _initMap() {
+            var $container = $('#' + this.options.mapContainer);
+
             // Если карта уже создана, то дистроим её
             if (this.map) {
                 this.map.destroy();
@@ -155,6 +198,13 @@ var Ylist = function () {
                 this.activePlacemark = null;
                 this.clusterer = null;
                 this.balloonLayout = null;
+            }
+
+            // Подсказка для мобильных устройств
+            if (!$container.find('.ylist-tooltip').length) {
+                var $tooltip = $('<div class="ylist-tooltip">\n                    <span class="ylist-tooltip__text">\u0427\u0442\u043E\u0431\u044B \u043F\u0435\u0440\u0435\u043C\u0435\u0441\u0442\u0438\u0442\u044C \u043A\u0430\u0440\u0442\u0443, \u043F\u0440\u043E\u0432\u0435\u0434\u0438\u0442\u0435 \u043F\u043E \u043D\u0435\u0439 \u0434\u0432\u0443\u043C\u044F \u043F\u0430\u043B\u044C\u0446\u0430\u043C\u0438</span>\n                </div>');
+
+                $container.append($tooltip);
             }
 
             // Создаем яндекс карту
@@ -189,7 +239,29 @@ var Ylist = function () {
                 this._setBounds(this.clusterer);
             }
 
-            if (this.isLessThanAdaptiveBreakpoint) {
+            if (this.isLessThanAdaptiveBreakpoint && this.options.drag.disableMobile === true) {
+                var _$container = $('#' + this.options.mapContainer);
+                var _$tooltip = _$container.find('.ylist-tooltip');
+
+                this.map.behaviors.disable('drag');
+
+                _$container.on('touchmove', function (e) {
+                    if (e.originalEvent.touches.length == 1) {
+                        _$tooltip.css('opacity', '1');
+                    } else {
+                        _$tooltip.css('opacity', '0');
+                    }
+                }).on('touchstart', function (e) {
+                    _$tooltip.css('opacity', '0');
+                }).on('touchend', function (e) {
+                    _$tooltip.css('opacity', '0');
+                }).on('touchleave', function (e) {
+                    _$tooltip.css('opacity', '0');
+                }).on('touchcancel', function (e) {
+                    _$tooltip.css('opacity', '0');
+                });
+            }
+            if (!this.isLessThanAdaptiveBreakpoint && this.options.drag.disableDesktop === true) {
                 this.map.behaviors.disable('drag');
             }
 
@@ -404,7 +476,7 @@ var Ylist = function () {
         value: function _createBalloonLayout() {
             var self = this;
 
-            var balloonLayout = ymaps.templateLayoutFactory.createClass('<div class="ylist-balloon">\n                <button class="ylist-balloon__close" type="button">x</button>\n                <div class="ylist-balloon__inner">\n                    $[[options.contentLayout]]\n                </div>\n            </div>', {
+            var balloonLayout = ymaps.templateLayoutFactory.createClass('<div class="ylist-balloon">\n                <button class="ylist-balloon__close" type="button">' + this.options.balloonParams.closeButton + '</button>\n                <div class="ylist-balloon__inner">\n                    $[[options.contentLayout]]\n                </div>\n            </div>', {
                 /**
                  * Строит экземпляр макета на основе шаблона и добавляет его в родительский HTML-элемент.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#build
@@ -415,8 +487,8 @@ var Ylist = function () {
                     this.applyElementOffset();
                     this._$element.find('.ylist-balloon__close').on('click', $.proxy(this.onCloseClick, this));
 
-                    self.ballonParams.balloonWidth = this._$element[0].offsetWidth;
-                    self.ballonParams.balloonHeight = this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight;
+                    self.balloonParams.balloonWidth = this._$element[0].offsetWidth;
+                    self.balloonParams.balloonHeight = this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight;
                 },
 
                 /**
@@ -451,7 +523,7 @@ var Ylist = function () {
                 applyElementOffset: function applyElementOffset() {
                     this._$element.css({
                         left: -(this._$element[0].offsetWidth / 2),
-                        top: -(this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight)
+                        top: -(this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight)
                     });
                 },
 
@@ -485,9 +557,19 @@ var Ylist = function () {
     }, {
         key: '_createBalloonContentLayout',
         value: function _createBalloonContentLayout() {
-            var balloonContentLayout = ymaps.templateLayoutFactory.createClass('<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>\n            <div class="ylist-balloon__content">$[properties.balloonContent]</div>');
+            var balloonContentLayout = '';
 
-            return balloonContentLayout;
+            if (this.options.balloonParams.showHeader === false) {
+                balloonContentLayout = '<div class="ylist-balloon__content">$[properties.balloonContent]</div>';
+            } else {
+                balloonContentLayout = '<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>\n                                    <div class="ylist-balloon__content">$[properties.balloonContent]</div>';
+            }
+
+            if (this.options.balloonParams.hasOwnProperty('setValue') && typeof this.options.balloonParams.setValue === 'function') {
+                balloonContentLayout = this.options.balloonParams.setValue(balloonContentLayout);
+            }
+
+            return ymaps.templateLayoutFactory.createClass(balloonContentLayout);
         }
 
         /**
@@ -503,7 +585,15 @@ var Ylist = function () {
             for (var i = 0; i < this.options.dataOrder.length; i++) {
                 var dataOption = this.options.dataOrder[i];
 
-                balloonContent += '<p class="ylist-balloon__' + dataOption + '">' + this.points[index][dataOption] + '</p>';
+                if ((typeof dataOption === 'undefined' ? 'undefined' : _typeof(dataOption)) === 'object' && dataOption !== null) {
+                    if (typeof dataOption.setValue !== 'function') {
+                        console.error('Значение setValue должно быть функцией!');
+                    }
+
+                    balloonContent += '<p class="ylist-balloon__' + dataOption.name + '">' + dataOption.setValue(this.points[index][dataOption.name]) + '</p>';
+                } else {
+                    balloonContent += '<p class="ylist-balloon__' + dataOption + '">' + this.points[index][dataOption] + '</p>';
+                }
             }
 
             return {
@@ -529,7 +619,7 @@ var Ylist = function () {
                 class: this.listClassName + '__item'
             });
 
-            if (typeof point.name === 'string') {
+            if (typeof point.name === 'string' && this.options.listParams.showHeader !== false) {
                 $elementTitle.html('<a>' + point.name + '</a>');
             } else {
                 $elementTitle = null;
@@ -538,7 +628,19 @@ var Ylist = function () {
             for (var i = 0; i < this.options.dataOrder.length; i++) {
                 var dataOption = this.options.dataOrder[i];
 
-                $elementContent += '<p class="' + this.listClassName + '__' + dataOption + '">' + point[dataOption] + '</p>';
+                if ((typeof dataOption === 'undefined' ? 'undefined' : _typeof(dataOption)) === 'object' && dataOption !== null) {
+                    if (typeof dataOption.setValue !== 'function') {
+                        console.error('Значение setValue должно быть функцией!');
+                    }
+
+                    $elementContent += '<p class="' + this.listClassName + '__' + dataOption.name + '">' + dataOption.setValue(point[dataOption.name]) + '</p>';
+                } else {
+                    $elementContent += '<p class="' + this.listClassName + '__' + dataOption + '">' + point[dataOption] + '</p>';
+                }
+            }
+
+            if (this.options.listParams.hasOwnProperty('setValue') && typeof this.options.listParams.setValue === 'function') {
+                $elementContent = this.options.listParams.setValue($elementContent);
             }
 
             $listElement.append($elementTitle, $elementContent);
@@ -592,10 +694,14 @@ var Ylist = function () {
     }, {
         key: '_setBounds',
         value: function _setBounds(objects) {
-            this.map.setBounds(objects.getBounds(), {
-                checkZoomRange: true,
-                zoomMargin: 10
-            });
+            if (_typeof(this.placemarks) === 'object' && this.placemarks.length === 1) {
+                this.map.setCenter(this.placemarks[0].geometry.getCoordinates(), 16);
+            } else {
+                this.map.setBounds(objects.getBounds(), {
+                    checkZoomRange: true,
+                    zoomMargin: 10
+                });
+            }
         }
 
         /**
@@ -617,6 +723,7 @@ var Ylist = function () {
             this._commonClickHandler(placemark);
 
             if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint || this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+
                 /**
                  * Расчитывает координаты центра, с учетом размеров балуна,
                  * и центрирует карту относительно балуна
@@ -628,7 +735,7 @@ var Ylist = function () {
                     coords = self.map.options.get('projection').toGlobalPixels(placemark.geometry.getCoordinates(), self.map.getZoom());
 
                     // Сдвигаем координаты на половину высоты балуна
-                    coords[1] -= self.ballonParams.balloonHeight / 2;
+                    coords[1] -= self.balloonParams.balloonHeight / 2;
 
                     newCoords = self.map.options.get('projection').fromGlobalPixels(coords, self.map.getZoom());
 
@@ -806,7 +913,7 @@ var Ylist = function () {
                 }
 
                 // Добавляем обработчик клика на элементы переключения
-                $(document).on('click', '[data-ylist-switch]', function (e) {
+                $(document).on('click', '#' + self.options.switchContainer + ' [data-ylist-switch]', function (e) {
                     self._switchHandler(e, self);
                 });
             } else {
@@ -829,7 +936,7 @@ var Ylist = function () {
                 }
 
                 // Удаляем обработчик клика на элементы переключения
-                $(document).off('click', '[data-ylist-switch]', self._switchHandler);
+                $(document).off('click', '#' + self.options.switchContainer + ' [data-ylist-switch]', self._switchHandler);
             }
         }
 
@@ -860,7 +967,7 @@ var Ylist = function () {
                 $('#' + self.options.listContainer).removeClass('is-hidden');
             }
 
-            $('[data-ylist-switch]').removeClass('is-active');
+            $('#' + self.options.switchContainer).find('[data-ylist-switch]').removeClass('is-active');
             $elem.addClass('is-active');
         }
     }]);

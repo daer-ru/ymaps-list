@@ -16,7 +16,7 @@ class Ylist {
         this.activeListItem = null;
         this.clusterer = null;
         this.balloonLayout = null;
-        this.ballonParams = {
+        this.balloonParams = {
             balloonWidth: null,
             balloonHeight: null,
             balloonTailHeight: 15
@@ -88,6 +88,17 @@ class Ylist {
             this.options.listScroll = false;
         }
 
+        if (!this.options.hasOwnProperty('listParams')) {
+            this.options.listParams = {};
+        }
+
+        if (this.options.hasOwnProperty('listParams') && typeof this.options.listParams == 'object') {
+
+            if(!this.options.listParams.hasOwnProperty('showHeader')) {
+                this.options.listParams.showHeader = true;
+            }
+        }
+
         if (!this.options.hasOwnProperty('switchContainer')) {
             this.options.switchContainer = false;
         }
@@ -107,6 +118,21 @@ class Ylist {
             this.options.cluster.inlineStyle = '';
         }
 
+        if (!this.options.hasOwnProperty('balloonParams')) {
+            this.options.balloonParams = {};
+        }
+
+        if (this.options.hasOwnProperty('balloonParams') && typeof this.options.balloonParams == 'object') {
+
+            if(!this.options.balloonParams.hasOwnProperty('showHeader')) {
+                this.options.balloonParams.showHeader = true;
+            }
+
+            if(!this.options.balloonParams.hasOwnProperty('closeButton')) {
+                this.options.balloonParams.closeButton = 'x';
+            }
+        }
+
         if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
             this.options.balloonBeforeBreakpoint = false;
         }
@@ -117,6 +143,21 @@ class Ylist {
 
         if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
             this.options.adaptiveBreakpoint = 1024;
+        }
+
+        if (!this.options.hasOwnProperty('drag')) {
+            this.options.drag = {};
+        }
+
+        if (this.options.hasOwnProperty('drag') && typeof this.options.drag == 'object') {
+
+            if(!this.options.drag.hasOwnProperty('disableMobile')) {
+                this.options.drag.disableMobile = true;
+            }
+
+            if(!this.options.drag.hasOwnProperty('disableDesktop')) {
+                this.options.drag.disableDesktop = false;
+            }
         }
 
         if (!this.options.hasOwnProperty('placemark')) {
@@ -140,6 +181,8 @@ class Ylist {
      * Инициализация карты
      */
     _initMap() {
+        let $container  = $('#' + this.options.mapContainer);
+
         // Если карта уже создана, то дистроим её
         if (this.map) {
             this.map.destroy();
@@ -148,6 +191,15 @@ class Ylist {
             this.activePlacemark = null;
             this.clusterer = null;
             this.balloonLayout = null;
+        }
+
+        // Подсказка для мобильных устройств
+        if(!$container.find('.ylist-tooltip').length) {
+            let $tooltip = $(`<div class="ylist-tooltip">
+                    <span class="ylist-tooltip__text">Чтобы переместить карту, проведите по ней двумя пальцами</span>
+                </div>`);
+
+            $container.append($tooltip);
         }
 
         // Создаем яндекс карту
@@ -182,7 +234,30 @@ class Ylist {
             this._setBounds(this.clusterer);
         }
 
-        if (this.isLessThanAdaptiveBreakpoint) {
+        if (this.isLessThanAdaptiveBreakpoint && this.options.drag.disableMobile === true) {
+            let $container  = $('#' + this.options.mapContainer);
+            let $tooltip = $container.find('.ylist-tooltip');
+
+            this.map.behaviors.disable('drag');
+
+            $container.on('touchmove', function(e) {
+                if (e.originalEvent.touches.length == 1) {
+                    $tooltip.css('opacity', '1');
+                } else {
+                    $tooltip.css('opacity', '0');
+                }
+
+            }).on('touchstart', function(e) {
+                $tooltip.css('opacity', '0');
+            }).on('touchend', function(e) {
+                $tooltip.css('opacity', '0');
+            }).on('touchleave', function(e) {
+                $tooltip.css('opacity', '0');
+            }).on('touchcancel', function(e) {
+                $tooltip.css('opacity', '0');
+            });
+        }
+        if (!this.isLessThanAdaptiveBreakpoint && this.options.drag.disableDesktop === true) {
             this.map.behaviors.disable('drag');
         }
 
@@ -389,7 +464,7 @@ class Ylist {
 
         let balloonLayout = ymaps.templateLayoutFactory.createClass(
             `<div class="ylist-balloon">
-                <button class="ylist-balloon__close" type="button">x</button>
+                <button class="ylist-balloon__close" type="button">${this.options.balloonParams.closeButton}</button>
                 <div class="ylist-balloon__inner">
                     $[[options.contentLayout]]
                 </div>
@@ -405,8 +480,8 @@ class Ylist {
                     this._$element.find('.ylist-balloon__close')
                         .on('click', $.proxy(this.onCloseClick, this));
 
-                    self.ballonParams.balloonWidth = this._$element[0].offsetWidth;
-                    self.ballonParams.balloonHeight = this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight;
+                    self.balloonParams.balloonWidth = this._$element[0].offsetWidth;
+                    self.balloonParams.balloonHeight = this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight;
                 },
 
                 /**
@@ -442,7 +517,7 @@ class Ylist {
                 applyElementOffset: function () {
                     this._$element.css({
                         left: -(this._$element[0].offsetWidth / 2),
-                        top: -(this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight)
+                        top: -(this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight)
                     });
                 },
 
@@ -474,12 +549,20 @@ class Ylist {
      * Создание вложенного макета содержимого балуна
      */
     _createBalloonContentLayout() {
-        let balloonContentLayout = ymaps.templateLayoutFactory.createClass(
-            `<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>
-            <div class="ylist-balloon__content">$[properties.balloonContent]</div>`
-        );
+        let balloonContentLayout = ``;
 
-        return balloonContentLayout;
+        if(this.options.balloonParams.showHeader === false) {
+            balloonContentLayout = `<div class="ylist-balloon__content">$[properties.balloonContent]</div>`;
+        } else {
+            balloonContentLayout = `<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>
+                                    <div class="ylist-balloon__content">$[properties.balloonContent]</div>`;
+        }
+
+        if(this.options.balloonParams.hasOwnProperty('setValue') && typeof this.options.balloonParams.setValue === 'function') {
+            balloonContentLayout = this.options.balloonParams.setValue(balloonContentLayout);
+        }
+
+        return ymaps.templateLayoutFactory.createClass(balloonContentLayout);
     }
 
 
@@ -493,7 +576,15 @@ class Ylist {
         for (let i = 0; i < this.options.dataOrder.length; i++) {
             let dataOption = this.options.dataOrder[i];
 
-            balloonContent += `<p class="ylist-balloon__${dataOption}">${this.points[index][dataOption]}</p>`;
+            if(typeof dataOption === 'object' && dataOption !== null) {
+                if(typeof dataOption.setValue !== 'function') {
+                    console.error('Значение setValue должно быть функцией!');
+                }
+
+                balloonContent += `<p class="ylist-balloon__${dataOption.name}">${dataOption.setValue(this.points[index][dataOption.name])}</p>`;
+            } else {
+                balloonContent += `<p class="ylist-balloon__${dataOption}">${this.points[index][dataOption]}</p>`;
+            }
         }
 
         return {
@@ -518,7 +609,7 @@ class Ylist {
         });
 
 
-        if (typeof point.name === 'string') {
+        if (typeof point.name === 'string' && this.options.listParams.showHeader !== false) {
             $elementTitle.html('<a>' + point.name + '</a>');
         } else {
             $elementTitle = null;
@@ -527,7 +618,19 @@ class Ylist {
         for (let i = 0; i < this.options.dataOrder.length; i++) {
             let dataOption = this.options.dataOrder[i];
 
-            $elementContent += `<p class="${this.listClassName}__${dataOption}">${point[dataOption]}</p>`;
+            if(typeof dataOption === 'object' && dataOption !== null) {
+                if(typeof dataOption.setValue !== 'function') {
+                    console.error('Значение setValue должно быть функцией!');
+                }
+
+                $elementContent += `<p class="${this.listClassName}__${dataOption.name}">${dataOption.setValue(point[dataOption.name])}</p>`;
+            } else {
+                $elementContent += `<p class="${this.listClassName}__${dataOption}">${point[dataOption]}</p>`;
+            }
+        }
+
+        if(this.options.listParams.hasOwnProperty('setValue') && typeof this.options.listParams.setValue === 'function') {
+            $elementContent = this.options.listParams.setValue($elementContent);
         }
 
         $listElement.append($elementTitle, $elementContent);
@@ -578,10 +681,14 @@ class Ylist {
      * @param {Object} objects массив геобъектов или кластер
      */
     _setBounds(objects) {
-        this.map.setBounds(objects.getBounds(), {
-            checkZoomRange: true,
-            zoomMargin: 10
-        });
+        if(typeof this.placemarks === 'object' && this.placemarks.length === 1) {
+            this.map.setCenter(this.placemarks[0].geometry.getCoordinates(), 16);
+        } else {
+            this.map.setBounds(objects.getBounds(), {
+                checkZoomRange: true,
+                zoomMargin: 10
+            });
+        }
     }
 
 
@@ -603,6 +710,7 @@ class Ylist {
         if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint ||
             this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
             !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+
             /**
              * Расчитывает координаты центра, с учетом размеров балуна,
              * и центрирует карту относительно балуна
@@ -616,7 +724,7 @@ class Ylist {
                 );
 
                 // Сдвигаем координаты на половину высоты балуна
-                coords[1] -= self.ballonParams.balloonHeight / 2;
+                coords[1] -= self.balloonParams.balloonHeight / 2;
 
                 newCoords = self.map.options.get('projection').fromGlobalPixels(coords, self.map.getZoom());
 
@@ -788,7 +896,7 @@ class Ylist {
             }
 
             // Добавляем обработчик клика на элементы переключения
-            $(document).on('click', '[data-ylist-switch]', function(e) {
+            $(document).on('click', `#${self.options.switchContainer} [data-ylist-switch]`, function(e) {
                 self._switchHandler(e, self);
             });
         } else {
@@ -811,7 +919,7 @@ class Ylist {
             }
 
             // Удаляем обработчик клика на элементы переключения
-            $(document).off('click', '[data-ylist-switch]', self._switchHandler);
+            $(document).off('click', `#${self.options.switchContainer} [data-ylist-switch]`, self._switchHandler);
         }
     }
 
@@ -840,7 +948,7 @@ class Ylist {
             $('#' + self.options.listContainer).removeClass('is-hidden');
         }
 
-        $('[data-ylist-switch]').removeClass('is-active');
+        $('#' + self.options.switchContainer).find('[data-ylist-switch]').removeClass('is-active');
         $elem.addClass('is-active');
     }
 }
