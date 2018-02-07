@@ -67,7 +67,7 @@
         <h2 class="mb-5">Карта</h2>
     </div>
 
-    <div id="ymaps" class="ylist" style="width: 580px; max-width: 100%; max-height: 250px;">
+    <div id="ymaps" class="ylist">
         <div id="ymaps-map" class="ylist__map-container"></div>
     </div>
 
@@ -374,6 +374,10 @@
                 'email',
                 'description'
             ],
+            drag: {
+                disableMobile: false,
+                disableDesktop: true
+            },
             container: 'ymaps-custom',
             mapCenter: [55.751574, 37.573856],
             mapContainer: 'ymaps-custom-map',

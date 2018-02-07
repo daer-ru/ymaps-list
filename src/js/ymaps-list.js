@@ -141,6 +141,21 @@ class Ylist {
             this.options.adaptiveBreakpoint = 1024;
         }
 
+        if (!this.options.hasOwnProperty('drag')) {
+            this.options.drag = {};
+        }
+
+        if (this.options.hasOwnProperty('drag') && typeof this.options.drag == 'object') {
+
+            if(!this.options.drag.hasOwnProperty('disableMobile')) {
+                this.options.drag.disableMobile = true;
+            }
+
+            if(!this.options.drag.hasOwnProperty('disableDesktop')) {
+                this.options.drag.disableDesktop = false;
+            }
+        }
+
         if (!this.options.hasOwnProperty('placemark')) {
             this.options.placemark = {};
         }
@@ -215,7 +230,10 @@ class Ylist {
             this._setBounds(this.clusterer);
         }
 
-        if (this.isLessThanAdaptiveBreakpoint) {
+        if (this.isLessThanAdaptiveBreakpoint && this.options.drag.disableMobile === true) {
+            this.map.behaviors.disable('drag');
+        }
+        if (!this.isLessThanAdaptiveBreakpoint && this.options.drag.disableDesktop === true) {
             this.map.behaviors.disable('drag');
         }
 
