@@ -236,7 +236,26 @@ var Ylist = function () {
             }
 
             if (this.isLessThanAdaptiveBreakpoint && this.options.drag.disableMobile === true) {
+                var _$container = $('#' + this.options.mapContainer);
+                var _$tooltip = _$container.find('.ylist-tooltip');
+
                 this.map.behaviors.disable('drag');
+
+                _$container.on('touchmove', function (e) {
+                    if (e.originalEvent.touches.length == 1) {
+                        _$tooltip.css('opacity', '1');
+                    } else {
+                        _$tooltip.css('opacity', '0');
+                    }
+                }).on('touchstart', function (e) {
+                    _$tooltip.css('opacity', '0');
+                }).on('touchend', function (e) {
+                    _$tooltip.css('opacity', '0');
+                }).on('touchleave', function (e) {
+                    _$tooltip.css('opacity', '0');
+                }).on('touchcancel', function (e) {
+                    _$tooltip.css('opacity', '0');
+                });
             }
             if (!this.isLessThanAdaptiveBreakpoint && this.options.drag.disableDesktop === true) {
                 this.map.behaviors.disable('drag');

@@ -231,7 +231,27 @@ class Ylist {
         }
 
         if (this.isLessThanAdaptiveBreakpoint && this.options.drag.disableMobile === true) {
+            let $container  = $('#' + this.options.mapContainer);
+            let $tooltip = $container.find('.ylist-tooltip');
+
             this.map.behaviors.disable('drag');
+
+            $container.on('touchmove', function(e) {
+                if (e.originalEvent.touches.length == 1) {
+                    $tooltip.css('opacity', '1');
+                } else {
+                    $tooltip.css('opacity', '0');
+                }
+
+            }).on('touchstart', function(e) {
+                $tooltip.css('opacity', '0');
+            }).on('touchend', function(e) {
+                $tooltip.css('opacity', '0');
+            }).on('touchleave', function(e) {
+                $tooltip.css('opacity', '0');
+            }).on('touchcancel', function(e) {
+                $tooltip.css('opacity', '0');
+            });
         }
         if (!this.isLessThanAdaptiveBreakpoint && this.options.drag.disableDesktop === true) {
             this.map.behaviors.disable('drag');
