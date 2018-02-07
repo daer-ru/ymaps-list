@@ -103,6 +103,7 @@ var Ylist = function () {
                 this.options.switchContainer = false;
             }
 
+            // Cluster
             if (!this.options.hasOwnProperty('cluster')) {
                 this.options.cluster = {};
             }
@@ -115,18 +116,7 @@ var Ylist = function () {
                 this.options.cluster.inlineStyle = '';
             }
 
-            if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
-                this.options.balloonBeforeBreakpoint = false;
-            }
-
-            if (!this.options.hasOwnProperty('balloonAfterBreakpoint')) {
-                this.options.balloonAfterBreakpoint = false;
-            }
-
-            if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
-                this.options.adaptiveBreakpoint = 1024;
-            }
-
+            // Placemark
             if (!this.options.hasOwnProperty('placemark')) {
                 this.options.placemark = {};
             }
@@ -137,6 +127,27 @@ var Ylist = function () {
 
             if (this.options.hasOwnProperty('placemark') && _typeof(this.options.placemark) == 'object' && !this.options.placemark.hasOwnProperty('clicked')) {
                 this.options.placemark.clicked = true;
+            }
+
+            // Balloon
+            if (!this.options.hasOwnProperty('balloon')) {
+                this.options.balloon = {};
+            }
+
+            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('balloonBeforeBreakpoint')) {
+                this.options.balloon.balloonBeforeBreakpoint = false;
+            }
+
+            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('balloonAfterBreakpoint')) {
+                this.options.balloon.balloonAfterBreakpoint = false;
+            }
+
+            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('closeButton')) {
+                this.options.balloon.closeButton = 'x';
+            }
+
+            if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
+                this.options.adaptiveBreakpoint = 1024;
             }
         }
 
@@ -236,9 +247,11 @@ var Ylist = function () {
             var self = this;
 
             for (var i = 0; i < this.points.length; i++) {
-                var balloonData = void 0;
+                var balloonData = void 0,
+                    balloonBeforeBreakpoint = this.options.balloon.balloonBeforeBreakpoint,
+                    balloonAfterBreakpoint = this.options.balloon.balloonAfterBreakpoint;
 
-                if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && this.options.placemark.clicked || this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
+                if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked || balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
                     balloonData = this._setBalloonData(i);
                 } else {
                     balloonData = {};
@@ -287,7 +300,9 @@ var Ylist = function () {
     }, {
         key: '_setPlacemarkOptions',
         value: function _setPlacemarkOptions(index) {
-            var placemarkOptions = {};
+            var placemarkOptions = {},
+                balloonBeforeBreakpoint = this.options.balloon.balloonBeforeBreakpoint,
+                balloonAfterBreakpoint = this.options.balloon.balloonAfterBreakpoint;
 
             if (typeof this.options.placemark.icons[0] == 'string') {
                 // Если задаем стандартную иконку метки из набора яндекса
@@ -306,7 +321,7 @@ var Ylist = function () {
                 placemarkOptions.iconImageOffset = this.options.placemark.icons[0].offset;
             }
 
-            if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && this.options.placemark.clicked || this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
+            if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked || balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
                 placemarkOptions.balloonLayout = this._createBalloonLayout();
                 placemarkOptions.balloonContentLayout = this._createBalloonContentLayout();
                 placemarkOptions.balloonAutoPan = false;
@@ -404,7 +419,7 @@ var Ylist = function () {
         value: function _createBalloonLayout() {
             var self = this;
 
-            var balloonLayout = ymaps.templateLayoutFactory.createClass('<div class="ylist-balloon">\n                <button class="ylist-balloon__close" type="button">x</button>\n                <div class="ylist-balloon__inner">\n                    $[[options.contentLayout]]\n                </div>\n            </div>', {
+            var balloonLayout = ymaps.templateLayoutFactory.createClass('<div class="ylist-balloon">\n                <button class="ylist-balloon__close" type="button">' + this.options.balloon.closeButton + '</button>\n                <div class="ylist-balloon__inner">\n                    $[[options.contentLayout]]\n                </div>\n            </div>', {
                 /**
                  * Строит экземпляр макета на основе шаблона и добавляет его в родительский HTML-элемент.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#build
@@ -611,12 +626,15 @@ var Ylist = function () {
                 return;
             }
 
-            var placemark = e.get('target');
+            var placemark = e.get('target'),
+                balloonBeforeBreakpoint = this.options.balloon.balloonBeforeBreakpoint,
+                balloonAfterBreakpoint = this.options.balloon.balloonAfterBreakpoint;
+
             self.activePlacemark = placemark;
 
             this._commonClickHandler(placemark);
 
-            if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint || this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+            if (balloonBeforeBreakpoint && balloonAfterBreakpoint || balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
                 /**
                  * Расчитывает координаты центра, с учетом размеров балуна,
                  * и центрирует карту относительно балуна

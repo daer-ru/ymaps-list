@@ -92,6 +92,8 @@ class Ylist {
             this.options.switchContainer = false;
         }
 
+
+        // Cluster
         if (!this.options.hasOwnProperty('cluster')) {
             this.options.cluster = {};
         }
@@ -107,18 +109,8 @@ class Ylist {
             this.options.cluster.inlineStyle = '';
         }
 
-        if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
-            this.options.balloonBeforeBreakpoint = false;
-        }
 
-        if (!this.options.hasOwnProperty('balloonAfterBreakpoint')) {
-            this.options.balloonAfterBreakpoint = false;
-        }
-
-        if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
-            this.options.adaptiveBreakpoint = 1024;
-        }
-
+        // Placemark
         if (!this.options.hasOwnProperty('placemark')) {
             this.options.placemark = {};
         }
@@ -132,6 +124,29 @@ class Ylist {
 
         if (this.options.hasOwnProperty('placemark') && typeof this.options.placemark == 'object' && !this.options.placemark.hasOwnProperty('clicked')) {
             this.options.placemark.clicked = true;
+        }
+
+
+        // Balloon
+        if (!this.options.hasOwnProperty('balloon')) {
+            this.options.balloon = {};
+        }
+
+        if (this.options.hasOwnProperty('balloon') && typeof this.options.balloon == 'object' && !this.options.balloon.hasOwnProperty('balloonBeforeBreakpoint')) {
+            this.options.balloon.balloonBeforeBreakpoint = false;
+        }
+
+        if (this.options.hasOwnProperty('balloon') && typeof this.options.balloon == 'object' && !this.options.balloon.hasOwnProperty('balloonAfterBreakpoint')) {
+            this.options.balloon.balloonAfterBreakpoint = false;
+        }
+
+        if (this.options.hasOwnProperty('balloon') && typeof this.options.balloon == 'object' && !this.options.balloon.hasOwnProperty('closeButton')) {
+            this.options.balloon.closeButton = 'x';
+        }
+
+
+        if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
+            this.options.adaptiveBreakpoint = 1024;
         }
     }
 
@@ -223,11 +238,13 @@ class Ylist {
         let self = this;
 
         for (let i = 0; i < this.points.length; i++) {
-            let balloonData;
+            let balloonData,
+                balloonBeforeBreakpoint = this.options.balloon.balloonBeforeBreakpoint,
+                balloonAfterBreakpoint = this.options.balloon.balloonAfterBreakpoint;
 
-            if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && this.options.placemark.clicked ||
-                this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked ||
-                !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
+            if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked ||
+                balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked ||
+                !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
                 balloonData = this._setBalloonData(i);
             } else {
                 balloonData = {};
@@ -272,7 +289,9 @@ class Ylist {
      * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/GeoObject.xml
      */
     _setPlacemarkOptions(index) {
-        let placemarkOptions = {};
+        let placemarkOptions = {},
+            balloonBeforeBreakpoint = this.options.balloon.balloonBeforeBreakpoint,
+            balloonAfterBreakpoint = this.options.balloon.balloonAfterBreakpoint;
 
         if (typeof this.options.placemark.icons[0] == 'string') {
             // Если задаем стандартную иконку метки из набора яндекса
@@ -291,9 +310,9 @@ class Ylist {
             placemarkOptions.iconImageOffset = this.options.placemark.icons[0].offset
         }
 
-        if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && this.options.placemark.clicked ||
-            this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked ||
-            !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
+        if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked ||
+            balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked ||
+            !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
             placemarkOptions.balloonLayout = this._createBalloonLayout();
             placemarkOptions.balloonContentLayout = this._createBalloonContentLayout();
             placemarkOptions.balloonAutoPan = false;
@@ -389,7 +408,7 @@ class Ylist {
 
         let balloonLayout = ymaps.templateLayoutFactory.createClass(
             `<div class="ylist-balloon">
-                <button class="ylist-balloon__close" type="button">x</button>
+                <button class="ylist-balloon__close" type="button">${this.options.balloon.closeButton}</button>
                 <div class="ylist-balloon__inner">
                     $[[options.contentLayout]]
                 </div>
@@ -595,14 +614,17 @@ class Ylist {
             return;
         }
 
-        let placemark = e.get('target');
+        let placemark = e.get('target'),
+            balloonBeforeBreakpoint = this.options.balloon.balloonBeforeBreakpoint,
+            balloonAfterBreakpoint = this.options.balloon.balloonAfterBreakpoint;
+
         self.activePlacemark = placemark;
 
         this._commonClickHandler(placemark);
 
-        if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint ||
-            this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
-            !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+        if (balloonBeforeBreakpoint && balloonAfterBreakpoint ||
+            balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
+            !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
             /**
              * Расчитывает координаты центра, с учетом размеров балуна,
              * и центрирует карту относительно балуна
