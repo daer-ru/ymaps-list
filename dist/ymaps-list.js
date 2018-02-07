@@ -169,6 +169,8 @@ var Ylist = function () {
     }, {
         key: '_initMap',
         value: function _initMap() {
+            var $container = $('#' + this.options.mapContainer);
+
             // Если карта уже создана, то дистроим её
             if (this.map) {
                 this.map.destroy();
@@ -177,6 +179,13 @@ var Ylist = function () {
                 this.activePlacemark = null;
                 this.clusterer = null;
                 this.balloonLayout = null;
+            }
+
+            // Подсказка для мобильных устройств
+            if (!$container.find('.ylist-tooltip').length) {
+                var $tooltip = $('<div class="ylist-tooltip">\n                    <span class="ylist-tooltip__text">\u0427\u0442\u043E\u0431\u044B \u043F\u0435\u0440\u0435\u043C\u0435\u0441\u0442\u0438\u0442\u044C \u043A\u0430\u0440\u0442\u0443, \u043F\u0440\u043E\u0432\u0435\u0434\u0438\u0442\u0435 \u043F\u043E \u043D\u0435\u0439 \u0434\u0432\u0443\u043C\u044F \u043F\u0430\u043B\u044C\u0446\u0430\u043C\u0438</span>\n                </div>');
+
+                $container.append($tooltip);
             }
 
             // Создаем яндекс карту
@@ -669,6 +678,7 @@ var Ylist = function () {
             this._commonClickHandler(placemark);
 
             if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint || this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+
                 /**
                  * Расчитывает координаты центра, с учетом размеров балуна,
                  * и центрирует карту относительно балуна

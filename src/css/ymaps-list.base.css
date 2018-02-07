@@ -60,3 +60,31 @@
     }
 
 /* /Balloon */
+
+/* Tooltip */
+.ylist-tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 24px;
+    background: rgba(0,0,0, 0.5);
+    z-index: 1;
+    text-align: center;
+    color: #ffffff;
+    font-size: 18px;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    pointer-events: none;
+}
+
+     .ylist-tooltip__text {
+         position: absolute;
+         top: 50%;
+         left: 50%;
+         min-width: 280px;
+         transform: translate(-50%, -50%);
+     }
+
+/* /Tooltip */

@@ -162,6 +162,8 @@ class Ylist {
      * Инициализация карты
      */
     _initMap() {
+        let $container  = $('#' + this.options.mapContainer);
+
         // Если карта уже создана, то дистроим её
         if (this.map) {
             this.map.destroy();
@@ -170,6 +172,15 @@ class Ylist {
             this.activePlacemark = null;
             this.clusterer = null;
             this.balloonLayout = null;
+        }
+
+        // Подсказка для мобильных устройств
+        if(!$container.find('.ylist-tooltip').length) {
+            let $tooltip = $(`<div class="ylist-tooltip">
+                    <span class="ylist-tooltip__text">Чтобы переместить карту, проведите по ней двумя пальцами</span>
+                </div>`);
+
+            $container.append($tooltip);
         }
 
         // Создаем яндекс карту
@@ -653,6 +664,7 @@ class Ylist {
         if (this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint ||
             this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
             !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+
             /**
              * Расчитывает координаты центра, с учетом размеров балуна,
              * и центрирует карту относительно балуна
