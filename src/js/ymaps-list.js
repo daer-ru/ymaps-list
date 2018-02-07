@@ -127,6 +127,10 @@ class Ylist {
             if(!this.options.balloonParams.hasOwnProperty('showHeader')) {
                 this.options.balloonParams.showHeader = true;
             }
+
+            if(!this.options.balloonParams.hasOwnProperty('closeButton')) {
+                this.options.balloonParams.closeButton = 'x';
+            }
         }
 
         if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
@@ -460,7 +464,7 @@ class Ylist {
 
         let balloonLayout = ymaps.templateLayoutFactory.createClass(
             `<div class="ylist-balloon">
-                <button class="ylist-balloon__close" type="button">x</button>
+                <button class="ylist-balloon__close" type="button">${this.options.balloonParams.closeButton}</button>
                 <div class="ylist-balloon__inner">
                     $[[options.contentLayout]]
                 </div>

@@ -135,6 +135,10 @@ var Ylist = function () {
                 if (!this.options.balloonParams.hasOwnProperty('showHeader')) {
                     this.options.balloonParams.showHeader = true;
                 }
+
+                if (!this.options.balloonParams.hasOwnProperty('closeButton')) {
+                    this.options.balloonParams.closeButton = 'x';
+                }
             }
 
             if (!this.options.hasOwnProperty('balloonBeforeBreakpoint')) {
@@ -472,7 +476,7 @@ var Ylist = function () {
         value: function _createBalloonLayout() {
             var self = this;
 
-            var balloonLayout = ymaps.templateLayoutFactory.createClass('<div class="ylist-balloon">\n                <button class="ylist-balloon__close" type="button">x</button>\n                <div class="ylist-balloon__inner">\n                    $[[options.contentLayout]]\n                </div>\n            </div>', {
+            var balloonLayout = ymaps.templateLayoutFactory.createClass('<div class="ylist-balloon">\n                <button class="ylist-balloon__close" type="button">' + this.options.balloonParams.closeButton + '</button>\n                <div class="ylist-balloon__inner">\n                    $[[options.contentLayout]]\n                </div>\n            </div>', {
                 /**
                  * Строит экземпляр макета на основе шаблона и добавляет его в родительский HTML-элемент.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#build
@@ -906,7 +910,6 @@ var Ylist = function () {
 
                 // Добавляем обработчик клика на элементы переключения
                 $(document).on('click', '#' + self.options.switchContainer + ' [data-ylist-switch]', function (e) {
-                    console.log('it works');
                     self._switchHandler(e, self);
                 });
             } else {

@@ -354,12 +354,13 @@
         
         var ymapsMap = new Ylist({
             balloonParams: {
+                closeButton: '<span style="position:absolute; right: 0; top: 0;">Close</span>',
                 /* Не обязательный параметр, по умолчанию true */
                 showHeader: false,
                 setValue: function(content) {
                     return `${content}
                             <br>
-                            <button>Кнопка</button>`
+                            <button>Кнопка балуна</button>`
                 }
             },
             data: data,
@@ -391,7 +392,7 @@
                 setValue: function(content) {
                     return `${content}
                             <br>
-                            <button>Кнопка</button>`
+                            <button>Кнопка списка</button>`
                 }
             },
             switchContainer: 'ymaps-custom-full-switch',
