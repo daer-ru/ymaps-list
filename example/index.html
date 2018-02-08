@@ -147,10 +147,13 @@
             container: 'ymaps-full',
             mapCenter: [55.751574, 37.573856],
             mapContainer: 'ymaps-full-map',
-            list: true,
-            listContainer: 'ymaps-full-list',
-            // listScroll: function($listContainer, $activeListItem) {},
-            listScroll: false,
+            list: {
+                active: true,
+                container: 'ymaps-full-list',
+                // scroll: function($listContainer, $activeListItem) {},
+                scroll: false,
+                header: true
+            },
             switchContainer: 'ymaps-full-switch',
             cluster: {
                 icons: [
@@ -196,9 +199,10 @@
                 ]
             },
             balloon: {
-                balloonBeforeBreakpoint: true,
-                balloonAfterBreakpoint: false,
-                closeButton: '<span>x</span>'
+                activeBeforeBreakpoint: true,
+                activeAfterBreakpoint: false,
+                closeButton: '<span>x</span>',
+                header: true
             },
             adaptiveBreakpoint: 1024
         });
@@ -219,7 +223,9 @@
             container: 'ymaps',
             mapCenter: [55.751574, 37.573856],
             mapContainer: 'ymaps-map',
-            list: false,
+            list: {
+                active: false
+            },
             cluster: {
                 icons: [
                     [
@@ -264,9 +270,10 @@
                 ]
             },
             balloon: {
-                balloonBeforeBreakpoint: true,
-                balloonAfterBreakpoint: true,
-                closeButton: '<span>x</span>'
+                activeBeforeBreakpoint: true,
+                activeAfterBreakpoint: true,
+                closeButton: '<span>x</span>',
+                header: true
             },
             adaptiveBreakpoint: 1024
         });
@@ -286,7 +293,9 @@
             container: 'ymaps-static',
             mapCenter: [55.751574, 37.573856],
             mapContainer: 'ymaps-static-map',
-            list: false,
+            list: {
+                active: false
+            },
             cluster: {
                 icons: [
                     [
@@ -332,9 +341,10 @@
                 clicked: false
             },
             balloon: {
-                balloonBeforeBreakpoint: false,
-                balloonAfterBreakpoint: false,
-                closeButton: '<span>x</span>'
+                activeBeforeBreakpoint: false,
+                activeAfterBreakpoint: false,
+                closeButton: '<span>x</span>',
+                header: false
             },
             adaptiveBreakpoint: 1024
         });
