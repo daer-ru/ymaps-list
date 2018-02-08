@@ -49,7 +49,7 @@ var Ylist = function () {
                 self._adaptiveHandle(self.mqlAdaptiveBreakpoint, self);
             });
 
-            if (this.options.list) {
+            if (this.options.list.active) {
                 this._initList();
             }
         }
@@ -86,17 +86,26 @@ var Ylist = function () {
                 return;
             }
 
+            // List
             if (!this.options.hasOwnProperty('list')) {
-                this.options.list = false;
+                this.options.list = {};
             }
 
-            if (this.options.hasOwnProperty('list') && this.options.list && !this.options.hasOwnProperty('listContainer')) {
-                console.log('You need to set listContainer option');
+            if (this.options.hasOwnProperty('list') && _typeof(this.options.list) == 'object' && !this.options.list.hasOwnProperty('active')) {
+                this.options.list.active = false;
+            }
+
+            if (this.options.hasOwnProperty('list') && _typeof(this.options.list) == 'object' && this.options.list.hasOwnProperty('active') && this.options.list.active && !this.options.list.hasOwnProperty('container')) {
+                console.log('You need to set container option in list');
                 return;
             }
 
-            if (!this.options.hasOwnProperty('listScroll')) {
-                this.options.listScroll = false;
+            if (this.options.hasOwnProperty('list') && _typeof(this.options.list) == 'object' && !this.options.list.hasOwnProperty('scroll')) {
+                this.options.list.scroll = false;
+            }
+
+            if (this.options.hasOwnProperty('list') && _typeof(this.options.list) == 'object' && !this.options.list.hasOwnProperty('header')) {
+                this.options.list.header = true;
             }
 
             if (!this.options.hasOwnProperty('switchContainer')) {
@@ -134,16 +143,20 @@ var Ylist = function () {
                 this.options.balloon = {};
             }
 
-            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('balloonBeforeBreakpoint')) {
-                this.options.balloon.balloonBeforeBreakpoint = false;
+            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('activeBeforeBreakpoint')) {
+                this.options.balloon.activeBeforeBreakpoint = false;
             }
 
-            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('balloonAfterBreakpoint')) {
-                this.options.balloon.balloonAfterBreakpoint = false;
+            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('activeAfterBreakpoint')) {
+                this.options.balloon.activeAfterBreakpoint = false;
             }
 
             if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('closeButton')) {
                 this.options.balloon.closeButton = 'x';
+            }
+
+            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('header')) {
+                this.options.balloon.header = true;
             }
 
             if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
@@ -248,8 +261,8 @@ var Ylist = function () {
 
             for (var i = 0; i < this.points.length; i++) {
                 var balloonData = void 0,
-                    balloonBeforeBreakpoint = this.options.balloon.balloonBeforeBreakpoint,
-                    balloonAfterBreakpoint = this.options.balloon.balloonAfterBreakpoint;
+                    balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
+                    balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
 
                 if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked || balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
                     balloonData = this._setBalloonData(i);
@@ -301,8 +314,8 @@ var Ylist = function () {
         key: '_setPlacemarkOptions',
         value: function _setPlacemarkOptions(index) {
             var placemarkOptions = {},
-                balloonBeforeBreakpoint = this.options.balloon.balloonBeforeBreakpoint,
-                balloonAfterBreakpoint = this.options.balloon.balloonAfterBreakpoint;
+                balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
+                balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
 
             if (typeof this.options.placemark.icons[0] == 'string') {
                 // Если задаем стандартную иконку метки из набора яндекса
@@ -500,9 +513,15 @@ var Ylist = function () {
     }, {
         key: '_createBalloonContentLayout',
         value: function _createBalloonContentLayout() {
-            var balloonContentLayout = ymaps.templateLayoutFactory.createClass('<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>\n            <div class="ylist-balloon__content">$[properties.balloonContent]</div>');
+            var balloonContentLayout = '';
 
-            return balloonContentLayout;
+            if (this.options.balloon.header === false) {
+                balloonContentLayout = '<div class="ylist-balloon__content">$[properties.balloonContent]</div>';
+            } else {
+                balloonContentLayout = '<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>\n                                    <div class="ylist-balloon__content">$[properties.balloonContent]</div>';
+            }
+
+            return ymaps.templateLayoutFactory.createClass(balloonContentLayout);
         }
 
         /**
@@ -544,7 +563,7 @@ var Ylist = function () {
                 class: this.listClassName + '__item'
             });
 
-            if (typeof point.name === 'string') {
+            if (typeof point.name === 'string' && this.options.list.header) {
                 $elementTitle.html('<a>' + point.name + '</a>');
             } else {
                 $elementTitle = null;
@@ -577,7 +596,7 @@ var Ylist = function () {
                 $list.append(this._createListElement(point));
             }
 
-            $('#' + this.options.listContainer).html('').append($list);
+            $('#' + this.options.list.container).html('').append($list);
 
             // При клике на элемент списка, срабатывает соответстующая точка на карте
             $(document).on('click', '.' + self.listClassName + '__title', function (e) {
@@ -627,8 +646,8 @@ var Ylist = function () {
             }
 
             var placemark = e.get('target'),
-                balloonBeforeBreakpoint = this.options.balloon.balloonBeforeBreakpoint,
-                balloonAfterBreakpoint = this.options.balloon.balloonAfterBreakpoint;
+                balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
+                balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
 
             self.activePlacemark = placemark;
 
@@ -711,19 +730,20 @@ var Ylist = function () {
         value: function _commonClickHandler(placemark) {
             var $listContainer = null,
                 $listItem = null,
-                activeListItemId = null;
+                activeListItemId = null,
+                listActive = this.options.list.active;
 
-            if (this.options.list) {
-                $listContainer = $('#' + this.options.listContainer);
+            if (listActive) {
+                $listContainer = $('#' + this.options.list.container);
             }
 
             if (typeof placemark == 'string') {
-                if (this.options.list) {
+                if (listActive) {
                     $listItem = $('#' + placemark);
                 }
                 activeListItemId = placemark;
             } else {
-                if (this.options.list) {
+                if (listActive) {
                     $listItem = $('#' + placemark.id);
                 }
                 activeListItemId = placemark.id;
@@ -772,16 +792,16 @@ var Ylist = function () {
 
             this.activeListItem = activeListItemId;
 
-            if (this.options.list) {
+            if (listActive) {
                 // Подсветка элемента списка
                 $listContainer.find('.is-active').removeClass('is-active');
                 $listItem.addClass('is-active');
 
                 // Скроллим список к нужному элементу
-                if (typeof this.options.listScroll == 'boolean' && !this.options.listScroll) {
+                if (typeof this.options.list.scroll == 'boolean' && !this.options.list.scroll) {
                     $listContainer.scrollTop($listItem.position().top + $listContainer.scrollTop());
                 } else {
-                    this.options.listScroll($listContainer, $listItem);
+                    this.options.list.scroll($listContainer, $listItem);
                 }
             }
         }
@@ -795,13 +815,15 @@ var Ylist = function () {
     }, {
         key: '_adaptiveHandle',
         value: function _adaptiveHandle(mql, self) {
+            var listActive = self.options.list.active;
+
             if (mql.matches) {
                 // Переключение с десктопа на мобильные устройства
 
                 self.isLessThanAdaptiveBreakpoint = true;
                 self.needReloadMap = true;
 
-                if (self.options.list) {
+                if (listActive) {
                     self._destroyMap();
                 }
 
@@ -811,14 +833,14 @@ var Ylist = function () {
                     $('#' + self.options.switchContainer).find('[data-ylist-switch="list"]').addClass('is-active');
                 }
 
-                if (self.options.list) {
+                if (listActive) {
                     $('#' + self.options.mapContainer).addClass('is-hidden');
                 }
                 $('#' + self.options.mapContainer).addClass('is-adaptive');
-                $('#' + self.options.listContainer).addClass('is-adaptive');
+                $('#' + self.options.list.container).addClass('is-adaptive');
                 $('#' + self.options.container).addClass('is-adaptive');
 
-                if (!self.options.list && !self.map) {
+                if (!listActive && !self.map) {
                     // Если список отключен и карта не инициализирована, то инитим карту на адаптиве сразу
                     self._initMap();
                 }
@@ -839,10 +861,10 @@ var Ylist = function () {
                 }
 
                 $('#' + self.options.mapContainer).removeClass('is-adaptive is-hidden');
-                $('#' + self.options.listContainer).removeClass('is-adaptive is-hidden');
+                $('#' + self.options.list.container).removeClass('is-adaptive is-hidden');
                 $('#' + self.options.container).removeClass('is-adaptive');
 
-                if (self.options.list || !self.options.list && !self.isLessThanAdaptiveBreakpoint && !self.map) {
+                if (listActive || !listActive && !self.isLessThanAdaptiveBreakpoint && !self.map) {
                     self._initMap();
                 }
 
@@ -868,14 +890,14 @@ var Ylist = function () {
 
             if ($elem.attr('data-ylist-switch') === 'map') {
                 $('#' + self.options.mapContainer).removeClass('is-hidden');
-                $('#' + self.options.listContainer).addClass('is-hidden');
+                $('#' + self.options.list.container).addClass('is-hidden');
 
                 if (self.needReloadMap) {
                     self._initMap();
                 }
             } else if ($elem.attr('data-ylist-switch') === 'list') {
                 $('#' + self.options.mapContainer).addClass('is-hidden');
-                $('#' + self.options.listContainer).removeClass('is-hidden');
+                $('#' + self.options.list.container).removeClass('is-hidden');
             }
 
             $('[data-ylist-switch]').removeClass('is-active');
