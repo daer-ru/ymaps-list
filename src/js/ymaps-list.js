@@ -711,11 +711,36 @@ class Ylist {
             this.options.balloonBeforeBreakpoint && !this.options.balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
             !this.options.balloonBeforeBreakpoint && this.options.balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
 
+            let outerHandler = function(e) {
+                if (placemark.options.get('balloonPane') == 'outerBalloon') {
+                    self._setBalloonPane(self.map, placemark, e.get('tick'));
+                }
+            };
+            let innerHandler = function(e) {
+                if (placemark.options.get('balloonPane') != 'outerBalloon') {
+                    self._setBalloonPane(self.map, placemark, e.get('tick'));
+                }
+            };
+
+            // При открытии балуна начинаем слушать изменение центра карты. Вызываем функцию в двух случаях:
+            self.map.geoObjects.events.add('balloonopen', () => {
+                // 1) в начале движения (если балун во внешнем контейнере);
+                self.map.events.add('actiontick', outerHandler);
+                // 2) в конце движения (если балун во внутреннем контейнере).
+                self.map.events.add('actiontickcomplete', innerHandler);
+            });
+
+            // При закрытии балуна удаляем слушатели.
+            self.map.geoObjects.events.add('balloonclose', () => {
+                self.map.events.remove('actiontick', outerHandler);
+                self.map.events.remove('actiontickcomplete', innerHandler);
+            });
+
             /**
              * Расчитывает координаты центра, с учетом размеров балуна,
              * и центрирует карту относительно балуна
              */
-            function setBalloonToCenter() {
+            let setBalloonToCenter = function() {
                 let coords, newCoords;
 
                 coords = self.map.options.get('projection').toGlobalPixels(
@@ -732,7 +757,7 @@ class Ylist {
 
                 // После выполнения функции удаляем обработчик
                 self.map.geoObjects.events.remove('balloonopen', setBalloonToCenter);
-            }
+            };
 
             self.map.geoObjects.events.add('balloonopen', setBalloonToCenter);
         } else {
@@ -950,5 +975,49 @@ class Ylist {
 
         $('#' + self.options.switchContainer).find('[data-ylist-switch]').removeClass('is-active');
         $elem.addClass('is-active');
+    }
+
+
+    /**
+     * Балун, выходящий за пределы карты
+     * @param {Object} map
+     * @param {Object} placemark
+     * @param {Object} mapData
+     * @private
+     */
+    _setBalloonPane(map, placemark, mapData) {
+        mapData = mapData || {
+                globalPixelCenter: map.getGlobalPixelCenter(),
+                zoom: map.getZoom()
+            };
+
+        var mapSize = map.container.getSize(),
+            mapBounds = [
+                [mapData.globalPixelCenter[0] - mapSize[0] / 2, mapData.globalPixelCenter[1] - mapSize[1] / 2],
+                [mapData.globalPixelCenter[0] + mapSize[0] / 2, mapData.globalPixelCenter[1] + mapSize[1] / 2]
+            ],
+            balloonPosition = placemark.balloon.getPosition(),
+            // Используется при изменении зума.
+            zoomFactor = Math.pow(2, mapData.zoom - map.getZoom()),
+            // Определяем, попадает ли точка привязки балуна в видимую область карты.
+            pointInBounds = ymaps.util.pixelBounds.containsPoint(mapBounds, [
+                balloonPosition[0] * zoomFactor,
+                balloonPosition[1] * zoomFactor
+            ]),
+            isInOutersPane = placemark.options.get('balloonPane') == 'outerBalloon';
+
+        // Если точка привязки не попадает в видимую область карты, переносим балун во внутренний контейнер
+        if (!pointInBounds && isInOutersPane) {
+            placemark.options.set({
+                balloonPane: 'balloon',
+                balloonShadowPane: 'shadows'
+            });
+            // и наоборот.
+        } else if (pointInBounds && !isInOutersPane) {
+            placemark.options.set({
+                balloonPane: 'outerBalloon',
+                balloonShadowPane: 'outerBalloon'
+            });
+        }
     }
 }
