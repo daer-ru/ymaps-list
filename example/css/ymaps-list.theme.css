@@ -4,6 +4,10 @@
     height: 500px;
 }
 
+.ylist--small {
+    height: 200px;
+}
+
 .ylist.is-adaptive {
     height: auto;
 }
@@ -29,6 +33,10 @@
 
     .ylist__map-container.is-adaptive {
         height: 500px;
+    }
+
+    .ylist--small .ylist__map-container.is-adaptive {
+        height: 200px;
     }
 
     .ylist__list-container.is-adaptive.is-hidden,

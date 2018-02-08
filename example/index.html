@@ -98,6 +98,18 @@
         <div id="ymaps-custom-map" class="ylist__map-container"></div>
     </div>
 
+
+
+    <div class="container-fluid">
+        <hr class="my-5">
+        <h2 class="mb-5">Балун, выходящий за рамки карты</h2>
+    </div>
+
+    <div id="ymaps-small" style="overflow: visible;" class="ylist ylist--small">
+        <div id="ymaps-small-map" style="overflow: visible;" class="ylist__map-container"></div>
+    </div>
+    
+
     <div class="container-fluid">
         <div class="jumbotron mt-5 mb-0 pt-4 pb-4">
             <a class="btn btn-dark btn-sm" href="https://github.com/daer-ru/ymaps-list" role="button"><i class="fa fa-github" aria-hidden="true"></i> Github</a>
@@ -397,6 +409,77 @@
                 }
             },
             switchContainer: 'ymaps-custom-full-switch',
+            cluster: {
+                icons: [
+                    [
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ],
+                    [
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ]
+                ],
+                inlineStyle: 'color: #fff; padding-left: 2px; text-align: center; font: bold 16px/44px Helvetica, Helvetica CY, Arial, Nimbus Sans L, sans-serif;'
+            },
+            placemark: {
+                icons: [
+                    {
+                        href: 'img/pin.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    },
+                    {
+                        href: 'img/pin_active.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    }
+                ]
+            },
+            balloonBeforeBreakpoint: true,
+            balloonAfterBreakpoint: true,
+            adaptiveBreakpoint: 1024
+        });
+
+        ymapsMap.init();
+
+
+        
+        /*
+            Заметка для readme
+            Чтобы разрешить overflow для балуна, необходимо указать balloonParams.overflowVisible = true
+        */
+        var ymapsMap = new Ylist({
+            balloonParams: {
+                overflowVisible: true
+            },
+            data: data,
+            dataOrder: [
+                'address',
+                'phone',
+                'email',
+                'description'
+            ],
+            container: 'ymaps-small',
+            mapCenter: [55.751574, 37.573856],
+            mapContainer: 'ymaps-small-map',
+            list: false,
             cluster: {
                 icons: [
                     [
