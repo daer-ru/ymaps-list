@@ -16,7 +16,7 @@ class Ylist {
         this.activeListItem = null;
         this.clusterer = null;
         this.balloonLayout = null;
-        this.ballonParams = {
+        this.balloonParams = {
             balloonWidth: null,
             balloonHeight: null,
             balloonTailHeight: 15
@@ -438,8 +438,8 @@ class Ylist {
                     this._$element.find('.ylist-balloon__close')
                         .on('click', $.proxy(this.onCloseClick, this));
 
-                    self.ballonParams.balloonWidth = this._$element[0].offsetWidth;
-                    self.ballonParams.balloonHeight = this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight;
+                    self.balloonParams.balloonWidth = this._$element[0].offsetWidth;
+                    self.balloonParams.balloonHeight = this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight;
                 },
 
                 /**
@@ -475,7 +475,7 @@ class Ylist {
                 applyElementOffset: function () {
                     this._$element.css({
                         left: -(this._$element[0].offsetWidth / 2),
-                        top: -(this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight)
+                        top: -(this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight)
                     });
                 },
 
@@ -656,7 +656,7 @@ class Ylist {
                 );
 
                 // Сдвигаем координаты на половину высоты балуна
-                coords[1] -= self.ballonParams.balloonHeight / 2;
+                coords[1] -= self.balloonParams.balloonHeight / 2;
 
                 newCoords = self.map.options.get('projection').fromGlobalPixels(coords, self.map.getZoom());
 

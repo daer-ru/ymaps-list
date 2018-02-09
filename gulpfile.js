@@ -1,4 +1,5 @@
 var gulp        = require('gulp');
+var multiDest   = require('gulp-multi-dest');
 var rename      = require('gulp-rename');
 var babel       = require('gulp-babel');
 var env         = require('babel-preset-env');
@@ -35,7 +36,8 @@ gulp.task('scripts', function() {
             }]]
         }))
         .pipe(concat('ymaps-list.js'))
-        .pipe(gulp.dest('dist'));
+        // .pipe(gulp.dest('dist'));
+        .pipe(multiDest(['dist', 'example/js']));
 });
 
 gulp.task('scripts-min', function() {
@@ -55,7 +57,8 @@ gulp.task('scripts-min', function() {
         }))
         .pipe(concat('ymaps-list.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest('dist'));
+        // .pipe(gulp.dest('dist'));
+        .pipe(multiDest(['dist', 'example/js']));
 });
 
 gulp.task('styles', function() {
@@ -66,7 +69,8 @@ gulp.task('styles', function() {
                 message: err.toString()
             }))
         }))
-        .pipe(gulp.dest('dist'));
+        // .pipe(gulp.dest('dist'));
+        .pipe(multiDest(['dist', 'example/css']));
 });
 
 gulp.task('styles-min', function() {
@@ -85,5 +89,6 @@ gulp.task('styles-min', function() {
             })
         ]))
         .pipe(rename({suffix: '.min'}))
-        .pipe(gulp.dest('dist'));
+        // .pipe(gulp.dest('dist'));
+        .pipe(multiDest(['dist', 'example/css']));
 });
