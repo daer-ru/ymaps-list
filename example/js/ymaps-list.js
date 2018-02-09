@@ -903,6 +903,59 @@ var Ylist = function () {
             $('[data-ylist-switch]').removeClass('is-active');
             $elem.addClass('is-active');
         }
+
+        /**
+         * Реализовывает фильтрацию меток
+         * @param {Array} filteredPlacemarks
+         */
+        // _filter(filteredPlacemarks) {
+        //     this.placemarks.forEach(item => {
+        //         item.options.set('visible', false);
+        //         this.clusterer.remove(item);
+        //         $('#' + item.id).hide();
+        //     });
+        //
+        //     filteredPlacemarks.forEach(item => {
+        //         item.options.set('visible', true);
+        //         this.clusterer.add(item);
+        //         $('#' + item.id).show();
+        //     });
+        // }
+
+
+    }, {
+        key: 'filter',
+        value: function filter(callback) {
+            var _this = this;
+
+            if (typeof callback !== 'function') {
+                throw new TypeError('Аргумент должен быть функцией');
+            }
+
+            var data = this.options.data;
+            var placemarks = this.placemarks;
+
+            if (!placemarks.length) {
+                console.warn('Невозможно запустить фильтрацию. Массив меток пуст.');
+                return;
+            }
+
+            placemarks.forEach(function (item) {
+                item.options.set('visible', false);
+                _this.clusterer.remove(item);
+                $('#' + item.id).hide();
+            });
+
+            for (var i = 0; i < data.length; i++) {
+                var item = data[i];
+
+                if (callback(item, i, data)) {
+                    placemarks[i].options.set('visible', true);
+                    this.clusterer.add(placemarks[i]);
+                    $('#' + placemarks[i].id).show();
+                }
+            }
+        }
     }]);
 
     return Ylist;
