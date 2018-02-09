@@ -60,6 +60,10 @@ class Ylist {
             return;
         }
 
+        if (!this.options.hasOwnProperty('dataExtension')) {
+            this.options.dataExtension = {};
+        }
+
         if (!this.options.hasOwnProperty('container')) {
             console.log('You need to set container option');
             return;
@@ -525,16 +529,34 @@ class Ylist {
      * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/GeoObject.xml
      */
     _setBalloonData(index) {
-        let balloonContent = ``;
+        let balloonHeader = ``,
+            balloonContent = ``;
 
         for (let i = 0; i < this.options.dataOrder.length; i++) {
-            let dataOption = this.options.dataOrder[i];
+            let dataOptionName = this.options.dataOrder[i],
+                optionName = ``,
+                optionContent = ``;
 
-            balloonContent += `<p class="ylist-balloon__${dataOption}">${this.points[index][dataOption]}</p>`;
+            if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
+                // Формируется контент одной опции из колбека
+                optionContent = this.options.dataExtension[dataOptionName](this.points[index][dataOptionName]);
+
+            } else if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName == 'name') {
+                // Формируется контент заголовка опции из колбека
+                optionName = this.options.dataExtension[dataOptionName](this.points[index][dataOptionName]);
+
+            } else {
+                // Контент опции передается как есть если колбек для неё не задан
+                optionName = this.points[index].name;
+                optionContent = this.points[index][dataOptionName];
+            }
+
+            balloonHeader += optionName;
+            balloonContent += optionContent;
         }
 
         return {
-            balloonHeader: this.points[index].name,
+            balloonHeader: balloonHeader,
             balloonContent: balloonContent
         };
     }
@@ -554,17 +576,35 @@ class Ylist {
             class: this.listClassName + '__item'
         });
 
-
-        if (typeof point.name === 'string' && this.options.list.header) {
-            $elementTitle.html('<a>' + point.name + '</a>');
+        if (point.name && this.options.list.header) {
+            if (this.options.dataExtension.hasOwnProperty('name')) {
+                // Формируется контент одной опции из колбека
+                $elementTitle.html(this.options.dataExtension['name'](point.name));
+            } else {
+                // Контент опции передается как есть если колбек для неё не задан
+                $elementTitle.html(point.name);
+            }
         } else {
             $elementTitle = null;
         }
 
         for (let i = 0; i < this.options.dataOrder.length; i++) {
-            let dataOption = this.options.dataOrder[i];
+            let dataOptionName = this.options.dataOrder[i],
+                optionName = ``,
+                optionContent = ``;
 
-            $elementContent += `<p class="${this.listClassName}__${dataOption}">${point[dataOption]}</p>`;
+            if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
+                // Формируется контент одной опции из колбека
+                optionContent = this.options.dataExtension[dataOptionName](point[dataOptionName]);
+
+            } else {
+                // Контент опции передается как есть если колбек для неё не задан
+                if (dataOptionName != 'name') {
+                    optionContent = point[dataOptionName];
+                }
+            }
+
+            $elementContent += optionContent;
         }
 
         $listElement.append($elementTitle, $elementContent);
