@@ -655,10 +655,15 @@ class Ylist {
      * @param {Object} objects массив геобъектов или кластер
      */
     _setBounds(objects) {
-        this.map.setBounds(objects.getBounds(), {
-            checkZoomRange: true,
-            zoomMargin: 10
-        });
+        if (typeof this.placemarks === 'object' && this.placemarks.length === 1) {
+            // Если метка 1, то её координаты ставятся центром карты и масштаб не самый максимальный
+            this.map.setCenter(this.placemarks[0].geometry.getCoordinates(), 16);
+        } else {
+            this.map.setBounds(objects.getBounds(), {
+                checkZoomRange: true,
+                zoomMargin: 10
+            });
+        }
     }
 
 
