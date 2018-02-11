@@ -229,7 +229,9 @@ class Ylist {
             this.balloonLayout = null;
         }
 
-        this._initMapTooltip();
+        if (this.options.map.tooltip.active) {
+            this._initMapTooltip();
+        }
 
         // Создаем яндекс карту
         this.map = new ymaps.Map(this.options.map.container, {
@@ -303,7 +305,6 @@ class Ylist {
      * Инициализация подсказки на карте
      */
     _initMapTooltip() {
-        // TODO: доделать переход через точку адаптива
         let $container = $('#' + this.options.map.container),
             $tooltip = $(`<div class="ylist-tooltip">
                               <span class="ylist-tooltip__text">${this.options.map.tooltip.tooltipText}</span>
@@ -311,6 +312,8 @@ class Ylist {
 
         $container.remove('.ylist-tooltip');
         $container.append($tooltip);
+
+        $container.off('touchmove touchstart touchend touchleave touchcancel');
 
 
         if (this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableBeforeBreakpoint) {
@@ -953,8 +956,16 @@ class Ylist {
                 self._initMap();
             }
 
-            if (!listActive && self.map && self.options.map.drag.disableBeforeBreakpoint) {
-                self.map.behaviors.disable('drag');
+            if (!listActive && self.map) {
+                if (self.options.map.drag.disableBeforeBreakpoint) {
+                    self.map.behaviors.disable('drag');
+                } else {
+                    self.map.behaviors.enable('drag');
+                }
+
+                if (this.options.map.tooltip.active) {
+                    this._initMapTooltip();
+                }
             }
 
             // Добавляем обработчик клика на элементы переключения
@@ -980,8 +991,16 @@ class Ylist {
                 self._initMap();
             }
 
-            if (!listActive && self.map && self.options.map.drag.disableAfterBreakpoint) {
-                self.map.behaviors.disable('drag');
+            if (!listActive && self.map) {
+                if (self.options.map.drag.disableAfterBreakpoint) {
+                    self.map.behaviors.disable('drag');
+                } else {
+                    self.map.behaviors.enable('drag');
+                }
+
+                if (this.options.map.tooltip.active) {
+                    this._initMapTooltip();
+                }
             }
 
             // Удаляем обработчик клика на элементы переключения
