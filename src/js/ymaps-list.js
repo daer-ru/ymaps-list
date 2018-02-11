@@ -96,7 +96,22 @@ class Ylist {
                 }
 
                 if (!this.options.map.drag.hasOwnProperty('disableAfterBreakpoint')) {
-                    this.options.map.drag.disableAfterBreakpoint = true;
+                    this.options.map.drag.disableAfterBreakpoint = false;
+                }
+            }
+
+
+            if (!this.options.map.hasOwnProperty('tooltip')) {
+                this.options.map.tooltip = {};
+            }
+
+            if (this.options.map.hasOwnProperty('tooltip') && typeof this.options.map.tooltip == 'object') {
+                if (!this.options.map.tooltip.hasOwnProperty('active')) {
+                    this.options.map.tooltip.active = true;
+                }
+
+                if (!this.options.map.tooltip.hasOwnProperty('tooltipText')) {
+                    this.options.map.tooltip.tooltipText = 'To drag map touch screen by two fingers and move';
                 }
             }
         }
@@ -214,6 +229,10 @@ class Ylist {
             this.balloonLayout = null;
         }
 
+        if (this.options.map.tooltip.active) {
+            this._initMapTooltip();
+        }
+
         // Создаем яндекс карту
         this.map = new ymaps.Map(this.options.map.container, {
             center: this.options.map.center,
@@ -279,6 +298,35 @@ class Ylist {
      */
     _initList() {
         this._createPointsList();
+    }
+
+
+    /**
+     * Инициализация подсказки на карте
+     */
+    _initMapTooltip() {
+        let $container = $('#' + this.options.map.container),
+            $tooltip = $(`<div class="ylist-tooltip">
+                              <span class="ylist-tooltip__text">${this.options.map.tooltip.tooltipText}</span>
+                          </div>`);
+
+        $container.remove('.ylist-tooltip');
+        $container.append($tooltip);
+
+        $container.off('touchmove touchstart touchend touchleave touchcancel');
+
+
+        if (this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableBeforeBreakpoint) {
+            $container.on('touchmove', function(e) {
+                if (e.originalEvent.touches.length == 1) {
+                    $tooltip.css('opacity', '1');
+                } else {
+                    $tooltip.css('opacity', '0');
+                }
+            }).on('touchstart touchend touchleave touchcancel', function(e) {
+                $tooltip.css('opacity', '0');
+            });
+        }
     }
 
 
@@ -908,6 +956,18 @@ class Ylist {
                 self._initMap();
             }
 
+            if (!listActive && self.map) {
+                if (self.options.map.drag.disableBeforeBreakpoint) {
+                    self.map.behaviors.disable('drag');
+                } else {
+                    self.map.behaviors.enable('drag');
+                }
+
+                if (this.options.map.tooltip.active) {
+                    this._initMapTooltip();
+                }
+            }
+
             // Добавляем обработчик клика на элементы переключения
             $(document).on('click', '[data-ylist-switch]', function(e) {
                 self._switchHandler(e, self);
@@ -929,6 +989,18 @@ class Ylist {
 
             if (listActive || !listActive && !self.isLessThanAdaptiveBreakpoint && !self.map) {
                 self._initMap();
+            }
+
+            if (!listActive && self.map) {
+                if (self.options.map.drag.disableAfterBreakpoint) {
+                    self.map.behaviors.disable('drag');
+                } else {
+                    self.map.behaviors.enable('drag');
+                }
+
+                if (this.options.map.tooltip.active) {
+                    this._initMapTooltip();
+                }
             }
 
             // Удаляем обработчик клика на элементы переключения
