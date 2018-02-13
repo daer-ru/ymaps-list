@@ -969,7 +969,7 @@ class Ylist {
             }
 
             // Добавляем обработчик клика на элементы переключения
-            $(document).on('click', '[data-ylist-switch]', function(e) {
+            $(document).on('click', `#${self.options.switchContainer} [data-ylist-switch]`, function(e) {
                 self._switchHandler(e, self);
             });
         } else {
@@ -1004,7 +1004,7 @@ class Ylist {
             }
 
             // Удаляем обработчик клика на элементы переключения
-            $(document).off('click', '[data-ylist-switch]', self._switchHandler);
+            $(document).off('click', `#${self.options.switchContainer} [data-ylist-switch]`, self._switchHandler);
         }
     }
 
@@ -1033,7 +1033,7 @@ class Ylist {
             $('#' + self.options.list.container).removeClass('is-hidden');
         }
 
-        $('[data-ylist-switch]').removeClass('is-active');
+        $(`#${self.options.switchContainer} [data-ylist-switch]`).removeClass('is-active');
         $elem.addClass('is-active');
     }
 }
