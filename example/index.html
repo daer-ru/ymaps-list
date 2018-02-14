@@ -137,6 +137,20 @@
 
 
         var ymapsFull = new Ylist({
+    
+            /* поменял настройки зум-кнопок */
+            controls: [{
+                constructor: "ZoomControl",
+                options: {
+                    size: 'large',
+                    position: {
+                        bottom: 48,
+                        right: 10
+                    }
+                }
+            }],
+            
+            
             data: data,
             dataOrder: [
                 'name',

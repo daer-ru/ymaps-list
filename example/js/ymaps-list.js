@@ -123,6 +123,14 @@ var Ylist = function () {
                         this.options.map.tooltip.tooltipText = 'To drag map touch screen by two fingers and move';
                     }
                 }
+
+                /* Глобальные опции карты можно задавать извне.
+                По-умолчанию предлагаю убрать бесполезную кнопку */
+                if (!this.options.map.hasOwnProperty('customOptions')) {
+                    this.options.map.customOptions = {
+                        suppressMapOpenBlock: true
+                    };
+                }
             }
 
             // List
@@ -206,6 +214,21 @@ var Ylist = function () {
                 }
             }
 
+            // Controls
+            if (!this.options.hasOwnProperty('controls')) {
+                /* Блок зума со стандартными настройками */
+                this.options.controls = [{
+                    constructor: "ZoomControl",
+                    options: {
+                        size: 'small',
+                        position: {
+                            top: 10,
+                            right: 10
+                        }
+                    }
+                }];
+            }
+
             if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
                 this.options.adaptiveBreakpoint = 1024;
             }
@@ -218,6 +241,8 @@ var Ylist = function () {
     }, {
         key: '_initMap',
         value: function _initMap() {
+            var _this = this;
+
             // Если карта уже создана, то дистроим её
             if (this.map) {
                 this.map.destroy();
@@ -237,9 +262,10 @@ var Ylist = function () {
                 center: this.options.map.center,
                 zoom: 13,
                 controls: []
-            });
+            }, this.options.map.customOptions);
 
             // Создаем и добавляем маленький зум
+            /*
             var zoomControl = new ymaps.control.ZoomControl({
                 options: {
                     size: 'small',
@@ -249,8 +275,22 @@ var Ylist = function () {
                     }
                 }
             });
+             this.map.controls.add(zoomControl);*/
 
-            this.map.controls.add(zoomControl);
+            this.options.controls.forEach(function (control) {
+                var arg = {};
+
+                if (!control.hasOwnProperty('constructor')) {
+                    throw new Error('\u041D\u0443\u0436\u043D\u043E \u0443\u043A\u0430\u0437\u0430\u0442\u044C \u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u043C\u0435\u0442\u043E\u0434\u0430-\u043A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440\u0430. \u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440:\nhttps://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/control.Button-docpage/');
+                }
+
+                // аргумент для конструктора управляющих элементов
+                arg.options = control.options;
+
+                // добавляем каждый управляющий элемент на карту
+                _this.map.controls.add(new ymaps.control[control.constructor](arg));
+            });
+
             this.map.behaviors.disable('scrollZoom');
 
             this._createPlacemarks();
