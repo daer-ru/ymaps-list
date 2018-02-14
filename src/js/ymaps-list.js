@@ -114,6 +114,14 @@ class Ylist {
                     this.options.map.tooltip.tooltipText = 'To drag map touch screen by two fingers and move';
                 }
             }
+
+            /* Глобальные опции карты можно задавать извне.
+            По-умолчанию предлагаю убрать бесполезную кнопку */
+            if (!this.options.map.hasOwnProperty('customOptions')) {
+                this.options.map.customOptions = {
+                    suppressMapOpenBlock: true
+                };
+            }
         }
 
 
@@ -209,6 +217,22 @@ class Ylist {
         }
 
 
+        // Controls
+        if (!this.options.hasOwnProperty('controls')) {
+            /* Если не указать это свойство, ставится по-умолчанию */
+            this.options.controls = [{
+                    constructor: "ZoomControl",
+                    options: {
+                        size: 'small',
+                        position: {
+                            top: 10,
+                            right: 10
+                        }
+                    }
+                }];
+        }
+
+
         if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
             this.options.adaptiveBreakpoint = 1024;
         }
@@ -238,9 +262,10 @@ class Ylist {
             center: this.options.map.center,
             zoom: 13,
             controls: []
-        });
+        }, this.options.map.customOptions);
 
         // Создаем и добавляем маленький зум
+        /*
         var zoomControl = new ymaps.control.ZoomControl({
             options: {
                 size: 'small',
@@ -251,7 +276,22 @@ class Ylist {
             }
         });
 
-        this.map.controls.add(zoomControl);
+        this.map.controls.add(zoomControl);*/
+
+        this.options.controls.forEach(control => {
+            let arg = {};
+
+            if(!control.hasOwnProperty('constructor')) {
+                throw new Error(`Нужно указать название метода-конструктора. Например:\nhttps://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/control.Button-docpage/`);
+            }
+
+            // аргумент для конструктора управляющих элементов
+            arg.options = control.options;
+
+            // добавляем каждый управляющий элемент на карту
+            this.map.controls.add(new ymaps.control[control.constructor](arg));
+        });
+
         this.map.behaviors.disable('scrollZoom');
 
         this._createPlacemarks();
