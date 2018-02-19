@@ -146,6 +146,54 @@ ID контейнера карты в виде строки, например `y
 
 ---
 
+**map.customize**
+
+*Тип:* `Object` или `Boolean`
+
+*Значение по умолчанию:* `false`
+
+*Обязательно:* -
+
+Объект пользовательских настроек карты. Содержит поля `state`, `options`, `controls`. См. [API Яндекс.Карт](https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Map-docpage/)
+
+---
+
+**map.customize.state**
+
+*Тип:* `Object` или `Boolean`
+
+*Значение по умолчанию:* `false`
+
+*Обязательно:* -
+
+Параметры карты. См. [API Яндекс.Карт](https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Map-docpage/) `state.*`
+
+---
+
+**map.customize.options**
+
+*Тип:* `Object`
+
+*Значение по умолчанию:* `{}`
+
+*Обязательно:* -
+
+Опции карты. См. [API Яндекс.Карт](https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Map-docpage/) `options.*`
+
+---
+
+**map.customize.controls**
+
+*Тип:* `Array` или `Boolean`
+
+*Значение по умолчанию:* `false`
+
+*Обязательно:* -
+
+Элементы управления картой. Массив объектов, где у объекта есть параметры `constructor` - название конструктора контрола из [API Яндекс.Карт](https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/control.ZoomControl-docpage/), например `ZoomControl`, `options` - опции конструктора контрола `parameters.options.*`. Пример см. в [Демо](https://daer-ru.github.io/ymaps-list/).
+
+---
+
 **map.drag**
 
 *Тип:* `Object`
