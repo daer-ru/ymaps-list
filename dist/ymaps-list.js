@@ -1047,23 +1047,9 @@ var Ylist = function () {
         }
 
         /**
-         * Реализовывает фильтрацию меток
-         * @param {Array} filteredPlacemarks
+         * Публичный метод, реализующий фильтрацию
+         * @param {Function} callback
          */
-        // _filter(filteredPlacemarks) {
-        //     this.placemarks.forEach(item => {
-        //         item.options.set('visible', false);
-        //         this.clusterer.remove(item);
-        //         $('#' + item.id).hide();
-        //     });
-        //
-        //     filteredPlacemarks.forEach(item => {
-        //         item.options.set('visible', true);
-        //         this.clusterer.add(item);
-        //         $('#' + item.id).show();
-        //     });
-        // }
-
 
     }, {
         key: 'filter',
