@@ -625,10 +625,10 @@ var Ylist = function () {
 
                 if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
                     // Формируется контент одной опции из колбека
-                    optionContent = this.options.dataExtension[dataOptionName](this.points[index][dataOptionName]);
+                    optionContent = this.options.dataExtension[dataOptionName](this.points[index][dataOptionName], this.points[index]);
                 } else if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName == 'name') {
                     // Формируется контент заголовка опции из колбека
-                    optionName = this.options.dataExtension[dataOptionName](this.points[index][dataOptionName]);
+                    optionName = this.options.dataExtension[dataOptionName](this.points[index][dataOptionName], this.points[index]);
                 } else {
                     // Контент опции передается как есть если колбек для неё не задан
                     optionName = this.points[index].name;
@@ -707,7 +707,7 @@ var Ylist = function () {
             if (point.name && this.options.list.header) {
                 if (this.options.dataExtension.hasOwnProperty('name')) {
                     // Формируется контент одной опции из колбека
-                    $elementTitle.html(this.options.dataExtension['name'](point.name));
+                    $elementTitle.html(this.options.dataExtension['name'](point.name, point));
                 } else {
                     // Контент опции передается как есть если колбек для неё не задан
                     $elementTitle.html(point.name);
@@ -723,7 +723,7 @@ var Ylist = function () {
 
                 if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
                     // Формируется контент одной опции из колбека
-                    optionContent = this.options.dataExtension[dataOptionName](point[dataOptionName]);
+                    optionContent = this.options.dataExtension[dataOptionName](point[dataOptionName], point);
                 } else {
                     // Контент опции передается как есть если колбек для неё не задан
                     if (dataOptionName != 'name') {
