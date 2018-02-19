@@ -94,7 +94,7 @@ yarn add ymaps-list
 
 *Обязательно:* -
 
-В объекте указываются свойства с таким же именем, как в `dataOrder`. В каждом свойстве находится функция колбек, в которую передается в виде строки значение соответствующего свойства из `data`. Например, `function(address) {}`. Функция должна возвращать строку. Например `function(address) {let extendedAddress = '<p class="ylist-balloon__address">${address}</p>'; return extendedAddress;}`
+В объекте указываются свойства с таким же именем, как в `dataOrder`. В каждом свойстве находится функция колбек, в которую первым аргументом передается в виде строки значение соответствующего свойства из `data`, вторым аргументом передается весь объект данных по метке. Например, `function(address, pointData) {}`. Функция должна возвращать строку. Например `function(address, pointData) {let extendedAddress = '<p class="ylist-balloon__address">${address}</p>'; return extendedAddress;}`
 
 ---
 
