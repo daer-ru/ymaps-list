@@ -147,6 +147,10 @@ var Ylist = function () {
                 if (!this.options.list.hasOwnProperty('header')) {
                     this.options.list.header = true;
                 }
+
+                if (!this.options.list.hasOwnProperty('modifier')) {
+                    this.options.list.modifier = '';
+                }
             }
 
             if (!this.options.hasOwnProperty('switchContainer')) {
@@ -207,6 +211,10 @@ var Ylist = function () {
 
                 if (!this.options.balloon.hasOwnProperty('mapOverflow')) {
                     this.options.balloon.mapOverflow = true;
+                }
+
+                if (!this.options.balloon.hasOwnProperty('modifier')) {
+                    this.options.balloon.modifier = '';
                 }
             }
 
@@ -515,7 +523,7 @@ var Ylist = function () {
         value: function _createBalloonLayout() {
             var self = this;
 
-            var balloonLayout = ymaps.templateLayoutFactory.createClass('<div class="ylist-balloon">\n                <button class="ylist-balloon__close" type="button">' + this.options.balloon.closeButton + '</button>\n                <div class="ylist-balloon__inner">\n                    $[[options.contentLayout]]\n                </div>\n            </div>', {
+            var balloonLayout = ymaps.templateLayoutFactory.createClass('<div class="ylist-balloon ' + this.options.balloon.modifier + '">\n                <button class="ylist-balloon__close" type="button">' + this.options.balloon.closeButton + '</button>\n                <div class="ylist-balloon__inner">\n                    $[[options.contentLayout]]\n                </div>\n            </div>', {
                 /**
                  * Строит экземпляр макета на основе шаблона и добавляет его в родительский HTML-элемент.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#build
@@ -747,7 +755,7 @@ var Ylist = function () {
         key: '_createPointsList',
         value: function _createPointsList() {
             var self = this,
-                $list = $('<ul/>', { class: this.listClassName });
+                $list = $('<ul/>', { class: this.listClassName + ' ' + this.options.list.modifier });
 
             for (var i = 0; i < this.points.length; i++) {
                 var point = this.points[i];
