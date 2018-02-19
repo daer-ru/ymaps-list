@@ -51,12 +51,12 @@ class Ylist {
      */
     _checkRequiredOptions() {
         if (!this.points) {
-            console.log('You need to JSON data');
+            throw new Error('You need to JSON data');
             return;
         }
 
         if (!this.options.hasOwnProperty('dataOrder') || this.options.hasOwnProperty('dataOrder') && this.options.dataOrder.length == 0) {
-            console.log('You need to set dataOrder option');
+            throw new Error('You need to set dataOrder option');
             return;
         }
 
@@ -65,7 +65,7 @@ class Ylist {
         }
 
         if (!this.options.hasOwnProperty('container')) {
-            console.log('You need to set container option');
+            throw new Error('You need to set container option');
             return;
         }
 
@@ -77,14 +77,34 @@ class Ylist {
 
         if (this.options.hasOwnProperty('map') && typeof this.options.map == 'object') {
             if (!this.options.map.hasOwnProperty('center')) {
-                console.log('You need to set map.center option');
+                throw new Error('You need to set map.center option');
                 return;
             }
 
             if (!this.options.map.hasOwnProperty('container')) {
-                console.log('You need to set map.container option');
+                throw new Error('You need to set map.container option');
                 return;
             }
+
+
+            if (!this.options.map.hasOwnProperty('customize')) {
+                this.options.map.customize = false;
+            }
+
+            if (this.options.map.hasOwnProperty('customize') && typeof this.options.map.customize == 'object') {
+                if (!this.options.map.customize.hasOwnProperty('state')) {
+                    this.options.map.customize.state = false;
+                }
+
+                if (!this.options.map.customize.hasOwnProperty('options')) {
+                    this.options.map.customize.options = {};
+                }
+
+                if (!this.options.map.customize.hasOwnProperty('controls')) {
+                    this.options.map.customize.controls = false;
+                }
+            }
+
 
             if (!this.options.map.hasOwnProperty('drag')) {
                 this.options.map.drag = {};
@@ -128,7 +148,7 @@ class Ylist {
             }
 
             if (this.options.list.hasOwnProperty('active') && this.options.list.active && !this.options.list.hasOwnProperty('container')) {
-                console.log('You need to set container option in list');
+                throw new Error('You need to set container option in list');
                 return;
             }
 
@@ -245,25 +265,24 @@ class Ylist {
             this._initMapTooltip();
         }
 
+        let baseMapState = {
+                center: this.options.map.center,
+                zoom: 13,
+                controls: []
+            },
+            extendedMapState = null;
+
+        if (typeof this.options.map.customize == 'object' && typeof this.options.map.customize.state == 'object') {
+            extendedMapState = this._setMapState(this.options.map.customize.state, baseMapState);
+        }
+
         // Создаем яндекс карту
-        this.map = new ymaps.Map(this.options.map.container, {
-            center: this.options.map.center,
-            zoom: 13,
-            controls: []
-        });
+        this.map = new ymaps.Map(this.options.map.container, extendedMapState ? extendedMapState : baseMapState, this.options.map.customize.options);
 
-        // Создаем и добавляем маленький зум
-        var zoomControl = new ymaps.control.ZoomControl({
-            options: {
-                size: 'small',
-                position: {
-                    top: 10,
-                    right: 10
-                }
-            }
-        });
+        if (typeof this.options.map.customize == 'object' && typeof this.options.map.customize.controls == 'object') {
+            this._setMapControls(this.options.map.customize.controls);
+        }
 
-        this.map.controls.add(zoomControl);
         this.map.behaviors.disable('scrollZoom');
 
         this._createPlacemarks();
@@ -339,6 +358,41 @@ class Ylist {
                 $tooltip.css('opacity', '0');
             });
         }
+    }
+
+
+    /**
+     * Объединяет дефолтные параметры карты state с пользовательскими
+     * @param  {Object} customMapState пользовательские параметры карты 
+     * @param  {Object} baseMapState   дефолтные параметры карты 
+     * @return {Object} объединенные дефолтные и пользовательские параметры карты 
+     * @see    https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Map-docpage/
+     */
+    _setMapState(customMapState, baseMapState) {
+        let extendedMapState = Object.assign({}, baseMapState, customMapState);
+
+        return extendedMapState;
+    }
+
+
+    /**
+     * Добавляет на карту дополнительные контролы, заданные пользователем
+     * @param {Array} userControls массив объектов контролов с их настройками
+     */
+    _setMapControls(userControls) {
+        userControls.forEach(control => {
+            let params = {};
+
+            if (!control.hasOwnProperty('constructor')) {
+                throw new Error(`Нужно указать название метода-конструктора. Например:\nhttps://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/control.FullscreenControl-docpage/`);
+            }
+
+            // Опции элемента управления
+            params.options = control.options;
+
+            // Добавляем каждый контрол на карту
+            this.map.controls.add(new ymaps.control[control.constructor](params));
+        });
     }
 
 
