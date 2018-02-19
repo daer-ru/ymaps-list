@@ -204,6 +204,10 @@ var Ylist = function () {
                 if (!this.options.balloon.hasOwnProperty('header')) {
                     this.options.balloon.header = true;
                 }
+
+                if (!this.options.balloon.hasOwnProperty('mapOverflow')) {
+                    this.options.balloon.mapOverflow = true;
+                }
             }
 
             if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
@@ -642,6 +646,48 @@ var Ylist = function () {
         }
 
         /**
+         * Балун, выходящий за пределы карты
+         * @param {Object} map
+         * @param {Object} placemark
+         * @param {Object} mapData
+         * @private
+         */
+
+    }, {
+        key: '_setBalloonPane',
+        value: function _setBalloonPane(map, placemark, mapData) {
+            mapData = mapData || {
+                globalPixelCenter: map.getGlobalPixelCenter(),
+                zoom: map.getZoom()
+            };
+
+            var mapSize = map.container.getSize(),
+                mapBounds = [[mapData.globalPixelCenter[0] - mapSize[0] / 2, mapData.globalPixelCenter[1] - mapSize[1] / 2], [mapData.globalPixelCenter[0] + mapSize[0] / 2, mapData.globalPixelCenter[1] + mapSize[1] / 2]],
+                balloonPosition = placemark.balloon.getPosition(),
+
+            // Используется при изменении зума.
+            zoomFactor = Math.pow(2, mapData.zoom - map.getZoom()),
+
+            // Определяем, попадает ли точка привязки балуна в видимую область карты.
+            pointInBounds = ymaps.util.pixelBounds.containsPoint(mapBounds, [balloonPosition[0] * zoomFactor, balloonPosition[1] * zoomFactor]),
+                isInOutersPane = placemark.options.get('balloonPane') == 'outerBalloon';
+
+            if (!pointInBounds && isInOutersPane) {
+                // Если точка привязки не попадает в видимую область карты, переносим балун во внутренний контейнер
+                placemark.options.set({
+                    balloonPane: 'balloon',
+                    balloonShadowPane: 'shadows'
+                });
+            } else if (pointInBounds && !isInOutersPane) {
+                // и наоборот.
+                placemark.options.set({
+                    balloonPane: 'outerBalloon',
+                    balloonShadowPane: 'outerBalloon'
+                });
+            }
+        }
+
+        /**
          * Создает DOM элемент списка
          * @param  {Array}   point данные точки из входящего json
          * @return {Element}       DOM элемент спсика с содержимым
@@ -772,28 +818,62 @@ var Ylist = function () {
             this._commonClickHandler(placemark);
 
             if (balloonBeforeBreakpoint && balloonAfterBreakpoint || balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+
+                // Настройка балуна, выходящего за пределы карты
+                if (this.options.balloon.mapOverflow === false) {
+                    var outerHandler = function outerHandler(e) {
+                        if (placemark.options.get('balloonPane') === 'outerBalloon') {
+                            self._setBalloonPane(self.map, placemark, e.get('tick'));
+                        }
+                    };
+                    var innerHandler = function innerHandler(e) {
+                        if (placemark.options.get('balloonPane') !== 'outerBalloon') {
+                            self._setBalloonPane(self.map, placemark, e.get('tick'));
+                        }
+                    };
+
+                    // При открытии балуна начинаем слушать изменение центра карты. Вызываем функцию в двух случаях:
+                    self.map.geoObjects.events.add('balloonopen', function () {
+                        // 1) в начале движения (если балун во внешнем контейнере);
+                        self.map.events.add('actiontick', outerHandler);
+                        // 2) в конце движения (если балун во внутреннем контейнере).
+                        self.map.events.add('actiontickcomplete', innerHandler);
+                        // Сразу делаем проверку на позицию балуна
+                        self._setBalloonPane(self.map, placemark);
+                    });
+
+                    // При закрытии балуна удаляем слушатели.
+                    self.map.geoObjects.events.add('balloonclose', function () {
+                        self.map.events.remove('actiontick', outerHandler);
+                        self.map.events.remove('actiontickcomplete', innerHandler);
+                    });
+                }
+
                 /**
                  * Расчитывает координаты центра, с учетом размеров балуна,
                  * и центрирует карту относительно балуна
                  */
-                var _setBalloonToCenter = function _setBalloonToCenter() {
+                var setBalloonToCenter = function setBalloonToCenter() {
                     var coords = void 0,
                         newCoords = void 0;
+
+                    // Если балун выходит за рамки карты, опустим балун на 1/4 его высоты
+                    var divider = self.options.balloon.mapOverflow === false ? 4 : 2;
 
                     coords = self.map.options.get('projection').toGlobalPixels(placemark.geometry.getCoordinates(), self.map.getZoom());
 
                     // Сдвигаем координаты на половину высоты балуна
-                    coords[1] -= self.balloonParams.balloonHeight / 2;
+                    coords[1] -= self.balloonParams.balloonHeight / divider;
 
                     newCoords = self.map.options.get('projection').fromGlobalPixels(coords, self.map.getZoom());
 
                     self.map.panTo(newCoords, { flying: true });
 
                     // После выполнения функции удаляем обработчик
-                    self.map.geoObjects.events.remove('balloonopen', _setBalloonToCenter);
+                    self.map.geoObjects.events.remove('balloonopen', setBalloonToCenter);
                 };
 
-                self.map.geoObjects.events.add('balloonopen', _setBalloonToCenter);
+                self.map.geoObjects.events.add('balloonopen', setBalloonToCenter);
             } else {
                 self.map.panTo(placemark.geometry.getCoordinates(), { flying: true });
             }
