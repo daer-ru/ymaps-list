@@ -989,7 +989,7 @@ class Ylist {
 
         if (listActive) {
             // Подсветка элемента списка
-            $listContainer.find('.is-active').removeClass('is-active');
+            $listContainer.find(`.${this.listClassName}__item.is-active`).removeClass('is-active');
             $listItem.addClass('is-active');
 
             // Скроллим список к нужному элементу
