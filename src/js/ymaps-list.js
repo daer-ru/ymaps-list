@@ -139,6 +139,10 @@ class Ylist {
             if (!this.options.list.hasOwnProperty('header')) {
                 this.options.list.header = true;
             }
+
+            if (!this.options.list.hasOwnProperty('modifier')) {
+                this.options.list.modifier = '';
+            }
         }
 
 
@@ -209,6 +213,10 @@ class Ylist {
 
             if (!this.options.balloon.hasOwnProperty('mapOverflow')) {
                 this.options.balloon.mapOverflow = true;
+            }
+
+            if (!this.options.balloon.hasOwnProperty('modifier')) {
+                this.options.balloon.modifier = '';
             }
         }
 
@@ -510,7 +518,7 @@ class Ylist {
         let self = this;
 
         let balloonLayout = ymaps.templateLayoutFactory.createClass(
-            `<div class="ylist-balloon">
+            `<div class="ylist-balloon ${this.options.balloon.modifier}">
                 <button class="ylist-balloon__close" type="button">${this.options.balloon.closeButton}</button>
                 <div class="ylist-balloon__inner">
                     $[[options.contentLayout]]
@@ -747,7 +755,7 @@ class Ylist {
      */
     _createPointsList() {
         let self = this,
-            $list = $('<ul/>', {class: this.listClassName});
+            $list = $('<ul/>', {class: this.listClassName + ' ' +this.options.list.modifier});
 
         for (let i = 0; i < this.points.length; i++) {
             let point = this.points[i];
