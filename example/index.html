@@ -115,8 +115,8 @@
                     "name": "Элемент списка №1",
                     "coords": [55.790464, 37.530409],
                     "address": "Ходынский бульвар, д. 4",
-                    "phone": "<a href=\"tel:89999999999\">8 (999) 999-99-99</a>",
-                    "email": "<a href=\"mailto:email@domain.com\">email@domain.com</a>",
+                    "phone": "8 (999) 999-99-99",
+                    "email": "email@domain.com",
                     "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
                 },
                 {
@@ -124,8 +124,8 @@
                     "name": "Элемент списка №2",
                     "coords": [55.861954, 37.687713],
                     "address": "ул. Дудинка, д. 3",
-                    "phone": "<a href=\"tel:89999999999\">8 (999) 999-99-99</a>",
-                    "email": "<a href=\"mailto:email@domain.com\">email@domain.com</a>",
+                    "phone": "8 (999) 999-99-99",
+                    "email": "email@domain.com",
                     "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
                 },
                 {
@@ -133,8 +133,8 @@
                     "name": "Элемент списка №3",
                     "coords": [55.783944, 37.624642],
                     "address": "Олимпийский проспект, д. 16, стр. 5, БЦ Олимпик-холл",
-                    "phone": "<a href=\"tel:89999999999\">8 (999) 999-99-99</a>",
-                    "email": "<a href=\"mailto:email@domain.com\">email@domain.com</a>",
+                    "phone": "8 (999) 999-99-99",
+                    "email": "email@domain.com",
                     "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
                 },
                 {
@@ -142,8 +142,8 @@
                     "name": "Элемент списка №4",
                     "coords": [55.706431, 37.022618],
                     "address": "Рублево-Успенское шоссе, пос. Горки-10, д. 24А",
-                    "phone": "<a href=\"tel:89999999999\">8 (999) 999-99-99</a>",
-                    "email": "<a href=\"mailto:email@domain.com\">email@domain.com</a>",
+                    "phone": "8 (999) 999-99-99",
+                    "email": "email@domain.com",
                     "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
                 },
                 {
@@ -151,8 +151,8 @@
                     "name": "Элемент списка №5",
                     "coords": [55.451967, 37.763198],
                     "address": "Советский пр-т, д. 2А",
-                    "phone": "<a href=\"tel:89999999999\">8 (999) 999-99-99</a>",
-                    "email": "<a href=\"mailto:email@domain.com\">email@domain.com</a>",
+                    "phone": "8 (999) 999-99-99",
+                    "email": "email@domain.com",
                     "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
                 }
             ];
@@ -161,14 +161,44 @@
         var ymapsFull = new Ylist({
             data: data,
             dataOrder: [
+                'name',
                 'address',
                 'phone',
                 'email',
                 'description'
             ],
+            dataExtension: {
+                address: function(address) {
+                    let extendedAddress = `<p class="ylist-balloon__address">${address}</p>`;
+                    return extendedAddress;
+                },
+                phone: function(phone) {
+                    let phoneLink = phone.replace(/[\ \-\(\)']+/g, '');
+                    let extendedPhone = `<p class="ylist-balloon__phone"><a href="tel:${phoneLink}">${phone}</a></p>`;
+                    return extendedPhone;
+                },
+                email: function(email) {
+                    let extendedEmail = `<p class="ylist-balloon__email"><a href="mailto:${email}">${email}</a></p>`;
+                    return extendedEmail;
+                },
+                description: function(description) {
+                    let extendedDescription = `<p class="ylist-balloon__description">${description}</p>`;
+                    return extendedDescription;
+                },
+            },
             container: 'ymaps-full',
-            mapCenter: [55.751574, 37.573856],
-            mapContainer: 'ymaps-full-map',
+            map: {
+                center: [55.751574, 37.573856],
+                container: 'ymaps-full-map',
+                drag: {
+                    disableBeforeBreakpoint: true,
+                    disableAfterBreakpoint: false
+                },
+                tooltip: {
+                    active: true,
+                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                }
+            },
             list: {
                 active: true,
                 container: 'ymaps-full-list',
@@ -237,14 +267,44 @@
         var ymapsMap = new Ylist({
             data: data,
             dataOrder: [
+                'name',
                 'address',
                 'phone',
                 'email',
                 'description'
             ],
+            dataExtension: {
+                address: function(address) {
+                    let extendedAddress = `<p class="ylist-balloon__address">${address}</p>`;
+                    return extendedAddress;
+                },
+                phone: function(phone) {
+                    let phoneLink = phone.replace(/[\ \-\(\)']+/g, '');
+                    let extendedPhone = `<p class="ylist-balloon__phone"><a href="tel:${phoneLink}">${phone}</a></p>`;
+                    return extendedPhone;
+                },
+                email: function(email) {
+                    let extendedEmail = `<p class="ylist-balloon__email"><a href="mailto:${email}">${email}</a></p>`;
+                    return extendedEmail;
+                },
+                description: function(description) {
+                    let extendedDescription = `<p class="ylist-balloon__description">${description}</p>`;
+                    return extendedDescription;
+                },
+            },
             container: 'ymaps',
-            mapCenter: [55.751574, 37.573856],
-            mapContainer: 'ymaps-map',
+            map: {
+                center: [55.751574, 37.573856],
+                container: 'ymaps-map',
+                drag: {
+                    disableBeforeBreakpoint: true,
+                    disableAfterBreakpoint: false
+                },
+                tooltip: {
+                    active: true,
+                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                }
+            },
             list: {
                 active: false
             },
@@ -307,14 +367,44 @@
         var ymapsStatic = new Ylist({
             data: data,
             dataOrder: [
+                'name',
                 'address',
                 'phone',
                 'email',
                 'description'
             ],
+            dataExtension: {
+                address: function(address) {
+                    let extendedAddress = `<p class="ylist-balloon__address">${address}</p>`;
+                    return extendedAddress;
+                },
+                phone: function(phone) {
+                    let phoneLink = phone.replace(/[\ \-\(\)']+/g, '');
+                    let extendedPhone = `<p class="ylist-balloon__phone"><a href="tel:${phoneLink}">${phone}</a></p>`;
+                    return extendedPhone;
+                },
+                email: function(email) {
+                    let extendedEmail = `<p class="ylist-balloon__email"><a href="mailto:${email}">${email}</a></p>`;
+                    return extendedEmail;
+                },
+                description: function(description) {
+                    let extendedDescription = `<p class="ylist-balloon__description">${description}</p>`;
+                    return extendedDescription;
+                },
+            },
             container: 'ymaps-static',
-            mapCenter: [55.751574, 37.573856],
-            mapContainer: 'ymaps-static-map',
+            map: {
+                center: [55.751574, 37.573856],
+                container: 'ymaps-static-map',
+                drag: {
+                    disableBeforeBreakpoint: true,
+                    disableAfterBreakpoint: false
+                },
+                tooltip: {
+                    active: true,
+                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                }
+            },
             list: {
                 active: false
             },

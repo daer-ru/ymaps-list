@@ -24,7 +24,7 @@ var Ylist = function () {
         this.activeListItem = null;
         this.clusterer = null;
         this.balloonLayout = null;
-        this.ballonParams = {
+        this.balloonParams = {
             balloonWidth: null,
             balloonHeight: null,
             balloonTailHeight: 15
@@ -71,19 +71,58 @@ var Ylist = function () {
                 return;
             }
 
+            if (!this.options.hasOwnProperty('dataExtension')) {
+                this.options.dataExtension = {};
+            }
+
             if (!this.options.hasOwnProperty('container')) {
                 console.log('You need to set container option');
                 return;
             }
 
-            if (!this.options.hasOwnProperty('mapCenter')) {
-                console.log('You need to set mapCenter option');
-                return;
+            // Map
+            if (!this.options.hasOwnProperty('map')) {
+                this.options.map = {};
             }
 
-            if (!this.options.hasOwnProperty('mapContainer')) {
-                console.log('You need to set mapContainer option');
-                return;
+            if (this.options.hasOwnProperty('map') && _typeof(this.options.map) == 'object') {
+                if (!this.options.map.hasOwnProperty('center')) {
+                    console.log('You need to set map.center option');
+                    return;
+                }
+
+                if (!this.options.map.hasOwnProperty('container')) {
+                    console.log('You need to set map.container option');
+                    return;
+                }
+
+                if (!this.options.map.hasOwnProperty('drag')) {
+                    this.options.map.drag = {};
+                }
+
+                if (this.options.map.hasOwnProperty('drag') && _typeof(this.options.map.drag) == 'object') {
+                    if (!this.options.map.drag.hasOwnProperty('disableBeforeBreakpoint')) {
+                        this.options.map.drag.disableBeforeBreakpoint = true;
+                    }
+
+                    if (!this.options.map.drag.hasOwnProperty('disableAfterBreakpoint')) {
+                        this.options.map.drag.disableAfterBreakpoint = false;
+                    }
+                }
+
+                if (!this.options.map.hasOwnProperty('tooltip')) {
+                    this.options.map.tooltip = {};
+                }
+
+                if (this.options.map.hasOwnProperty('tooltip') && _typeof(this.options.map.tooltip) == 'object') {
+                    if (!this.options.map.tooltip.hasOwnProperty('active')) {
+                        this.options.map.tooltip.active = true;
+                    }
+
+                    if (!this.options.map.tooltip.hasOwnProperty('tooltipText')) {
+                        this.options.map.tooltip.tooltipText = 'To drag map touch screen by two fingers and move';
+                    }
+                }
             }
 
             // List
@@ -91,21 +130,23 @@ var Ylist = function () {
                 this.options.list = {};
             }
 
-            if (this.options.hasOwnProperty('list') && _typeof(this.options.list) == 'object' && !this.options.list.hasOwnProperty('active')) {
-                this.options.list.active = false;
-            }
+            if (this.options.hasOwnProperty('list') && _typeof(this.options.list) == 'object') {
+                if (!this.options.list.hasOwnProperty('active')) {
+                    this.options.list.active = false;
+                }
 
-            if (this.options.hasOwnProperty('list') && _typeof(this.options.list) == 'object' && this.options.list.hasOwnProperty('active') && this.options.list.active && !this.options.list.hasOwnProperty('container')) {
-                console.log('You need to set container option in list');
-                return;
-            }
+                if (this.options.list.hasOwnProperty('active') && this.options.list.active && !this.options.list.hasOwnProperty('container')) {
+                    console.log('You need to set container option in list');
+                    return;
+                }
 
-            if (this.options.hasOwnProperty('list') && _typeof(this.options.list) == 'object' && !this.options.list.hasOwnProperty('scroll')) {
-                this.options.list.scroll = false;
-            }
+                if (!this.options.list.hasOwnProperty('scroll')) {
+                    this.options.list.scroll = false;
+                }
 
-            if (this.options.hasOwnProperty('list') && _typeof(this.options.list) == 'object' && !this.options.list.hasOwnProperty('header')) {
-                this.options.list.header = true;
+                if (!this.options.list.hasOwnProperty('header')) {
+                    this.options.list.header = true;
+                }
             }
 
             if (!this.options.hasOwnProperty('switchContainer')) {
@@ -117,12 +158,14 @@ var Ylist = function () {
                 this.options.cluster = {};
             }
 
-            if (this.options.hasOwnProperty('cluster') && _typeof(this.options.cluster) == 'object' && !this.options.cluster.hasOwnProperty('icons')) {
-                this.options.cluster.icons = ['islands#invertedRedClusterIcons', 'islands#invertedBlueClusterIcons'];
-            }
+            if (this.options.hasOwnProperty('cluster') && _typeof(this.options.cluster) == 'object') {
+                if (!this.options.cluster.hasOwnProperty('icons')) {
+                    this.options.cluster.icons = ['islands#invertedRedClusterIcons', 'islands#invertedBlueClusterIcons'];
+                }
 
-            if (this.options.hasOwnProperty('cluster') && _typeof(this.options.cluster) == 'object' && !this.options.cluster.hasOwnProperty('inlineStyle')) {
-                this.options.cluster.inlineStyle = '';
+                if (!this.options.cluster.hasOwnProperty('inlineStyle')) {
+                    this.options.cluster.inlineStyle = '';
+                }
             }
 
             // Placemark
@@ -130,12 +173,14 @@ var Ylist = function () {
                 this.options.placemark = {};
             }
 
-            if (this.options.hasOwnProperty('placemark') && _typeof(this.options.placemark) == 'object' && !this.options.placemark.hasOwnProperty('icons')) {
-                this.options.placemark.icons = ['islands#redDotIcon', 'islands#blueDotIcon'];
-            }
+            if (this.options.hasOwnProperty('placemark') && _typeof(this.options.placemark) == 'object') {
+                if (!this.options.placemark.hasOwnProperty('icons')) {
+                    this.options.placemark.icons = ['islands#redDotIcon', 'islands#blueDotIcon'];
+                }
 
-            if (this.options.hasOwnProperty('placemark') && _typeof(this.options.placemark) == 'object' && !this.options.placemark.hasOwnProperty('clicked')) {
-                this.options.placemark.clicked = true;
+                if (!this.options.placemark.hasOwnProperty('clicked')) {
+                    this.options.placemark.clicked = true;
+                }
             }
 
             // Balloon
@@ -143,20 +188,22 @@ var Ylist = function () {
                 this.options.balloon = {};
             }
 
-            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('activeBeforeBreakpoint')) {
-                this.options.balloon.activeBeforeBreakpoint = false;
-            }
+            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object') {
+                if (!this.options.balloon.hasOwnProperty('activeBeforeBreakpoint')) {
+                    this.options.balloon.activeBeforeBreakpoint = false;
+                }
 
-            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('activeAfterBreakpoint')) {
-                this.options.balloon.activeAfterBreakpoint = false;
-            }
+                if (!this.options.balloon.hasOwnProperty('activeAfterBreakpoint')) {
+                    this.options.balloon.activeAfterBreakpoint = false;
+                }
 
-            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('closeButton')) {
-                this.options.balloon.closeButton = 'x';
-            }
+                if (!this.options.balloon.hasOwnProperty('closeButton')) {
+                    this.options.balloon.closeButton = 'x';
+                }
 
-            if (this.options.hasOwnProperty('balloon') && _typeof(this.options.balloon) == 'object' && !this.options.balloon.hasOwnProperty('header')) {
-                this.options.balloon.header = true;
+                if (!this.options.balloon.hasOwnProperty('header')) {
+                    this.options.balloon.header = true;
+                }
             }
 
             if (!this.options.hasOwnProperty('adaptiveBreakpoint')) {
@@ -181,9 +228,13 @@ var Ylist = function () {
                 this.balloonLayout = null;
             }
 
+            if (this.options.map.tooltip.active) {
+                this._initMapTooltip();
+            }
+
             // Создаем яндекс карту
-            this.map = new ymaps.Map(this.options.mapContainer, {
-                center: this.options.mapCenter,
+            this.map = new ymaps.Map(this.options.map.container, {
+                center: this.options.map.center,
                 zoom: 13,
                 controls: []
             });
@@ -213,7 +264,7 @@ var Ylist = function () {
                 this._setBounds(this.clusterer);
             }
 
-            if (this.isLessThanAdaptiveBreakpoint) {
+            if (this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableBeforeBreakpoint || !this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableAfterBreakpoint) {
                 this.map.behaviors.disable('drag');
             }
 
@@ -248,6 +299,34 @@ var Ylist = function () {
         key: '_initList',
         value: function _initList() {
             this._createPointsList();
+        }
+
+        /**
+         * Инициализация подсказки на карте
+         */
+
+    }, {
+        key: '_initMapTooltip',
+        value: function _initMapTooltip() {
+            var $container = $('#' + this.options.map.container),
+                $tooltip = $('<div class="ylist-tooltip">\n                              <span class="ylist-tooltip__text">' + this.options.map.tooltip.tooltipText + '</span>\n                          </div>');
+
+            $container.remove('.ylist-tooltip');
+            $container.append($tooltip);
+
+            $container.off('touchmove touchstart touchend touchleave touchcancel');
+
+            if (this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableBeforeBreakpoint) {
+                $container.on('touchmove', function (e) {
+                    if (e.originalEvent.touches.length == 1) {
+                        $tooltip.css('opacity', '1');
+                    } else {
+                        $tooltip.css('opacity', '0');
+                    }
+                }).on('touchstart touchend touchleave touchcancel', function (e) {
+                    $tooltip.css('opacity', '0');
+                });
+            }
         }
 
         /**
@@ -443,8 +522,8 @@ var Ylist = function () {
                     this.applyElementOffset();
                     this._$element.find('.ylist-balloon__close').on('click', $.proxy(this.onCloseClick, this));
 
-                    self.ballonParams.balloonWidth = this._$element[0].offsetWidth;
-                    self.ballonParams.balloonHeight = this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight;
+                    self.balloonParams.balloonWidth = this._$element[0].offsetWidth;
+                    self.balloonParams.balloonHeight = this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight;
                 },
 
                 /**
@@ -479,7 +558,7 @@ var Ylist = function () {
                 applyElementOffset: function applyElementOffset() {
                     this._$element.css({
                         left: -(this._$element[0].offsetWidth / 2),
-                        top: -(this._$element[0].offsetHeight + self.ballonParams.balloonTailHeight)
+                        top: -(this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight)
                     });
                 },
 
@@ -532,16 +611,32 @@ var Ylist = function () {
     }, {
         key: '_setBalloonData',
         value: function _setBalloonData(index) {
-            var balloonContent = '';
+            var balloonHeader = '',
+                balloonContent = '';
 
             for (var i = 0; i < this.options.dataOrder.length; i++) {
-                var dataOption = this.options.dataOrder[i];
+                var dataOptionName = this.options.dataOrder[i],
+                    optionName = '',
+                    optionContent = '';
 
-                balloonContent += '<p class="ylist-balloon__' + dataOption + '">' + this.points[index][dataOption] + '</p>';
+                if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
+                    // Формируется контент одной опции из колбека
+                    optionContent = this.options.dataExtension[dataOptionName](this.points[index][dataOptionName]);
+                } else if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName == 'name') {
+                    // Формируется контент заголовка опции из колбека
+                    optionName = this.options.dataExtension[dataOptionName](this.points[index][dataOptionName]);
+                } else {
+                    // Контент опции передается как есть если колбек для неё не задан
+                    optionName = this.points[index].name;
+                    optionContent = this.points[index][dataOptionName];
+                }
+
+                balloonHeader += optionName;
+                balloonContent += optionContent;
             }
 
             return {
-                balloonHeader: this.points[index].name,
+                balloonHeader: balloonHeader,
                 balloonContent: balloonContent
             };
         }
@@ -563,16 +658,34 @@ var Ylist = function () {
                 class: this.listClassName + '__item'
             });
 
-            if (typeof point.name === 'string' && this.options.list.header) {
-                $elementTitle.html('<a>' + point.name + '</a>');
+            if (point.name && this.options.list.header) {
+                if (this.options.dataExtension.hasOwnProperty('name')) {
+                    // Формируется контент одной опции из колбека
+                    $elementTitle.html(this.options.dataExtension['name'](point.name));
+                } else {
+                    // Контент опции передается как есть если колбек для неё не задан
+                    $elementTitle.html(point.name);
+                }
             } else {
                 $elementTitle = null;
             }
 
             for (var i = 0; i < this.options.dataOrder.length; i++) {
-                var dataOption = this.options.dataOrder[i];
+                var dataOptionName = this.options.dataOrder[i],
+                    optionName = '',
+                    optionContent = '';
 
-                $elementContent += '<p class="' + this.listClassName + '__' + dataOption + '">' + point[dataOption] + '</p>';
+                if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
+                    // Формируется контент одной опции из колбека
+                    optionContent = this.options.dataExtension[dataOptionName](point[dataOptionName]);
+                } else {
+                    // Контент опции передается как есть если колбек для неё не задан
+                    if (dataOptionName != 'name') {
+                        optionContent = point[dataOptionName];
+                    }
+                }
+
+                $elementContent += optionContent;
             }
 
             $listElement.append($elementTitle, $elementContent);
@@ -626,10 +739,15 @@ var Ylist = function () {
     }, {
         key: '_setBounds',
         value: function _setBounds(objects) {
-            this.map.setBounds(objects.getBounds(), {
-                checkZoomRange: true,
-                zoomMargin: 10
-            });
+            if (_typeof(this.placemarks) === 'object' && this.placemarks.length === 1) {
+                // Если метка 1, то её координаты ставятся центром карты и масштаб не самый максимальный
+                this.map.setCenter(this.placemarks[0].geometry.getCoordinates(), 16);
+            } else {
+                this.map.setBounds(objects.getBounds(), {
+                    checkZoomRange: true,
+                    zoomMargin: 10
+                });
+            }
         }
 
         /**
@@ -665,7 +783,7 @@ var Ylist = function () {
                     coords = self.map.options.get('projection').toGlobalPixels(placemark.geometry.getCoordinates(), self.map.getZoom());
 
                     // Сдвигаем координаты на половину высоты балуна
-                    coords[1] -= self.ballonParams.balloonHeight / 2;
+                    coords[1] -= self.balloonParams.balloonHeight / 2;
 
                     newCoords = self.map.options.get('projection').fromGlobalPixels(coords, self.map.getZoom());
 
@@ -834,9 +952,9 @@ var Ylist = function () {
                 }
 
                 if (listActive) {
-                    $('#' + self.options.mapContainer).addClass('is-hidden');
+                    $('#' + self.options.map.container).addClass('is-hidden');
                 }
-                $('#' + self.options.mapContainer).addClass('is-adaptive');
+                $('#' + self.options.map.container).addClass('is-adaptive');
                 $('#' + self.options.list.container).addClass('is-adaptive');
                 $('#' + self.options.container).addClass('is-adaptive');
 
@@ -845,8 +963,20 @@ var Ylist = function () {
                     self._initMap();
                 }
 
+                if (!listActive && self.map) {
+                    if (self.options.map.drag.disableBeforeBreakpoint) {
+                        self.map.behaviors.disable('drag');
+                    } else {
+                        self.map.behaviors.enable('drag');
+                    }
+
+                    if (this.options.map.tooltip.active) {
+                        this._initMapTooltip();
+                    }
+                }
+
                 // Добавляем обработчик клика на элементы переключения
-                $(document).on('click', '[data-ylist-switch]', function (e) {
+                $(document).on('click', '#' + self.options.switchContainer + ' [data-ylist-switch]', function (e) {
                     self._switchHandler(e, self);
                 });
             } else {
@@ -860,7 +990,7 @@ var Ylist = function () {
                     $('#' + self.options.switchContainer).find('[data-ylist-switch]').removeClass('is-active');
                 }
 
-                $('#' + self.options.mapContainer).removeClass('is-adaptive is-hidden');
+                $('#' + self.options.map.container).removeClass('is-adaptive is-hidden');
                 $('#' + self.options.list.container).removeClass('is-adaptive is-hidden');
                 $('#' + self.options.container).removeClass('is-adaptive');
 
@@ -868,8 +998,20 @@ var Ylist = function () {
                     self._initMap();
                 }
 
+                if (!listActive && self.map) {
+                    if (self.options.map.drag.disableAfterBreakpoint) {
+                        self.map.behaviors.disable('drag');
+                    } else {
+                        self.map.behaviors.enable('drag');
+                    }
+
+                    if (this.options.map.tooltip.active) {
+                        this._initMapTooltip();
+                    }
+                }
+
                 // Удаляем обработчик клика на элементы переключения
-                $(document).off('click', '[data-ylist-switch]', self._switchHandler);
+                $(document).off('click', '#' + self.options.switchContainer + ' [data-ylist-switch]', self._switchHandler);
             }
         }
 
@@ -889,18 +1031,18 @@ var Ylist = function () {
             }
 
             if ($elem.attr('data-ylist-switch') === 'map') {
-                $('#' + self.options.mapContainer).removeClass('is-hidden');
+                $('#' + self.options.map.container).removeClass('is-hidden');
                 $('#' + self.options.list.container).addClass('is-hidden');
 
                 if (self.needReloadMap) {
                     self._initMap();
                 }
             } else if ($elem.attr('data-ylist-switch') === 'list') {
-                $('#' + self.options.mapContainer).addClass('is-hidden');
+                $('#' + self.options.map.container).addClass('is-hidden');
                 $('#' + self.options.list.container).removeClass('is-hidden');
             }
 
-            $('[data-ylist-switch]').removeClass('is-active');
+            $('#' + self.options.switchContainer + ' [data-ylist-switch]').removeClass('is-active');
             $elem.addClass('is-active');
         }
 
