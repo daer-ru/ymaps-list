@@ -32,6 +32,15 @@
             margin-bottom: 1rem;
             font-size: 1.3rem;
         }
+
+        #ymaps-balloon-overflow {
+            overflow: visible;
+            height: 200px;
+        }
+
+            #ymaps-balloon-overflow-map {
+                overflow: visible;
+            }
     </style>
 </head>
 
@@ -78,6 +87,15 @@
 
     <div id="ymaps-static" class="ylist">
         <div id="ymaps-static-map" class="ylist__map-container"></div>
+    </div>
+
+    <div class="container-fluid">
+        <hr class="my-5">
+        <h2 class="mb-5">Карта с балуном за пределами области</h2>
+    </div>
+
+    <div id="ymaps-balloon-overflow" class="ylist">
+        <div id="ymaps-balloon-overflow-map" class="ylist__map-container" style="height: 200px;"></div>
     </div>
 
     <div class="container-fluid">
@@ -440,6 +458,106 @@
         });
 
         ymapsStatic.init();
+
+
+        var ymapsBalloonOverflow = new Ylist({
+            data: data,
+            dataOrder: [
+                'name',
+                'address',
+                'phone',
+                'email',
+                'description'
+            ],
+            dataExtension: {
+                address: function(address) {
+                    let extendedAddress = `<p class="ylist-balloon__address">${address}</p>`;
+                    return extendedAddress;
+                },
+                phone: function(phone) {
+                    let phoneLink = phone.replace(/[\ \-\(\)']+/g, '');
+                    let extendedPhone = `<p class="ylist-balloon__phone"><a href="tel:${phoneLink}">${phone}</a></p>`;
+                    return extendedPhone;
+                },
+                email: function(email) {
+                    let extendedEmail = `<p class="ylist-balloon__email"><a href="mailto:${email}">${email}</a></p>`;
+                    return extendedEmail;
+                },
+                description: function(description) {
+                    let extendedDescription = `<p class="ylist-balloon__description">${description}</p>`;
+                    return extendedDescription;
+                },
+            },
+            container: 'ymaps-balloon-overflow',
+            map: {
+                center: [55.751574, 37.573856],
+                container: 'ymaps-balloon-overflow-map',
+                drag: {
+                    disableBeforeBreakpoint: true,
+                    disableAfterBreakpoint: false
+                },
+                tooltip: {
+                    active: true,
+                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                }
+            },
+            list: {
+                active: false
+            },
+            cluster: {
+                icons: [
+                    [
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ],
+                    [
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ]
+                ],
+                inlineStyle: 'color: #fff; padding-left: 2px; text-align: center; font: bold 16px/44px Helvetica, Helvetica CY, Arial, Nimbus Sans L, sans-serif;'
+            },
+            placemark: {
+                icons: [
+                    {
+                        href: 'img/pin.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    },
+                    {
+                        href: 'img/pin_active.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    }
+                ]
+            },
+            balloon: {
+                activeBeforeBreakpoint: true,
+                activeAfterBreakpoint: true,
+                closeButton: '<span>x</span>',
+                header: true,
+                mapOverflow: false
+            },
+            adaptiveBreakpoint: 1024
+        });
+
+        ymapsBalloonOverflow.init();
     </script>
 </body>
 </html>
