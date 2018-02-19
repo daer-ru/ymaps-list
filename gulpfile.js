@@ -1,16 +1,17 @@
-var gulp        = require('gulp');
-var multiDest   = require('gulp-multi-dest');
-var rename      = require('gulp-rename');
-var babel       = require('gulp-babel');
-var env         = require('babel-preset-env');
-var uglify      = require('gulp-uglify');
-var concat      = require('gulp-concat');
-var postcss     = require('gulp-postcss');
-var cssnano     = require('cssnano');
-var plumber     = require('gulp-plumber');
-var notify      = require('gulp-notify');
-var rimraf      = require('rimraf');
-var runSequence = require('run-sequence');
+var gulp         = require('gulp');
+var multiDest    = require('gulp-multi-dest');
+var rename       = require('gulp-rename');
+var babel        = require('gulp-babel');
+var env          = require('babel-preset-env');
+var uglify       = require('gulp-uglify');
+var concat       = require('gulp-concat');
+var postcss      = require('gulp-postcss');
+var cssnano      = require('cssnano');
+var autoprefixer = require('gulp-autoprefixer');
+var plumber      = require('gulp-plumber');
+var notify       = require('gulp-notify');
+var rimraf       = require('rimraf');
+var runSequence  = require('run-sequence');
 
 gulp.task('build', function(cb) {
     runSequence('clean', ['scripts', 'scripts-min', 'styles', 'styles-min'], cb);
@@ -36,7 +37,6 @@ gulp.task('scripts', function() {
             }]]
         }))
         .pipe(concat('ymaps-list.js'))
-        // .pipe(gulp.dest('dist'));
         .pipe(multiDest(['dist', 'example/js']));
 });
 
@@ -57,7 +57,6 @@ gulp.task('scripts-min', function() {
         }))
         .pipe(concat('ymaps-list.min.js'))
         .pipe(uglify())
-        // .pipe(gulp.dest('dist'));
         .pipe(multiDest(['dist', 'example/js']));
 });
 
@@ -69,7 +68,14 @@ gulp.task('styles', function() {
                 message: err.toString()
             }))
         }))
-        // .pipe(gulp.dest('dist'));
+        .pipe(autoprefixer({
+            browsers: [
+                'last 5 versions',
+                'IE 10',
+                'IE 11',
+                '> 3%'
+            ]
+        }))
         .pipe(multiDest(['dist', 'example/css']));
 });
 
@@ -81,6 +87,14 @@ gulp.task('styles-min', function() {
                 message: err.toString()
             }))
         }))
+        .pipe(autoprefixer({
+            browsers: [
+                'last 5 versions',
+                'IE 10',
+                'IE 11',
+                '> 3%'
+            ]
+        }))
         .pipe(postcss([
             cssnano({
                 zindex: false,
@@ -89,6 +103,5 @@ gulp.task('styles-min', function() {
             })
         ]))
         .pipe(rename({suffix: '.min'}))
-        // .pipe(gulp.dest('dist'));
         .pipe(multiDest(['dist', 'example/css']));
 });
