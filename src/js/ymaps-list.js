@@ -1180,4 +1180,41 @@ class Ylist {
         $(`#${self.options.switchContainer} [data-ylist-switch]`).removeClass('is-active');
         $elem.addClass('is-active');
     }
+
+
+    /**
+     * Публичный метод, реализующий фильтрацию
+     * @param {Function} callback
+     */
+    filter(callback) {
+        if (typeof callback !== 'function') {
+            throw new TypeError('Аргумент должен быть функцией');
+        }
+
+        // TODO: доделать на адаптиве
+
+        let data = this.points;
+        let placemarks = this.placemarks;
+
+        if (!placemarks.length) {
+            console.warn('Невозможно запустить фильтрацию. Массив меток пуст.');
+            return;
+        }
+
+        placemarks.forEach(item => {
+            item.options.set('visible', false);
+            this.clusterer.remove(item);
+            $('#' + item.id).hide();
+        });
+
+        for (let i = 0; i < data.length; i++) {
+            let item = data[i];
+
+            if (callback(item, i, data)) {
+                placemarks[i].options.set('visible', true);
+                this.clusterer.add(placemarks[i]);
+                $('#' + placemarks[i].id).show();
+            }
+        }
+    }
 }

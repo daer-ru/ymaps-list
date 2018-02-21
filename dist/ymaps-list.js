@@ -1191,6 +1191,47 @@ var Ylist = function () {
             $('#' + self.options.switchContainer + ' [data-ylist-switch]').removeClass('is-active');
             $elem.addClass('is-active');
         }
+
+        /**
+         * Публичный метод, реализующий фильтрацию
+         * @param {Function} callback
+         */
+
+    }, {
+        key: 'filter',
+        value: function filter(callback) {
+            var _this2 = this;
+
+            if (typeof callback !== 'function') {
+                throw new TypeError('Аргумент должен быть функцией');
+            }
+
+            // TODO: доделать на адаптиве
+
+            var data = this.points;
+            var placemarks = this.placemarks;
+
+            if (!placemarks.length) {
+                console.warn('Невозможно запустить фильтрацию. Массив меток пуст.');
+                return;
+            }
+
+            placemarks.forEach(function (item) {
+                item.options.set('visible', false);
+                _this2.clusterer.remove(item);
+                $('#' + item.id).hide();
+            });
+
+            for (var i = 0; i < data.length; i++) {
+                var item = data[i];
+
+                if (callback(item, i, data)) {
+                    placemarks[i].options.set('visible', true);
+                    this.clusterer.add(placemarks[i]);
+                    $('#' + placemarks[i].id).show();
+                }
+            }
+        }
     }]);
 
     return Ylist;
