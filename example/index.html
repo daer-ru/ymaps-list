@@ -111,11 +111,17 @@
         <hr class="my-5">
         <h2 class="mb-5">Карта с фильтром</h2>
 
-        <form class="js-filter mb-5" action="">
+        <form class="js-filter mb-2" action="">
             <label for="">Номер метки от 1 до 5</label><br>
-            <input type="text" name="filter" id="">
-            <button type="submit">Отфильтровать</button>
+            <div class="input-group" style="width: 290px;">
+                <input type="text" class="form-control" name="filter">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">Отфильтровать</button>
+                </div>
+            </div>
         </form>
+
+        <button class="btn btn-outline-secondary mb-5 js-clear-filter" type="button">Сбросить фильтр</button>
     </div>
 
     <div id="ymaps-filter" class="ylist" style="position:relative;">
@@ -1148,23 +1154,29 @@
 
         ymapsFilter.init();
 
-        $('.js-filter').on('submit', function() {
+        $('.js-filter').on('submit', function(e) {
+            e.preventDefault();
             var filterData = $(this).serializeArray();
             var param = filterData[0].value;
 
             if (Number(param) >= 1 && Number(param) <= 5) {
-                ymapsFilter.filter(obj => {
+                // Фильтруем на сабмит формы
+                ymapsFilter.filter((obj, i, data) => {
                     if (obj.id === 'ylist-filter-' + param) {
                         return true;
                     }
 
                     return false;
-                });
+                }, Number(param));
             } else {
                 alert('Введите только цифру от 1 до 5');
             }
+        });
 
-            return false;
+        // Сброс фильтра
+        $('.js-clear-filter').on('click', function() {
+            $('.js-filter input:text').val('');
+            ymapsFilter.clearFilter();
         });
     </script>
 </body>

@@ -33,7 +33,16 @@ var Ylist = function () {
         this.isLessThanAdaptiveBreakpoint = false;
         this.mqlAdaptiveBreakpoint = window.matchMedia('(max-width: ' + (this.options.adaptiveBreakpoint - 1) + 'px)');
         this.needReloadMap = true;
+
+        this.currentFilterCallback = null;
+        this.currentFilterParam = null; // параметр, по которому произошла последняя фильтрация
     }
+
+    /**
+     * Инициализация плагина
+     * @public
+     */
+
 
     _createClass(Ylist, [{
         key: 'init',
@@ -56,6 +65,7 @@ var Ylist = function () {
 
         /**
          * Проверяет наличие всех обязательных параметров, устанавливает дефольные значения
+         * @private
          */
 
     }, {
@@ -243,6 +253,7 @@ var Ylist = function () {
 
         /**
          * Инициализация карты
+         * @private
          */
 
     }, {
@@ -303,6 +314,7 @@ var Ylist = function () {
 
         /**
          * Дестроит карту
+         * @private
          */
 
     }, {
@@ -322,6 +334,7 @@ var Ylist = function () {
 
         /**
          * Инициализация спсика меток
+         * @private
          */
 
     }, {
@@ -332,6 +345,7 @@ var Ylist = function () {
 
         /**
          * Инициализация подсказки на карте
+         * @private
          */
 
     }, {
@@ -364,6 +378,7 @@ var Ylist = function () {
          * @param  {Object} baseMapState   дефолтные параметры карты 
          * @return {Object} объединенные дефолтные и пользовательские параметры карты 
          * @see    https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Map-docpage/
+         * @private
          */
 
     }, {
@@ -377,6 +392,7 @@ var Ylist = function () {
         /**
          * Добавляет на карту дополнительные контролы, заданные пользователем
          * @param {Array} userControls массив объектов контролов с их настройками
+         * @private
          */
 
     }, {
@@ -401,6 +417,7 @@ var Ylist = function () {
 
         /**
          * Создание массива меток из входящего массива данных
+         * @private
          */
 
     }, {
@@ -444,6 +461,7 @@ var Ylist = function () {
 
         /**
          * Добавление всех меток на карту
+         * @private
          */
 
     }, {
@@ -457,6 +475,7 @@ var Ylist = function () {
         /**
          * Возвращает объект, содержащий опции метки.
          * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/GeoObject.xml
+         * @private
          */
 
     }, {
@@ -500,6 +519,7 @@ var Ylist = function () {
 
         /**
          * Создание кластера из массива меток
+         * @private
          */
 
     }, {
@@ -564,6 +584,7 @@ var Ylist = function () {
 
         /**
          * Добавление кластера на карту
+         * @private
          */
 
     }, {
@@ -574,6 +595,7 @@ var Ylist = function () {
 
         /**
          * Создание макета балуна на основе фабрики макетов с помощью текстового шаблона
+         * @private
          */
 
     }, {
@@ -657,6 +679,7 @@ var Ylist = function () {
 
         /**
          * Создание вложенного макета содержимого балуна
+         * @private
          */
 
     }, {
@@ -676,6 +699,7 @@ var Ylist = function () {
         /**
          * Возвращает объект, содержащий данные метки.
          * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/GeoObject.xml
+         * @private
          */
 
     }, {
@@ -757,6 +781,7 @@ var Ylist = function () {
          * Создает DOM элемент списка
          * @param  {Array}   point данные точки из входящего json
          * @return {Element}       DOM элемент спсика с содержимым
+         * @private
          */
 
     }, {
@@ -807,6 +832,7 @@ var Ylist = function () {
 
         /**
          * Создает элемент список, наполняет его содержимым и добавляет в DOM
+         * @private
          */
 
     }, {
@@ -846,6 +872,7 @@ var Ylist = function () {
         /**
          * Масштабирование карты так, чтобы были видны все объекты
          * @param {Object} objects массив геобъектов или кластер
+         * @private
          */
 
     }, {
@@ -866,6 +893,7 @@ var Ylist = function () {
          * Обработчик клика на метку
          * @param {Object} e    event
          * @param {Object} self экземпляр класса
+         * @private
          */
 
     }, {
@@ -949,6 +977,7 @@ var Ylist = function () {
          * Обработчик клика на элемент списка
          * @param {Object} e         event
          * @param {Object} placemark объект метки или id
+         * @private
          */
 
     }, {
@@ -987,6 +1016,7 @@ var Ylist = function () {
         /**
          * Общий обработчик клика на метку и на элемент списка
          * @param {Object} placemark объект метки или id
+         * @private
          */
 
     }, {
@@ -1074,6 +1104,7 @@ var Ylist = function () {
          * Обработчик перехода через разрешения через adaptiveBreakpoint
          * @param {Object} mql  MediaQueryList
          * @param {Object} self экземпляр класса
+         * @private
          */
 
     }, {
@@ -1142,6 +1173,12 @@ var Ylist = function () {
 
                 if (listActive || !listActive && !self.isLessThanAdaptiveBreakpoint && !self.map) {
                     self._initMap();
+
+                    if (this.currentFilterCallback && this.currentFilterParam) {
+                        // Если производилась фильтрация и карта переинициализируется,
+                        // то надо еще раз вызвать фильтрацию, чтобы метки карты тоже отфильтровались
+                        self.filter(this.currentFilterCallback, this.currentFilterParam);
+                    }
                 }
 
                 if (!listActive && self.map) {
@@ -1165,6 +1202,7 @@ var Ylist = function () {
          * Обработчик переключения карта-список на разрешении <adaptiveBreakpoint
          * @param {Object} e    event
          * @param {Object} self экземпляр класса
+         * @private
          */
 
     }, {
@@ -1182,6 +1220,12 @@ var Ylist = function () {
 
                 if (self.needReloadMap) {
                     self._initMap();
+
+                    if (this.currentFilterCallback && this.currentFilterParam) {
+                        // Если производилась фильтрация списка пока карта не была инициализирована,
+                        // то надо еще раз вызвать фильтрацию, чтобы метки карты тоже отфильтровались
+                        self.filter(this.currentFilterCallback, this.currentFilterParam);
+                    }
                 }
             } else if ($elem.attr('data-ylist-switch') === 'list') {
                 $('#' + self.options.map.container).addClass('is-hidden');
@@ -1194,41 +1238,94 @@ var Ylist = function () {
 
         /**
          * Публичный метод, реализующий фильтрацию
-         * @param {Function} callback
+         * @param {Function}         callback колбек с условиями фильтрации
+         * @param {(String|Boolean)} param    параметр, по которому происходит фильтрация
+         * @public
          */
 
     }, {
         key: 'filter',
-        value: function filter(callback) {
+        value: function filter(callback, param) {
             var _this2 = this;
 
             if (typeof callback !== 'function') {
                 throw new TypeError('Аргумент должен быть функцией');
             }
 
-            // TODO: доделать на адаптиве
+            // Запоминаем колбек 
+            this.currentFilterCallback = callback;
 
-            var data = this.points;
-            var placemarks = this.placemarks;
+            var points = this.points,
+                placemarks = this.placemarks;
 
-            if (!placemarks.length) {
+            if (this.map && !placemarks.length) {
                 console.warn('Невозможно запустить фильтрацию. Массив меток пуст.');
                 return;
             }
 
-            placemarks.forEach(function (item) {
-                item.options.set('visible', false);
-                _this2.clusterer.remove(item);
-                $('#' + item.id).hide();
-            });
+            for (var i = 0; i < points.length; i++) {
+                var dataItem = points[i];
 
-            for (var i = 0; i < data.length; i++) {
-                var item = data[i];
+                if (callback(dataItem, i, points)) {
+                    // Сначала скрываем все
+                    if (this.map) {
+                        placemarks.forEach(function (placemarkItem) {
+                            placemarkItem.options.set('visible', false);
+                            _this2.clusterer.remove(placemarkItem);
+                            $('#' + placemarkItem.id).hide();
+                        });
+                    } else {
+                        $('#' + this.options.list.container + ' .' + this.listClassName + '__item').hide();
+                    }
 
-                if (callback(item, i, data)) {
-                    placemarks[i].options.set('visible', true);
-                    this.clusterer.add(placemarks[i]);
-                    $('#' + placemarks[i].id).show();
+                    // Потом показываем нужное
+                    if (this.map) {
+                        placemarks[i].options.set('visible', true);
+                        this.clusterer.add(placemarks[i]);
+                    }
+
+                    $('#' + dataItem.id).show();
+
+                    // Запоминаем значение, по которому была успешная фильтрация
+                    this.currentFilterParam = param;
+                }
+            }
+        }
+
+        /**
+         * Сбрасывает результат фильтрации и показывает полный список меток
+         * @public
+         */
+
+    }, {
+        key: 'clearFilter',
+        value: function clearFilter() {
+            var _this3 = this;
+
+            // Сбрасываем колбек 
+            this.currentFilterCallback = null;
+            // Сбрасываем параметр фильтрации
+            this.currentFilterParam = null;
+
+            var points = this.points,
+                placemarks = this.placemarks;
+
+            for (var i = 0; i < points.length; i++) {
+                if (this.map) {
+                    placemarks.forEach(function (placemarkItem) {
+                        placemarkItem.options.set('visible', true);
+                        _this3.clusterer.add(placemarkItem);
+                        $('#' + placemarkItem.id).show();
+                    });
+
+                    // Масштабируем карту так, чтобы были видны все метки
+                    if (typeof this.options.cluster == 'boolean' && !this.options.cluster) {
+                        this._setBounds(this.map.geoObjects);
+                    } else {
+                        this._setBounds(this.clusterer);
+                    }
+                } else {
+                    $('#' + this.options.list.container + ' .' + this.listClassName + '__item').show();
                 }
             }
         }
