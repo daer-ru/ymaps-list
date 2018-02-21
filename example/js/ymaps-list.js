@@ -321,7 +321,7 @@ var Ylist = function () {
         }
 
         /**
-         * Инициализация спсика меток
+         * Инициализация списка меток
          */
 
     }, {
@@ -592,11 +592,8 @@ var Ylist = function () {
                     this.applyElementOffset();
                     this._$element.find('.ylist-balloon__close').on('click', $.proxy(this.onCloseClick, this));
 
-                    var height = this._$element[0].offsetHeight;
-
-                    // Если нет новых данных, пользуемся старыми
-                    self.balloonParams.balloonWidth = this._$element[0].offsetWidth || self.balloonParams.balloonWidth;
-                    self.balloonParams.balloonHeight = height ? height + self.balloonParams.balloonTailHeight : self.balloonParams.balloonHeight;
+                    self.balloonParams.balloonWidth = this._$element[0].offsetWidth;
+                    self.balloonParams.balloonHeight = this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight;
                 },
 
                 /**
@@ -876,8 +873,8 @@ var Ylist = function () {
     }, {
         key: '_listItemClickHandler',
         value: function _listItemClickHandler(e, placemark) {
-            // Если карта инициализирована, диспатчим метку
-            if (this.placemarks.length) {
+            // Если карта открыта, диспатчим метку
+            if ($('#' + this.options.map.container).css('display') !== 'none') {
                 placemark.events.fire('click');
             } else {
                 this._commonClickHandler(placemark);
@@ -1007,8 +1004,8 @@ var Ylist = function () {
                 }
             }
 
-            // Если карта инициализирована
-            if (this.placemarks.length) {
+            // Если карта открыта
+            if ($('#' + this.options.map.container).css('display') !== 'none') {
 
                 if (balloonBeforeBreakpoint && balloonAfterBreakpoint || balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
 

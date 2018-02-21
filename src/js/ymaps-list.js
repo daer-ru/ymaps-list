@@ -325,7 +325,7 @@ class Ylist {
 
 
     /**
-     * Инициализация спсика меток
+     * Инициализация списка меток
      */
     _initList() {
         this._createPointsList();
@@ -865,8 +865,8 @@ class Ylist {
      * @param {Object} placemark объект метки или id
      */
     _listItemClickHandler(e, placemark) {
-        // Если карта инициализирована, диспатчим метку
-        if (this.placemarks.length) {
+        // Если карта открыта, диспатчим метку
+        if ($('#' + this.options.map.container).css('display') !== 'none') {
             placemark.events.fire('click');
         } else {
             this._commonClickHandler(placemark);
@@ -994,8 +994,8 @@ class Ylist {
             }
         }
 
-        // Если карта инициализирована
-        if (this.placemarks.length) {
+        // Если карта открыта
+        if ($('#' + this.options.map.container).css('display') !== 'none') {
 
             if (balloonBeforeBreakpoint && balloonAfterBreakpoint ||
                 balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
