@@ -420,7 +420,7 @@ class Ylist {
 
             placemark.id = point.id;
             placemark.events.add('click', function(e) {
-                self._placemarkClickHandler(e, self);
+                self._commonClickHandler(e.get('target'));
             });
 
             if (this.activeListItem && this.activeListItem == point.id) {
@@ -819,6 +819,7 @@ class Ylist {
 
         $('#' + this.options.list.container).html('').append($list);
 
+        $(document).off('click', '.' + self.listClassName + '__title');
 
         // При клике на элемент списка, срабатывает соответстующая точка на карте
         $(document).on('click', '.' + self.listClassName + '__title', function(e) {
@@ -859,97 +860,17 @@ class Ylist {
 
 
     /**
-     * Обработчик клика на метку
-     * @param {Object} e    event
-     * @param {Object} self экземпляр класса
-     */
-    _placemarkClickHandler(e, self) {
-        if (!this.options.placemark.clicked) {
-            return;
-        }
-
-        let placemark = e.get('target'),
-            balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
-            balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
-
-        self.activePlacemark = placemark;
-
-        this._commonClickHandler(placemark);
-
-        if (balloonBeforeBreakpoint && balloonAfterBreakpoint ||
-            balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
-            !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
-
-            // Настройка балуна, выходящего за пределы карты
-            if (this.options.balloon.mapOverflow === false) {
-                let outerHandler = function(e) {
-                    if (placemark.options.get('balloonPane') === 'outerBalloon') {
-                        self._setBalloonPane(self.map, placemark, e.get('tick'));
-                    }
-                };
-                let innerHandler = function(e) {
-                    if (placemark.options.get('balloonPane') !== 'outerBalloon') {
-                        self._setBalloonPane(self.map, placemark, e.get('tick'));
-                    }
-                };
-
-                // При открытии балуна начинаем слушать изменение центра карты. Вызываем функцию в двух случаях:
-                self.map.geoObjects.events.add('balloonopen', () => {
-                    // 1) в начале движения (если балун во внешнем контейнере);
-                    self.map.events.add('actiontick', outerHandler);
-                    // 2) в конце движения (если балун во внутреннем контейнере).
-                    self.map.events.add('actiontickcomplete', innerHandler);
-                    // Сразу делаем проверку на позицию балуна
-                    self._setBalloonPane(self.map, placemark);
-                });
-
-                // При закрытии балуна удаляем слушатели.
-                self.map.geoObjects.events.add('balloonclose', () => {
-                    self.map.events.remove('actiontick', outerHandler);
-                    self.map.events.remove('actiontickcomplete', innerHandler);
-                });
-            }
-
-            /**
-             * Расчитывает координаты центра, с учетом размеров балуна,
-             * и центрирует карту относительно балуна
-             */
-            let setBalloonToCenter = function() {
-                let coords, newCoords;
-
-                // Если балун выходит за рамки карты, опустим балун на 1/4 его высоты
-                let divider = self.options.balloon.mapOverflow === false ? 4 : 2;
-
-                coords = self.map.options.get('projection').toGlobalPixels(
-                        placemark.geometry.getCoordinates(),
-                        self.map.getZoom()
-                );
-
-                // Сдвигаем координаты на половину высоты балуна
-                coords[1] -= self.balloonParams.balloonHeight / divider;
-
-                newCoords = self.map.options.get('projection').fromGlobalPixels(coords, self.map.getZoom());
-
-                self.map.panTo(newCoords, {flying: true});
-
-                // После выполнения функции удаляем обработчик
-                self.map.geoObjects.events.remove('balloonopen', setBalloonToCenter);
-            };
-
-            self.map.geoObjects.events.add('balloonopen', setBalloonToCenter);
-        } else {
-            self.map.panTo(placemark.geometry.getCoordinates(), {flying: true});
-        }
-    }
-
-
-    /**
      * Обработчик клика на элемент списка
      * @param {Object} e         event
      * @param {Object} placemark объект метки или id
      */
     _listItemClickHandler(e, placemark) {
-        this._commonClickHandler(placemark);
+        // Если карта инициализирована, диспатчим метку
+        if (this.placemarks.length) {
+            placemark.events.fire('click');
+        } else {
+            this._commonClickHandler(placemark);
+        }
 
         if (typeof placemark !== 'string') {
             if (this.activePlacemark && this.map.getZoom() < 11) {
@@ -985,24 +906,35 @@ class Ylist {
      * @param {Object} placemark объект метки или id
      */
     _commonClickHandler(placemark) {
-        let $listContainer = null,
+        let self = this,
+            $listContainer = null,
             $listItem = null,
             activeListItemId = null,
-            listActive = this.options.list.active;
+            listActive = this.options.list.active,
+            balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
+            balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+
+        if (!self.options.placemark.clicked) {
+            return;
+        }
 
         if (listActive) {
             $listContainer = $('#' + this.options.list.container);
         }
 
+        self.activePlacemark = placemark;
+
         if (typeof placemark == 'string') {
             if (listActive) {
                 $listItem = $('#' + placemark);
             }
+
             activeListItemId = placemark;
         } else {
             if (listActive) {
                 $listItem = $('#' + placemark.id);
             }
+
             activeListItemId = placemark.id;
 
             // Возвращаем всем меткам и кластерам исходный вид
@@ -1059,6 +991,75 @@ class Ylist {
                 $listContainer.scrollTop($listItem.position().top + $listContainer.scrollTop());
             } else {
                 this.options.list.scroll($listContainer, $listItem);
+            }
+        }
+
+        // Если карта инициализирована
+        if (this.placemarks.length) {
+
+            if (balloonBeforeBreakpoint && balloonAfterBreakpoint ||
+                balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
+                !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+
+                // Настройка балуна, выходящего за пределы карты
+                if (this.options.balloon.mapOverflow === false) {
+                    let outerHandler = function(e) {
+                        if (placemark.options.get('balloonPane') === 'outerBalloon') {
+                            self._setBalloonPane(self.map, placemark, e.get('tick'));
+                        }
+                    };
+                    let innerHandler = function(e) {
+                        if (placemark.options.get('balloonPane') !== 'outerBalloon') {
+                            self._setBalloonPane(self.map, placemark, e.get('tick'));
+                        }
+                    };
+
+                    // При открытии балуна начинаем слушать изменение центра карты. Вызываем функцию в двух случаях:
+                    self.map.geoObjects.events.add('balloonopen', () => {
+                        // 1) в начале движения (если балун во внешнем контейнере);
+                        self.map.events.add('actiontick', outerHandler);
+                        // 2) в конце движения (если балун во внутреннем контейнере).
+                        self.map.events.add('actiontickcomplete', innerHandler);
+                        // Сразу делаем проверку на позицию балуна
+                        self._setBalloonPane(self.map, placemark);
+                    });
+
+                    // При закрытии балуна удаляем слушатели.
+                    self.map.geoObjects.events.add('balloonclose', () => {
+                        self.map.events.remove('actiontick', outerHandler);
+                        self.map.events.remove('actiontickcomplete', innerHandler);
+                    });
+                }
+
+                /**
+                 * Расчитывает координаты центра, с учетом размеров балуна,
+                 * и центрирует карту относительно балуна
+                 */
+                let setBalloonToCenter = function() {
+                    let coords, newCoords;
+
+                    // Если балун выходит за рамки карты, опустим балун на 1/4 его высоты
+                    let divider = self.options.balloon.mapOverflow === false ? 4 : 2;
+
+                    coords = self.map.options.get('projection').toGlobalPixels(
+                        placemark.geometry.getCoordinates(),
+                        self.map.getZoom()
+                    );
+
+                    // Сдвигаем координаты на половину высоты балуна
+                    coords[1] -= self.balloonParams.balloonHeight / divider;
+
+                    newCoords = self.map.options.get('projection').fromGlobalPixels(coords, self.map.getZoom());
+
+                    self.map.panTo(newCoords, {flying: true});
+
+                    // После выполнения функции удаляем обработчик
+                    self.map.geoObjects.events.remove('balloonopen', setBalloonToCenter);
+                };
+
+                self.map.geoObjects.events.add('balloonopen', setBalloonToCenter);
+            } else {
+                self.map.panTo(placemark.geometry.getCoordinates(), {flying: true});
             }
         }
     }
