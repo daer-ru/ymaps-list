@@ -111,17 +111,16 @@
         <hr class="my-5">
         <h2 class="mb-5">Карта с фильтром</h2>
 
-        <form class="js-filter mb-2" action="">
+        <form class="js-filter mb-5" action="">
             <label for="">Номер метки от 1 до 5</label><br>
             <div class="input-group" style="width: 290px;">
                 <input type="text" class="form-control" name="filter">
                 <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="submit">Отфильтровать</button>
+                    <button class="btn btn-primary" type="submit">Отфильтровать</button>
+                    <button class="btn btn-outline-secondary js-clear-filter" type="button" disabled><i class="fa fa-times" aria-hidden="true"></i></button>
                 </div>
             </div>
-        </form>
-
-        <button class="btn btn-outline-secondary mb-5 js-clear-filter" type="button">Сбросить фильтр</button>
+        </form> 
     </div>
 
     <div id="ymaps-filter" class="ylist" style="position:relative;">
@@ -242,9 +241,9 @@
                     disableBeforeBreakpoint: true,
                     disableAfterBreakpoint: false
                 },
-                tooltip: {
+                dragTooltip: {
                     active: true,
-                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                    text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
                 }
             },
             list: {
@@ -409,9 +408,9 @@
                     disableBeforeBreakpoint: true,
                     disableAfterBreakpoint: false
                 },
-                tooltip: {
+                dragTooltip: {
                     active: true,
-                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                    text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
                 }
             },
             list: {
@@ -571,9 +570,9 @@
                     disableBeforeBreakpoint: true,
                     disableAfterBreakpoint: false
                 },
-                tooltip: {
+                dragTooltip: {
                     active: true,
-                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                    text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
                 }
             },
             list: {
@@ -735,9 +734,9 @@
                     disableBeforeBreakpoint: true,
                     disableAfterBreakpoint: false
                 },
-                tooltip: {
+                dragTooltip: {
                     active: true,
-                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                    text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
                 }
             },
             list: {
@@ -924,9 +923,9 @@
                     disableBeforeBreakpoint: true,
                     disableAfterBreakpoint: false
                 },
-                tooltip: {
+                dragTooltip: {
                     active: true,
-                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                    text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
                 }
             },
             list: {
@@ -1087,9 +1086,13 @@
                     disableBeforeBreakpoint: true,
                     disableAfterBreakpoint: false
                 },
-                tooltip: {
+                dragTooltip: {
                     active: true,
-                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                    text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                },
+                filterTooltip: {
+                    active: true,
+                    text: 'Совпадений не найдено'
                 }
             },
             list: {
@@ -1159,23 +1162,24 @@
             var filterData = $(this).serializeArray();
             var param = filterData[0].value;
 
-            if (Number(param) >= 1 && Number(param) <= 5) {
-                // Фильтруем на сабмит формы
-                ymapsFilter.filter((obj, i, data) => {
-                    if (obj.id === 'ylist-filter-' + param) {
-                        return true;
-                    }
+            // Фильтруем на сабмит формы
+            ymapsFilter.filter((obj, i, data) => {
+                if (obj.id === 'ylist-filter-' + param) {
+                    return true;
+                }
 
-                    return false;
-                }, Number(param));
-            } else {
-                alert('Введите только цифру от 1 до 5');
-            }
+                return false;
+            }, Number(param));
+
+
+            $('.js-clear-filter').prop('disabled', false);
         });
 
         // Сброс фильтра
         $('.js-clear-filter').on('click', function() {
+            $(this).prop('disabled', true);
             $('.js-filter input:text').val('');
+
             ymapsFilter.clearFilter();
         });
     </script>

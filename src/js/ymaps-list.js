@@ -129,17 +129,32 @@ class Ylist {
             }
 
 
-            if (!this.options.map.hasOwnProperty('tooltip')) {
-                this.options.map.tooltip = {};
+            if (!this.options.map.hasOwnProperty('dragTooltip')) {
+                this.options.map.dragTooltip = {};
             }
 
-            if (this.options.map.hasOwnProperty('tooltip') && typeof this.options.map.tooltip == 'object') {
-                if (!this.options.map.tooltip.hasOwnProperty('active')) {
-                    this.options.map.tooltip.active = true;
+            if (this.options.map.hasOwnProperty('dragTooltip') && typeof this.options.map.dragTooltip == 'object') {
+                if (!this.options.map.dragTooltip.hasOwnProperty('active')) {
+                    this.options.map.dragTooltip.active = true;
                 }
 
-                if (!this.options.map.tooltip.hasOwnProperty('tooltipText')) {
-                    this.options.map.tooltip.tooltipText = 'To drag map touch screen by two fingers and move';
+                if (!this.options.map.dragTooltip.hasOwnProperty('text')) {
+                    this.options.map.dragTooltip.text = 'To drag map touch screen by two fingers and move';
+                }
+            }
+
+
+            if (!this.options.map.hasOwnProperty('filterTooltip')) {
+                this.options.map.filterTooltip = {};
+            }
+
+            if (this.options.map.hasOwnProperty('filterTooltip') && typeof this.options.map.filterTooltip == 'object') {
+                if (!this.options.map.filterTooltip.hasOwnProperty('active')) {
+                    this.options.map.filterTooltip.active = true;
+                }
+
+                if (!this.options.map.filterTooltip.hasOwnProperty('text')) {
+                    this.options.map.filterTooltip.text = 'No matches found';
                 }
             }
         }
@@ -270,8 +285,8 @@ class Ylist {
             this.balloonLayout = null;
         }
 
-        if (this.options.map.tooltip.active) {
-            this._initMapTooltip();
+        if (this.options.map.dragTooltip.active) {
+            this._initMapDragTooltip();
         }
 
         let baseMapState = {
@@ -347,14 +362,14 @@ class Ylist {
      * Инициализация подсказки на карте
      * @private
      */
-    _initMapTooltip() {
-        let $container = $('#' + this.options.map.container),
-            $tooltip = $(`<div class="ylist-tooltip">
-                              <span class="ylist-tooltip__text">${this.options.map.tooltip.tooltipText}</span>
+    _initMapDragTooltip() {
+        let $container = $(`#${this.options.map.container}`),
+            $dragTooltip = $(`<div class="ylist-drag-tooltip">
+                              <span class="ylist-drag-tooltip__text">${this.options.map.dragTooltip.text}</span>
                           </div>`);
 
-        $container.remove('.ylist-tooltip');
-        $container.append($tooltip);
+        $container.find('.ylist-drag-tooltip').remove();
+        $container.append($dragTooltip);
 
         $container.off('touchmove touchstart touchend touchleave touchcancel');
 
@@ -362,12 +377,12 @@ class Ylist {
         if (this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableBeforeBreakpoint) {
             $container.on('touchmove', function(e) {
                 if (e.originalEvent.touches.length == 1) {
-                    $tooltip.css('opacity', '1');
+                    $dragTooltip.css('opacity', '1');
                 } else {
-                    $tooltip.css('opacity', '0');
+                    $dragTooltip.css('opacity', '0');
                 }
             }).on('touchstart touchend touchleave touchcancel', function(e) {
-                $tooltip.css('opacity', '0');
+                $dragTooltip.css('opacity', '0');
             });
         }
     }
@@ -1136,8 +1151,8 @@ class Ylist {
                     self.map.behaviors.enable('drag');
                 }
 
-                if (this.options.map.tooltip.active) {
-                    this._initMapTooltip();
+                if (this.options.map.dragTooltip.active) {
+                    this._initMapDragTooltip();
                 }
             }
 
@@ -1177,8 +1192,8 @@ class Ylist {
                     self.map.behaviors.enable('drag');
                 }
 
-                if (this.options.map.tooltip.active) {
-                    this._initMapTooltip();
+                if (this.options.map.dragTooltip.active) {
+                    this._initMapDragTooltip();
                 }
             }
 
@@ -1239,29 +1254,33 @@ class Ylist {
         this.currentFilterCallback = callback;
 
         let points = this.points,
-            placemarks = this.placemarks;
+            placemarks = this.placemarks,
+            falseFilterCounter = 0,
+            $filterTooltip = $(`<div class="ylist-filter-tooltip">
+                                    <span class="ylist-filter-tooltip__text">${this.options.map.filterTooltip.text}</span>
+                                </div>`);
 
         if (this.map && !placemarks.length) {
             console.warn('Невозможно запустить фильтрацию. Массив меток пуст.');
             return;
         }
 
+        // Скрываем все
+        if (this.map) {
+            placemarks.forEach(placemarkItem => {
+                placemarkItem.options.set('visible', false);
+                this.clusterer.remove(placemarkItem);
+                $(`#${placemarkItem.id}`).hide();
+            });
+        } else {
+            $(`#${this.options.list.container} .${this.listClassName}__item`).hide();
+        }
+
         for (let i = 0; i < points.length; i++) {
             let dataItem = points[i];
 
             if (callback(dataItem, i, points)) {
-                // Сначала скрываем все
-                if (this.map) {
-                    placemarks.forEach(placemarkItem => {
-                        placemarkItem.options.set('visible', false);
-                        this.clusterer.remove(placemarkItem);
-                        $(`#${placemarkItem.id}`).hide();
-                    });
-                } else {
-                    $(`#${this.options.list.container} .${this.listClassName}__item`).hide();
-                }
-
-                // Потом показываем нужное
+                // Показываем нужное
                 if (this.map) {
                     placemarks[i].options.set('visible', true);
                     this.clusterer.add(placemarks[i]);
@@ -1271,6 +1290,30 @@ class Ylist {
 
                 // Запоминаем значение, по которому была успешная фильтрация
                 this.currentFilterParam = param;
+            } else {
+                falseFilterCounter++;
+            }
+        }
+
+        if (falseFilterCounter == points.length) {
+            // Нет совпадений
+            if (this.options.map.filterTooltip.active) {
+                $(`#${this.options.container} .ylist-filter-tooltip`).remove();
+                $(`#${this.options.container}`).append($filterTooltip);
+                $(`#${this.options.container} .ylist-filter-tooltip`).css('opacity', '1');
+            } else {
+                console.warn(this.options.map.filterTooltip.text);
+            }
+        } else {
+            if (this.options.map.filterTooltip.active) {
+                $(`#${this.options.container} .ylist-filter-tooltip`).remove();
+            }
+
+            // Масштабируем карту так, чтобы были видны все метки
+            if (typeof this.options.cluster == 'boolean' && !this.options.cluster) {
+                this._setBounds(this.map.geoObjects);
+            } else {
+                this._setBounds(this.clusterer);
             }
         }
     }
@@ -1285,6 +1328,11 @@ class Ylist {
         this.currentFilterCallback = null;
         // Сбрасываем параметр фильтрации
         this.currentFilterParam = null;
+
+        if (this.options.map.filterTooltip.active) {
+            // Удаляем тултип
+            $(`#${this.options.container} .ylist-filter-tooltip`).remove();
+        }
 
         let points = this.points,
             placemarks = this.placemarks;

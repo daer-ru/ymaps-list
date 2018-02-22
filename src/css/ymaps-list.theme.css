@@ -122,3 +122,13 @@
     }
 
 /* /Balloon */
+
+/* Tooltip */
+
+.ylist-filter-tooltip {
+    background: #fff;
+    color: #000;
+    font-size: 18px;
+}
+
+/* /Tooltip */

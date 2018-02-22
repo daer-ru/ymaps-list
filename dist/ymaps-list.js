@@ -138,17 +138,31 @@ var Ylist = function () {
                     }
                 }
 
-                if (!this.options.map.hasOwnProperty('tooltip')) {
-                    this.options.map.tooltip = {};
+                if (!this.options.map.hasOwnProperty('dragTooltip')) {
+                    this.options.map.dragTooltip = {};
                 }
 
-                if (this.options.map.hasOwnProperty('tooltip') && _typeof(this.options.map.tooltip) == 'object') {
-                    if (!this.options.map.tooltip.hasOwnProperty('active')) {
-                        this.options.map.tooltip.active = true;
+                if (this.options.map.hasOwnProperty('dragTooltip') && _typeof(this.options.map.dragTooltip) == 'object') {
+                    if (!this.options.map.dragTooltip.hasOwnProperty('active')) {
+                        this.options.map.dragTooltip.active = true;
                     }
 
-                    if (!this.options.map.tooltip.hasOwnProperty('tooltipText')) {
-                        this.options.map.tooltip.tooltipText = 'To drag map touch screen by two fingers and move';
+                    if (!this.options.map.dragTooltip.hasOwnProperty('text')) {
+                        this.options.map.dragTooltip.text = 'To drag map touch screen by two fingers and move';
+                    }
+                }
+
+                if (!this.options.map.hasOwnProperty('filterTooltip')) {
+                    this.options.map.filterTooltip = {};
+                }
+
+                if (this.options.map.hasOwnProperty('filterTooltip') && _typeof(this.options.map.filterTooltip) == 'object') {
+                    if (!this.options.map.filterTooltip.hasOwnProperty('active')) {
+                        this.options.map.filterTooltip.active = true;
+                    }
+
+                    if (!this.options.map.filterTooltip.hasOwnProperty('text')) {
+                        this.options.map.filterTooltip.text = 'No matches found';
                     }
                 }
             }
@@ -269,8 +283,8 @@ var Ylist = function () {
                 this.balloonLayout = null;
             }
 
-            if (this.options.map.tooltip.active) {
-                this._initMapTooltip();
+            if (this.options.map.dragTooltip.active) {
+                this._initMapDragTooltip();
             }
 
             var baseMapState = {
@@ -349,25 +363,25 @@ var Ylist = function () {
          */
 
     }, {
-        key: '_initMapTooltip',
-        value: function _initMapTooltip() {
+        key: '_initMapDragTooltip',
+        value: function _initMapDragTooltip() {
             var $container = $('#' + this.options.map.container),
-                $tooltip = $('<div class="ylist-tooltip">\n                              <span class="ylist-tooltip__text">' + this.options.map.tooltip.tooltipText + '</span>\n                          </div>');
+                $dragTooltip = $('<div class="ylist-drag-tooltip">\n                              <span class="ylist-drag-tooltip__text">' + this.options.map.dragTooltip.text + '</span>\n                          </div>');
 
-            $container.remove('.ylist-tooltip');
-            $container.append($tooltip);
+            $container.find('.ylist-drag-tooltip').remove();
+            $container.append($dragTooltip);
 
             $container.off('touchmove touchstart touchend touchleave touchcancel');
 
             if (this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableBeforeBreakpoint) {
                 $container.on('touchmove', function (e) {
                     if (e.originalEvent.touches.length == 1) {
-                        $tooltip.css('opacity', '1');
+                        $dragTooltip.css('opacity', '1');
                     } else {
-                        $tooltip.css('opacity', '0');
+                        $dragTooltip.css('opacity', '0');
                     }
                 }).on('touchstart touchend touchleave touchcancel', function (e) {
-                    $tooltip.css('opacity', '0');
+                    $dragTooltip.css('opacity', '0');
                 });
             }
         }
@@ -1147,8 +1161,8 @@ var Ylist = function () {
                         self.map.behaviors.enable('drag');
                     }
 
-                    if (this.options.map.tooltip.active) {
-                        this._initMapTooltip();
+                    if (this.options.map.dragTooltip.active) {
+                        this._initMapDragTooltip();
                     }
                 }
 
@@ -1188,8 +1202,8 @@ var Ylist = function () {
                         self.map.behaviors.enable('drag');
                     }
 
-                    if (this.options.map.tooltip.active) {
-                        this._initMapTooltip();
+                    if (this.options.map.dragTooltip.active) {
+                        this._initMapDragTooltip();
                     }
                 }
 
@@ -1256,29 +1270,31 @@ var Ylist = function () {
             this.currentFilterCallback = callback;
 
             var points = this.points,
-                placemarks = this.placemarks;
+                placemarks = this.placemarks,
+                falseFilterCounter = 0,
+                $filterTooltip = $('<div class="ylist-filter-tooltip">\n                                    <span class="ylist-filter-tooltip__text">' + this.options.map.filterTooltip.text + '</span>\n                                </div>');
 
             if (this.map && !placemarks.length) {
                 console.warn('Невозможно запустить фильтрацию. Массив меток пуст.');
                 return;
             }
 
+            // Скрываем все
+            if (this.map) {
+                placemarks.forEach(function (placemarkItem) {
+                    placemarkItem.options.set('visible', false);
+                    _this2.clusterer.remove(placemarkItem);
+                    $('#' + placemarkItem.id).hide();
+                });
+            } else {
+                $('#' + this.options.list.container + ' .' + this.listClassName + '__item').hide();
+            }
+
             for (var i = 0; i < points.length; i++) {
                 var dataItem = points[i];
 
                 if (callback(dataItem, i, points)) {
-                    // Сначала скрываем все
-                    if (this.map) {
-                        placemarks.forEach(function (placemarkItem) {
-                            placemarkItem.options.set('visible', false);
-                            _this2.clusterer.remove(placemarkItem);
-                            $('#' + placemarkItem.id).hide();
-                        });
-                    } else {
-                        $('#' + this.options.list.container + ' .' + this.listClassName + '__item').hide();
-                    }
-
-                    // Потом показываем нужное
+                    // Показываем нужное
                     if (this.map) {
                         placemarks[i].options.set('visible', true);
                         this.clusterer.add(placemarks[i]);
@@ -1288,6 +1304,30 @@ var Ylist = function () {
 
                     // Запоминаем значение, по которому была успешная фильтрация
                     this.currentFilterParam = param;
+                } else {
+                    falseFilterCounter++;
+                }
+            }
+
+            if (falseFilterCounter == points.length) {
+                // Нет совпадений
+                if (this.options.map.filterTooltip.active) {
+                    $('#' + this.options.container + ' .ylist-filter-tooltip').remove();
+                    $('#' + this.options.container).append($filterTooltip);
+                    $('#' + this.options.container + ' .ylist-filter-tooltip').css('opacity', '1');
+                } else {
+                    console.warn(this.options.map.filterTooltip.text);
+                }
+            } else {
+                if (this.options.map.filterTooltip.active) {
+                    $('#' + this.options.container + ' .ylist-filter-tooltip').remove();
+                }
+
+                // Масштабируем карту так, чтобы были видны все метки
+                if (typeof this.options.cluster == 'boolean' && !this.options.cluster) {
+                    this._setBounds(this.map.geoObjects);
+                } else {
+                    this._setBounds(this.clusterer);
                 }
             }
         }
@@ -1306,6 +1346,11 @@ var Ylist = function () {
             this.currentFilterCallback = null;
             // Сбрасываем параметр фильтрации
             this.currentFilterParam = null;
+
+            if (this.options.map.filterTooltip.active) {
+                // Удаляем тултип
+                $('#' + this.options.container + ' .ylist-filter-tooltip').remove();
+            }
 
             var points = this.points,
                 placemarks = this.placemarks;
