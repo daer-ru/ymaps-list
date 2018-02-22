@@ -99,63 +99,100 @@
     </div>
 
     <div class="container-fluid">
+        <hr class="my-5">
+        <h2 class="mb-5">Кастомизированная карта</h2>
+    </div>
+
+    <div id="ymaps-custom" class="ylist">
+        <div id="ymaps-custom-map" class="ylist__map-container"></div>
+    </div>
+
+    <div class="container-fluid">
+        <hr class="my-5">
+        <h2 class="mb-5">Карта с фильтром</h2>
+
+        <form class="js-filter mb-5" action="">
+            <label for="">Номер метки от 1 до 5</label><br>
+            <div class="input-group" style="width: 290px;">
+                <input type="text" class="form-control" name="filter">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="submit">Отфильтровать</button>
+                    <button class="btn btn-outline-secondary js-clear-filter" type="button" disabled><i class="fa fa-times" aria-hidden="true"></i></button>
+                </div>
+            </div>
+        </form> 
+    </div>
+
+    <div id="ymaps-filter" class="ylist" style="position:relative;">
+        <div id="ymaps-filter-switch" class="ylist__switch">
+            <div class="container-fluid">
+                <div class="btn-group mb-3" role="group">
+                    <button type="button" class="btn btn-primary" data-ylist-switch="list">Список</button>
+                    <button type="button" class="btn btn-primary" data-ylist-switch="map">Карта</button>
+                </div>
+            </div>
+        </div>
+        <div id="ymaps-filter-list" class="ylist__list-container"></div>
+        <div id="ymaps-filter-map" class="ylist__map-container"></div>
+    </div>
+
+    <div class="container-fluid">
         <div class="jumbotron mt-5 mb-0 pt-4 pb-4">
             <a class="btn btn-dark btn-sm" href="https://github.com/daer-ru/ymaps-list" role="button"><i class="fa fa-github" aria-hidden="true"></i> Github</a>
         </div>
     </div>
 
     <script>
-        var data = [
-                {
-                    "id": "ylist-1",
-                    "name": "Элемент списка №1",
-                    "coords": [55.790464, 37.530409],
-                    "address": "Ходынский бульвар, д. 4",
-                    "phone": "8 (999) 999-99-99",
-                    "email": "email@domain.com",
-                    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
-                },
-                {
-                    "id": "ylist-2",
-                    "name": "Элемент списка №2",
-                    "coords": [55.861954, 37.687713],
-                    "address": "ул. Дудинка, д. 3",
-                    "phone": "8 (999) 999-99-99",
-                    "email": "email@domain.com",
-                    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
-                },
-                {
-                    "id": "ylist-3",
-                    "name": "Элемент списка №3",
-                    "coords": [55.783944, 37.624642],
-                    "address": "Олимпийский проспект, д. 16, стр. 5, БЦ Олимпик-холл",
-                    "phone": "8 (999) 999-99-99",
-                    "email": "email@domain.com",
-                    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
-                },
-                {
-                    "id": "ylist-4",
-                    "name": "Элемент списка №4",
-                    "coords": [55.706431, 37.022618],
-                    "address": "Рублево-Успенское шоссе, пос. Горки-10, д. 24А",
-                    "phone": "8 (999) 999-99-99",
-                    "email": "email@domain.com",
-                    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
-                },
-                {
-                    "id": "ylist-5",
-                    "name": "Элемент списка №5",
-                    "coords": [55.451967, 37.763198],
-                    "address": "Советский пр-т, д. 2А",
-                    "phone": "8 (999) 999-99-99",
-                    "email": "email@domain.com",
-                    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
-                }
-            ];
-
+        var dataFull = [
+            {
+                "id": "ylist-1",
+                "name": "Элемент списка №1",
+                "coords": [55.790464, 37.530409],
+                "address": "Ходынский бульвар, д. 4",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-2",
+                "name": "Элемент списка №2",
+                "coords": [55.861954, 37.687713],
+                "address": "ул. Дудинка, д. 3",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-3",
+                "name": "Элемент списка №3",
+                "coords": [55.783944, 37.624642],
+                "address": "Олимпийский проспект, д. 16, стр. 5, БЦ Олимпик-холл",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-4",
+                "name": "Элемент списка №4",
+                "coords": [55.706431, 37.022618],
+                "address": "Рублево-Успенское шоссе, пос. Горки-10, д. 24А",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-5",
+                "name": "Элемент списка №5",
+                "coords": [55.451967, 37.763198],
+                "address": "Советский пр-т, д. 2А",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            }
+        ];
 
         var ymapsFull = new Ylist({
-            data: data,
+            data: dataFull,
             dataOrder: [
                 'name',
                 'address',
@@ -164,20 +201,20 @@
                 'description'
             ],
             dataExtension: {
-                address: function(address) {
+                address: function(address, pointData) {
                     let extendedAddress = `<p class="ylist-balloon__address">${address}</p>`;
                     return extendedAddress;
                 },
-                phone: function(phone) {
+                phone: function(phone, pointData) {
                     let phoneLink = phone.replace(/[\ \-\(\)']+/g, '');
                     let extendedPhone = `<p class="ylist-balloon__phone"><a href="tel:${phoneLink}">${phone}</a></p>`;
                     return extendedPhone;
                 },
-                email: function(email) {
+                email: function(email, pointData) {
                     let extendedEmail = `<p class="ylist-balloon__email"><a href="mailto:${email}">${email}</a></p>`;
                     return extendedEmail;
                 },
-                description: function(description) {
+                description: function(description, pointData) {
                     let extendedDescription = `<p class="ylist-balloon__description">${description}</p>`;
                     return extendedDescription;
                 },
@@ -185,14 +222,28 @@
             container: 'ymaps-full',
             map: {
                 center: [55.751574, 37.573856],
+                customize: {
+                    controls: [
+                        {
+                            constructor: 'ZoomControl',
+                            options: {
+                                size: 'small',
+                                position: {
+                                    top: 10,
+                                    right: 10
+                                }
+                            }
+                        }
+                    ]
+                },
                 container: 'ymaps-full-map',
                 drag: {
                     disableBeforeBreakpoint: true,
                     disableAfterBreakpoint: false
                 },
-                tooltip: {
+                dragTooltip: {
                     active: true,
-                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                    text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
                 }
             },
             list: {
@@ -259,9 +310,56 @@
 
 
 
+        var dataMap = [
+            {
+                "id": "ylist-6",
+                "name": "Элемент списка №1",
+                "coords": [55.790464, 37.530409],
+                "address": "Ходынский бульвар, д. 4",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-7",
+                "name": "Элемент списка №2",
+                "coords": [55.861954, 37.687713],
+                "address": "ул. Дудинка, д. 3",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-8",
+                "name": "Элемент списка №3",
+                "coords": [55.783944, 37.624642],
+                "address": "Олимпийский проспект, д. 16, стр. 5, БЦ Олимпик-холл",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-9",
+                "name": "Элемент списка №4",
+                "coords": [55.706431, 37.022618],
+                "address": "Рублево-Успенское шоссе, пос. Горки-10, д. 24А",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-10",
+                "name": "Элемент списка №5",
+                "coords": [55.451967, 37.763198],
+                "address": "Советский пр-т, д. 2А",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            }
+        ];
 
         var ymapsMap = new Ylist({
-            data: data,
+            data: dataMap,
             dataOrder: [
                 'name',
                 'address',
@@ -270,20 +368,20 @@
                 'description'
             ],
             dataExtension: {
-                address: function(address) {
+                address: function(address, pointData) {
                     let extendedAddress = `<p class="ylist-balloon__address">${address}</p>`;
                     return extendedAddress;
                 },
-                phone: function(phone) {
+                phone: function(phone, pointData) {
                     let phoneLink = phone.replace(/[\ \-\(\)']+/g, '');
                     let extendedPhone = `<p class="ylist-balloon__phone"><a href="tel:${phoneLink}">${phone}</a></p>`;
                     return extendedPhone;
                 },
-                email: function(email) {
+                email: function(email, pointData) {
                     let extendedEmail = `<p class="ylist-balloon__email"><a href="mailto:${email}">${email}</a></p>`;
                     return extendedEmail;
                 },
-                description: function(description) {
+                description: function(description, pointData) {
                     let extendedDescription = `<p class="ylist-balloon__description">${description}</p>`;
                     return extendedDescription;
                 },
@@ -291,14 +389,28 @@
             container: 'ymaps',
             map: {
                 center: [55.751574, 37.573856],
+                customize: {
+                    controls: [
+                        {
+                            constructor: 'ZoomControl',
+                            options: {
+                                size: 'small',
+                                position: {
+                                    top: 10,
+                                    right: 10
+                                }
+                            }
+                        }
+                    ]
+                },
                 container: 'ymaps-map',
                 drag: {
                     disableBeforeBreakpoint: true,
                     disableAfterBreakpoint: false
                 },
-                tooltip: {
+                dragTooltip: {
                     active: true,
-                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                    text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
                 }
             },
             list: {
@@ -360,8 +472,56 @@
 
 
 
+        var dataStatic = [
+            {
+                "id": "ylist-11",
+                "name": "Элемент списка №1",
+                "coords": [55.790464, 37.530409],
+                "address": "Ходынский бульвар, д. 4",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-12",
+                "name": "Элемент списка №2",
+                "coords": [55.861954, 37.687713],
+                "address": "ул. Дудинка, д. 3",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-13",
+                "name": "Элемент списка №3",
+                "coords": [55.783944, 37.624642],
+                "address": "Олимпийский проспект, д. 16, стр. 5, БЦ Олимпик-холл",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-14",
+                "name": "Элемент списка №4",
+                "coords": [55.706431, 37.022618],
+                "address": "Рублево-Успенское шоссе, пос. Горки-10, д. 24А",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-15",
+                "name": "Элемент списка №5",
+                "coords": [55.451967, 37.763198],
+                "address": "Советский пр-т, д. 2А",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            }
+        ];
+
         var ymapsStatic = new Ylist({
-            data: data,
+            data: dataStatic,
             dataOrder: [
                 'name',
                 'address',
@@ -370,20 +530,20 @@
                 'description'
             ],
             dataExtension: {
-                address: function(address) {
+                address: function(address, pointData) {
                     let extendedAddress = `<p class="ylist-balloon__address">${address}</p>`;
                     return extendedAddress;
                 },
-                phone: function(phone) {
+                phone: function(phone, pointData) {
                     let phoneLink = phone.replace(/[\ \-\(\)']+/g, '');
                     let extendedPhone = `<p class="ylist-balloon__phone"><a href="tel:${phoneLink}">${phone}</a></p>`;
                     return extendedPhone;
                 },
-                email: function(email) {
+                email: function(email, pointData) {
                     let extendedEmail = `<p class="ylist-balloon__email"><a href="mailto:${email}">${email}</a></p>`;
                     return extendedEmail;
                 },
-                description: function(description) {
+                description: function(description, pointData) {
                     let extendedDescription = `<p class="ylist-balloon__description">${description}</p>`;
                     return extendedDescription;
                 },
@@ -391,14 +551,28 @@
             container: 'ymaps-static',
             map: {
                 center: [55.751574, 37.573856],
+                customize: {
+                    controls: [
+                        {
+                            constructor: 'ZoomControl',
+                            options: {
+                                size: 'small',
+                                position: {
+                                    top: 10,
+                                    right: 10
+                                }
+                            }
+                        }
+                    ]
+                },
                 container: 'ymaps-static-map',
                 drag: {
                     disableBeforeBreakpoint: true,
                     disableAfterBreakpoint: false
                 },
-                tooltip: {
+                dragTooltip: {
                     active: true,
-                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                    text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
                 }
             },
             list: {
@@ -460,8 +634,58 @@
         ymapsStatic.init();
 
 
+
+
+        var dataBalloonOverflow = [
+            {
+                "id": "ylist-16",
+                "name": "Элемент списка №1",
+                "coords": [55.790464, 37.530409],
+                "address": "Ходынский бульвар, д. 4",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-17",
+                "name": "Элемент списка №2",
+                "coords": [55.861954, 37.687713],
+                "address": "ул. Дудинка, д. 3",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-18",
+                "name": "Элемент списка №3",
+                "coords": [55.783944, 37.624642],
+                "address": "Олимпийский проспект, д. 16, стр. 5, БЦ Олимпик-холл",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-19",
+                "name": "Элемент списка №4",
+                "coords": [55.706431, 37.022618],
+                "address": "Рублево-Успенское шоссе, пос. Горки-10, д. 24А",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-20",
+                "name": "Элемент списка №5",
+                "coords": [55.451967, 37.763198],
+                "address": "Советский пр-т, д. 2А",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            }
+        ];
+
         var ymapsBalloonOverflow = new Ylist({
-            data: data,
+            data: dataBalloonOverflow,
             dataOrder: [
                 'name',
                 'address',
@@ -470,20 +694,20 @@
                 'description'
             ],
             dataExtension: {
-                address: function(address) {
+                address: function(address, pointData) {
                     let extendedAddress = `<p class="ylist-balloon__address">${address}</p>`;
                     return extendedAddress;
                 },
-                phone: function(phone) {
+                phone: function(phone, pointData) {
                     let phoneLink = phone.replace(/[\ \-\(\)']+/g, '');
                     let extendedPhone = `<p class="ylist-balloon__phone"><a href="tel:${phoneLink}">${phone}</a></p>`;
                     return extendedPhone;
                 },
-                email: function(email) {
+                email: function(email, pointData) {
                     let extendedEmail = `<p class="ylist-balloon__email"><a href="mailto:${email}">${email}</a></p>`;
                     return extendedEmail;
                 },
-                description: function(description) {
+                description: function(description, pointData) {
                     let extendedDescription = `<p class="ylist-balloon__description">${description}</p>`;
                     return extendedDescription;
                 },
@@ -491,14 +715,28 @@
             container: 'ymaps-balloon-overflow',
             map: {
                 center: [55.751574, 37.573856],
+                customize: {
+                    controls: [
+                        {
+                            constructor: 'ZoomControl',
+                            options: {
+                                size: 'small',
+                                position: {
+                                    top: 10,
+                                    right: 10
+                                }
+                            }
+                        }
+                    ]
+                },
                 container: 'ymaps-balloon-overflow-map',
                 drag: {
                     disableBeforeBreakpoint: true,
                     disableAfterBreakpoint: false
                 },
-                tooltip: {
+                dragTooltip: {
                     active: true,
-                    tooltipText: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                    text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
                 }
             },
             list: {
@@ -558,6 +796,392 @@
         });
 
         ymapsBalloonOverflow.init();
+
+
+
+
+        var dataCustom = [
+            {
+                "id": "ylist-21",
+                "name": "Элемент списка №1",
+                "coords": [55.790464, 37.530409],
+                "address": "Ходынский бульвар, д. 4",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-22",
+                "name": "Элемент списка №2",
+                "coords": [55.861954, 37.687713],
+                "address": "ул. Дудинка, д. 3",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-23",
+                "name": "Элемент списка №3",
+                "coords": [55.783944, 37.624642],
+                "address": "Олимпийский проспект, д. 16, стр. 5, БЦ Олимпик-холл",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-24",
+                "name": "Элемент списка №4",
+                "coords": [55.706431, 37.022618],
+                "address": "Рублево-Успенское шоссе, пос. Горки-10, д. 24А",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-25",
+                "name": "Элемент списка №5",
+                "coords": [55.451967, 37.763198],
+                "address": "Советский пр-т, д. 2А",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            }
+        ];
+
+        var ymapsCustom = new Ylist({
+            data: dataCustom,
+            dataOrder: [
+                'name',
+                'address',
+                'phone',
+                'email',
+                'description'
+            ],
+            dataExtension: {
+                address: function(address, pointData) {
+                    let extendedAddress = `<p class="ylist-balloon__address">${address}</p>`;
+                    return extendedAddress;
+                },
+                phone: function(phone, pointData) {
+                    let phoneLink = phone.replace(/[\ \-\(\)']+/g, '');
+                    let extendedPhone = `<p class="ylist-balloon__phone"><a href="tel:${phoneLink}">${phone}</a></p>`;
+                    return extendedPhone;
+                },
+                email: function(email, pointData) {
+                    let extendedEmail = `<p class="ylist-balloon__email"><a href="mailto:${email}">${email}</a></p>`;
+                    return extendedEmail;
+                },
+                description: function(description, pointData) {
+                    let extendedDescription = `<p class="ylist-balloon__description">${description}</p>`;
+                    return extendedDescription;
+                },
+            },
+            container: 'ymaps-custom',
+            map: {
+                center: [55.751574, 37.573856],
+                customize: {
+                    state: {
+                        type: 'yandex#satellite'
+                    },
+                    options: {
+                        suppressMapOpenBlock: true
+                    },
+                    controls: [
+                        {
+                            constructor: 'ZoomControl',
+                            options: {
+                                size: 'small',
+                                position: {
+                                    top: 50,
+                                    left: 10
+                                }
+                            }
+                        },
+                        {
+                            constructor: 'FullscreenControl',
+                            options: {
+                                position: {
+                                    bottom: 10,
+                                    left: 10
+                                }
+                            }
+                        },
+                        {
+                            constructor: 'SearchControl',
+                            options: {
+                                position: {
+                                    top: 10,
+                                    left: 10
+                                },
+                                size: 'small'
+                            }
+                        }
+                    ]
+                },
+                container: 'ymaps-custom-map',
+                drag: {
+                    disableBeforeBreakpoint: true,
+                    disableAfterBreakpoint: false
+                },
+                dragTooltip: {
+                    active: true,
+                    text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                }
+            },
+            list: {
+                active: false
+            },
+            cluster: {
+                icons: [
+                    [
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ],
+                    [
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ]
+                ],
+                inlineStyle: 'color: #fff; padding-left: 2px; text-align: center; font: bold 16px/44px Helvetica, Helvetica CY, Arial, Nimbus Sans L, sans-serif;'
+            },
+            placemark: {
+                icons: [
+                    {
+                        href: 'img/pin.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    },
+                    {
+                        href: 'img/pin_active.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    }
+                ]
+            },
+            balloon: {
+                activeBeforeBreakpoint: true,
+                activeAfterBreakpoint: true,
+                closeButton: '<span>x</span>',
+                header: true
+            },
+            adaptiveBreakpoint: 1024
+        });
+
+        ymapsCustom.init();
+
+
+
+
+        var dataFilter = [
+            {
+                "id": "ylist-filter-1",
+                "name": "Элемент списка №1",
+                "coords": [55.790464, 37.530409],
+                "address": "Ходынский бульвар, д. 4",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-filter-2",
+                "name": "Элемент списка №2",
+                "coords": [55.861954, 37.687713],
+                "address": "ул. Дудинка, д. 3",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-filter-3",
+                "name": "Элемент списка №3",
+                "coords": [55.783944, 37.624642],
+                "address": "Олимпийский проспект, д. 16, стр. 5, БЦ Олимпик-холл",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-filter-4",
+                "name": "Элемент списка №4",
+                "coords": [55.706431, 37.022618],
+                "address": "Рублево-Успенское шоссе, пос. Горки-10, д. 24А",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            },
+            {
+                "id": "ylist-filter-5",
+                "name": "Элемент списка №5",
+                "coords": [55.451967, 37.763198],
+                "address": "Советский пр-т, д. 2А",
+                "phone": "8 (999) 999-99-99",
+                "email": "email@domain.com",
+                "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+            }
+        ];
+
+        var ymapsFilter = new Ylist({
+            data: dataFilter,
+            dataOrder: [
+                'name',
+                'address',
+                'phone',
+                'email',
+                'description'
+            ],
+            dataExtension: {
+                address: function(address, pointData) {
+                    let extendedAddress = `<p class="ylist-balloon__address">${address}</p>`;
+                    return extendedAddress;
+                },
+                phone: function(phone, pointData) {
+                    let phoneLink = phone.replace(/[\ \-\(\)']+/g, '');
+                    let extendedPhone = `<p class="ylist-balloon__phone"><a href="tel:${phoneLink}">${phone}</a></p>`;
+                    return extendedPhone;
+                },
+                email: function(email, pointData) {
+                    let extendedEmail = `<p class="ylist-balloon__email"><a href="mailto:${email}">${email}</a></p>`;
+                    return extendedEmail;
+                },
+                description: function(description, pointData) {
+                    let extendedDescription = `<p class="ylist-balloon__description">${description}</p>`;
+                    return extendedDescription;
+                },
+            },
+            container: 'ymaps-filter',
+            map: {
+                center: [55.751574, 37.573856],
+                customize: {
+                    controls: [
+                        {
+                            constructor: 'ZoomControl',
+                            options: {
+                                size: 'small',
+                                position: {
+                                    top: 10,
+                                    right: 10
+                                }
+                            }
+                        }
+                    ]
+                },
+                container: 'ymaps-filter-map',
+                drag: {
+                    disableBeforeBreakpoint: true,
+                    disableAfterBreakpoint: false
+                },
+                dragTooltip: {
+                    active: true,
+                    text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+                },
+                filterTooltip: {
+                    active: true,
+                    text: 'Совпадений не найдено'
+                }
+            },
+            list: {
+                active: true,
+                container: 'ymaps-filter-list',
+                // scroll: function($listContainer, $activeListItem) {},
+                scroll: false,
+                header: true
+            },
+            switchContainer: 'ymaps-filter-switch',
+            cluster: {
+                icons: [
+                    [
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ],
+                    [
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [40, 50],
+                            offset: [-20, -30]
+                        },
+                        {
+                            href: 'img/pin_empty_active.svg',
+                            size: [60, 75],
+                            offset: [-30, -37]
+                        }
+                    ]
+                ],
+                inlineStyle: 'color: #fff; padding-left: 2px; text-align: center; font: bold 16px/44px Helvetica, Helvetica CY, Arial, Nimbus Sans L, sans-serif;'
+            },
+            placemark: {
+                icons: [
+                    {
+                        href: 'img/pin.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    },
+                    {
+                        href: 'img/pin_active.svg',
+                        size: [40, 50],
+                        offset: [-20, -50]
+                    }
+                ]
+            },
+            balloon: {
+                activeBeforeBreakpoint: true,
+                activeAfterBreakpoint: false,
+                closeButton: '<span>x</span>',
+                header: true
+            },
+            adaptiveBreakpoint: 1024
+        });
+
+        ymapsFilter.init();
+
+        $('.js-filter').on('submit', function(e) {
+            e.preventDefault();
+            var filterData = $(this).serializeArray();
+            var param = filterData[0].value;
+
+            // Фильтруем на сабмит формы
+            ymapsFilter.filter((obj, i, data) => {
+                if (obj.id === 'ylist-filter-' + param) {
+                    return true;
+                }
+
+                return false;
+            }, Number(param));
+
+
+            $('.js-clear-filter').prop('disabled', false);
+        });
+
+        // Сброс фильтра
+        $('.js-clear-filter').on('click', function() {
+            $(this).prop('disabled', true);
+            $('.js-filter input:text').val('');
+
+            ymapsFilter.clearFilter();
+        });
     </script>
 </body>
 </html>
