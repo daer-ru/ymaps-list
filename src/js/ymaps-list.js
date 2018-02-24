@@ -320,6 +320,18 @@ class Ylist {
             this._setBounds(this.clusterer);
         }
 
+        let balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
+            balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+
+        if ((this.activeListItem && !this.activePlacemark) &&
+            (this.options.placemark.clicked && balloonBeforeBreakpoint && balloonAfterBreakpoint ||
+            this.options.placemark.clicked && balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
+            this.options.placemark.clicked && !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint)) {
+            // Если при инициализации карты есть активный элемент списка
+            // и если разрешено отображение балуна
+            this._openPlacemarkBalloon(this.activeListItem);
+        }
+
         if (this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableBeforeBreakpoint || 
             !this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableAfterBreakpoint) {
             this.map.behaviors.disable('drag');
@@ -476,6 +488,27 @@ class Ylist {
     _addPlacemarks() {
         for (let i = 0; i < this.placemarks.length; i++) {
             this.map.geoObjects.add(this.placemarks[i]);
+        }
+    }
+
+
+    /**
+     * Открывает быллун метки
+     * @param {String} placemarkId id метки
+     * @private
+     */
+    _openPlacemarkBalloon(placemarkId) {
+        for (let i = 0; i < this.placemarks.length; i++) {
+            let placemark = this.placemarks[i];
+
+            if (placemark.id == placemarkId) {
+                setTimeout(function() {
+                    // placemark.balloon.open();
+                    placemark.events.fire('click');
+                }, 500);
+
+                break;
+            }
         }
     }
 
@@ -993,6 +1026,11 @@ class Ylist {
     _listItemClickHandler(e, placemark) {
         this._commonClickHandler(placemark);
 
+        let balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
+            balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+
+
+
         if (typeof placemark !== 'string') {
             if (this.activePlacemark && this.map.getZoom() < 11) {
                 let prevClustered = this.clusterer.getObjectState(this.activePlacemark).isClustered,
@@ -1003,6 +1041,12 @@ class Ylist {
                     this.map.panTo(placemark.geometry.getCoordinates(), {flying: true});
 
                     this.activePlacemark = placemark;
+
+                    if (this.options.placemark.clicked && balloonBeforeBreakpoint && balloonAfterBreakpoint ||
+                        this.options.placemark.clicked && balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
+                        this.options.placemark.clicked && !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+                        placemark.events.fire('click');
+                    }
                     return;
                 }
             }
@@ -1018,6 +1062,12 @@ class Ylist {
             }
 
             this.activePlacemark = placemark;
+
+            if (this.options.placemark.clicked && balloonBeforeBreakpoint && balloonAfterBreakpoint ||
+                this.options.placemark.clicked && balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
+                this.options.placemark.clicked && !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+                placemark.events.fire('click');
+            }
         }
     }
 
@@ -1229,6 +1279,7 @@ class Ylist {
                     self.filter(this.currentFilterCallback, this.currentFilterParam);
                 }
             }
+            // TODO: открывать балун метки если карта уже инициализирована
         } else if ($elem.attr('data-ylist-switch') === 'list') {
             $(`#${self.options.map.container}`).addClass('is-hidden');
             $(`#${self.options.list.container}`).removeClass('is-hidden');
