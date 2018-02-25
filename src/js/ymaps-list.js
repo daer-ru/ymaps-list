@@ -275,6 +275,8 @@ class Ylist {
      * @private
      */
     _initMap() {
+        let self = this;
+
         // Если карта уже создана, то дистроим её
         if (this.map) {
             this.map.destroy();
@@ -320,22 +322,27 @@ class Ylist {
             this._setBounds(this.clusterer);
         }
 
-        let balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
-            balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
-
-        if ((this.activeListItem && !this.activePlacemark) &&
-            (this.options.placemark.clicked && balloonBeforeBreakpoint && balloonAfterBreakpoint ||
-            this.options.placemark.clicked && balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
-            this.options.placemark.clicked && !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint)) {
-            // Если при инициализации карты есть активный элемент списка
-            // и если разрешено отображение балуна
-            this._openPlacemarkBalloon(this.activeListItem);
-        }
 
         if (this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableBeforeBreakpoint || 
             !this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableAfterBreakpoint) {
             this.map.behaviors.disable('drag');
         }
+
+
+        // Первый экземпляр коллекции слоев, потом первый слой коллекции
+        let layer = this.map.layers.get(0).get(0);
+        this._isReadyMap(layer).then(function() {
+            let balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
+                balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
+
+            if (self.activeListItem &&
+                (self.options.placemark.clicked && balloonBeforeBreakpoint && self.isLessThanAdaptiveBreakpoint ||
+                self.options.placemark.clicked && balloonAfterBreakpoint && !self.isLessThanAdaptiveBreakpoint)) {
+                // Если при инициализации карты есть активный элемент списка
+                // и если разрешено отображение балуна
+                self._openPlacemarkBalloon(self.activeListItem);
+            }
+        });
 
 
         // Карта инициализирована
@@ -358,6 +365,46 @@ class Ylist {
         } else {
             return;
         }
+    }
+
+
+    /**
+     * Проверка загрузки карты (отрисока и простановка меток)
+     * @see https://ru.stackoverflow.com/questions/463638/callback-%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B8-%D0%BA%D0%B0%D1%80%D1%82%D1%8B-yandex-map
+     * @param  {Object}  layer 
+     * @return {Boolean}       Promise
+     */
+    _isReadyMap(layer) {
+        function getTileContainer(layer) {
+            for (var k in layer) {
+                if (layer.hasOwnProperty(k)) {
+                    if (
+                        layer[k] instanceof ymaps.layer.tileContainer.CanvasContainer
+                        || layer[k] instanceof ymaps.layer.tileContainer.DomContainer
+                    ) {
+                        return layer[k];
+                    }
+                }
+            }
+            return null;
+        }
+
+        return new ymaps.vow.Promise(function(resolve, reject) {
+            let tc = getTileContainer(layer), readyAll = true;
+            tc.tiles.each(function(tile, number) {
+                if (!tile.isReady()) {
+                    readyAll = false;
+                }
+            });
+
+            if (readyAll) {
+                resolve();
+            } else {
+                tc.events.once('ready', function() {
+                    resolve();
+                });
+            }
+        });
     }
 
 
@@ -502,10 +549,7 @@ class Ylist {
             let placemark = this.placemarks[i];
 
             if (placemark.id == placemarkId) {
-                setTimeout(function() {
-                    // placemark.balloon.open();
-                    placemark.events.fire('click');
-                }, 500);
+                placemark.events.fire('click');
 
                 break;
             }
@@ -1042,9 +1086,8 @@ class Ylist {
 
                     this.activePlacemark = placemark;
 
-                    if (this.options.placemark.clicked && balloonBeforeBreakpoint && balloonAfterBreakpoint ||
-                        this.options.placemark.clicked && balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
-                        this.options.placemark.clicked && !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+                    if (this.options.list.active && this.options.placemark.clicked && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+                        // Диспатчим метку только после брейкпоинта при активном списке
                         placemark.events.fire('click');
                     }
                     return;
@@ -1260,7 +1303,9 @@ class Ylist {
      * @private
      */
     _switchHandler(e, self) {
-        let $elem = $(e.target);
+        let $elem = $(e.target),
+            balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
+            balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
 
         if (!$elem.length || $elem.hasClass('is-active')) {
             return;
@@ -1278,8 +1323,13 @@ class Ylist {
                     // то надо еще раз вызвать фильтрацию, чтобы метки карты тоже отфильтровались
                     self.filter(this.currentFilterCallback, this.currentFilterParam);
                 }
+            } else {
+                if (self.options.list.active && self.activeListItem && self.options.placemark.clicked && balloonBeforeBreakpoint && self.isLessThanAdaptiveBreakpoint) {
+                    // Если активный элемент списка
+                    // и если разрешено отображение балуна до брейкпоинта
+                    self._openPlacemarkBalloon(self.activeListItem);
+                }
             }
-            // TODO: открывать балун метки если карта уже инициализирована
         } else if ($elem.attr('data-ylist-switch') === 'list') {
             $(`#${self.options.map.container}`).addClass('is-hidden');
             $(`#${self.options.list.container}`).removeClass('is-hidden');
