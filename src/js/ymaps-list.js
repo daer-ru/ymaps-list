@@ -40,19 +40,19 @@ class Ylist {
      * @public
      */
     init() {
-        this._checkRequiredOptions();
-
         let self = this;
 
-        ymaps.ready(function() {
+        self._checkRequiredOptions();
+
+        ymaps.ready(() => {
             self.mqlAdaptiveBreakpoint.addListener(function() {
                 self._adaptiveHandle(this, self);
             });
             self._adaptiveHandle(self.mqlAdaptiveBreakpoint, self);
         });
 
-        if (this.options.list.active) {
-            this._initList();
+        if (self.options.list.active) {
+            self._initList();
         }
     }
 
@@ -290,59 +290,60 @@ class Ylist {
         let self = this;
 
         // Если карта уже создана, то дистроим её
-        if (this.map) {
-            this.map.destroy();
-            this.map = null;
-            this.placemarks = [];
-            this.activePlacemark = null;
-            this.clusterer = null;
-            this.balloonLayout = null;
+        if (self.map) {
+            self.map.destroy();
+            self.map = null;
+            self.placemarks = [];
+            self.activePlacemark = null;
+            self.clusterer = null;
+            self.balloonLayout = null;
         }
 
-        if (this.options.map.dragTooltip.active) {
-            this._initMapDragTooltip();
+        if (self.options.map.dragTooltip.active) {
+            self._initMapDragTooltip();
         }
 
+        // Дефолтные опции карты
         let baseMapState = {
-                center: this.options.map.center,
+                center: self.options.map.center,
                 zoom: 13,
                 controls: []
             },
             extendedMapState = null;
 
-        if (typeof this.options.map.customize == 'object' && typeof this.options.map.customize.state == 'object') {
-            extendedMapState = this._setMapState(this.options.map.customize.state, baseMapState);
+        if (typeof self.options.map.customize == 'object' && typeof self.options.map.customize.state == 'object') {
+            extendedMapState = self._setMapState(self.options.map.customize.state, baseMapState);
         }
 
         // Создаем яндекс карту
-        this.map = new ymaps.Map(this.options.map.container, extendedMapState ? extendedMapState : baseMapState, this.options.map.customize.options);
+        self.map = new ymaps.Map(self.options.map.container, extendedMapState ? extendedMapState : baseMapState, self.options.map.customize.options);
 
-        if (typeof this.options.map.customize == 'object' && typeof this.options.map.customize.controls == 'object') {
-            this._setMapControls(this.options.map.customize.controls);
+        if (typeof self.options.map.customize == 'object' && typeof self.options.map.customize.controls == 'object') {
+            self._setMapControls(self.options.map.customize.controls);
         }
 
-        this.map.behaviors.disable('scrollZoom');
+        self.map.behaviors.disable('scrollZoom');
 
-        this._createPlacemarks();
+        self._createPlacemarks();
 
-        if (typeof this.options.cluster == 'boolean' && !this.options.cluster) {
-            this._addPlacemarks();
-            this._setBounds(this.map.geoObjects);
+        if (typeof self.options.cluster == 'boolean' && !self.options.cluster) {
+            self._addPlacemarks();
+            self._setBounds(self.map.geoObjects);
         } else {
-            this._createClusterer();
-            this._addClusterer();
-            this._setBounds(this.clusterer);
+            self._createClusterer();
+            self._addClusterer();
+            self._setBounds(self.clusterer);
         }
 
 
-        if (this.touch && this.options.map.drag.disableOnTouch || this.options.map.drag.disableAlways) {
-            this.map.behaviors.disable('drag');
+        if (self.touch && self.options.map.drag.disableOnTouch || self.options.map.drag.disableAlways) {
+            self.map.behaviors.disable('drag');
         }
 
 
         // Первый экземпляр коллекции слоев, потом первый слой коллекции
-        let layer = this.map.layers.get(0).get(0);
-        this._isReadyMap(layer).then(function() {
+        let layer = self.map.layers.get(0).get(0);
+        self._isReadyMap(layer).then(() => {
             let balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
                 balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
@@ -357,7 +358,7 @@ class Ylist {
 
 
         // Карта инициализирована
-        this.needReloadMap = false;
+        self.needReloadMap = false;
     }
 
 
@@ -366,13 +367,15 @@ class Ylist {
      * @private
      */
     _destroyMap() {
-        if (this.map) {
-            this.map.destroy();
-            this.map = null;
-            this.placemarks = [];
-            this.activePlacemark = null;
-            this.clusterer = null;
-            this.balloonLayout = null;
+        let self = this;
+
+        if (self.map) {
+            self.map.destroy();
+            self.map = null;
+            self.placemarks = [];
+            self.activePlacemark = null;
+            self.clusterer = null;
+            self.balloonLayout = null;
         } else {
             return;
         }
@@ -384,10 +387,11 @@ class Ylist {
      * @see https://ru.stackoverflow.com/questions/463638/callback-%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B8-%D0%BA%D0%B0%D1%80%D1%82%D1%8B-yandex-map
      * @param  {Object}  layer 
      * @return {Boolean}       Promise
+     * @private
      */
     _isReadyMap(layer) {
         function getTileContainer(layer) {
-            for (var k in layer) {
+            for (let k in layer) {
                 if (layer.hasOwnProperty(k)) {
                     if (
                         layer[k] instanceof ymaps.layer.tileContainer.CanvasContainer
@@ -400,9 +404,9 @@ class Ylist {
             return null;
         }
 
-        return new ymaps.vow.Promise(function(resolve, reject) {
+        return new ymaps.vow.Promise((resolve, reject) => {
             let tc = getTileContainer(layer), readyAll = true;
-            tc.tiles.each(function(tile, number) {
+            tc.tiles.each((tile, number) => {
                 if (!tile.isReady()) {
                     readyAll = false;
                 }
@@ -411,7 +415,7 @@ class Ylist {
             if (readyAll) {
                 resolve();
             } else {
-                tc.events.once('ready', function() {
+                tc.events.once('ready', () => {
                     resolve();
                 });
             }
@@ -424,7 +428,8 @@ class Ylist {
      * @private
      */
     _initList() {
-        this._createPointsList();
+        let self = this;
+        self._createPointsList();
     }
 
 
@@ -433,9 +438,10 @@ class Ylist {
      * @private
      */
     _initMapDragTooltip() {
-        let $container = $(`#${this.options.map.container}`),
+        let self = this,
+            $container = $(`#${self.options.map.container}`),
             $dragTooltip = $(`<div class="ylist-drag-tooltip">
-                              <span class="ylist-drag-tooltip__text">${this.options.map.dragTooltip.text}</span>
+                              <span class="ylist-drag-tooltip__text">${self.options.map.dragTooltip.text}</span>
                           </div>`);
 
         $container.find('.ylist-drag-tooltip').remove();
@@ -444,14 +450,14 @@ class Ylist {
         $container.off('touchmove touchstart touchend touchleave touchcancel');
 
 
-        if (this.touch && this.options.map.drag.disableOnTouch || this.options.map.drag.disableAlways) {
+        if (self.touch && self.options.map.drag.disableOnTouch || self.options.map.drag.disableAlways) {
             $container.on('touchmove', (e) => {
                 if (e.originalEvent.touches.length == 1) {
                     $dragTooltip.css('opacity', '1');
 
-                    if (!this.options.balloon.mapOverflow && this.activePlacemark) {
+                    if (!self.options.balloon.mapOverflow && self.activePlacemark) {
                         // Если балун выходит за пределы карты, то скрываем его при показе подсказки
-                        this.activePlacemark.balloon.close();
+                        self.activePlacemark.balloon.close();
                     }
                 } else {
                     $dragTooltip.css('opacity', '0');
@@ -484,6 +490,8 @@ class Ylist {
      * @private
      */
     _setMapControls(userControls) {
+        let self = this;
+
         userControls.forEach(control => {
             let params = {};
 
@@ -495,7 +503,7 @@ class Ylist {
             params.options = control.options;
 
             // Добавляем каждый контрол на карту
-            this.map.controls.add(new ymaps.control[control.constructor](params));
+            self.map.controls.add(new ymaps.control[control.constructor](params));
         });
     }
 
@@ -507,40 +515,40 @@ class Ylist {
     _createPlacemarks() {
         let self = this;
 
-        for (let i = 0; i < this.points.length; i++) {
+        for (let i = 0; i < self.points.length; i++) {
             let balloonData,
-                balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
-                balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+                balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
+                balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
-            if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked ||
-                balloonBeforeBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked ||
-                balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
-                balloonData = this._setBalloonData(i);
+            if (balloonBeforeBreakpoint && balloonAfterBreakpoint && self.options.placemark.clicked ||
+                balloonBeforeBreakpoint && self.isLessThanAdaptiveBreakpoint && self.options.placemark.clicked ||
+                balloonAfterBreakpoint && !self.isLessThanAdaptiveBreakpoint && self.options.placemark.clicked) {
+                balloonData = self._setBalloonData(i);
             } else {
                 balloonData = {};
             }
 
-            let point = this.points[i],
-                placemark = new ymaps.Placemark(point.coords, balloonData, this._setPlacemarkOptions(i));
+            let point = self.points[i],
+                placemark = new ymaps.Placemark(point.coords, balloonData, self._setPlacemarkOptions(i));
 
             placemark.id = point.id;
-            placemark.events.add('click', function(e) {
+            placemark.events.add('click', (e) => {
                 self._placemarkClickHandler(e, self);
             });
 
-            if (this.activeListItem && this.activeListItem == point.id) {
+            if (self.activeListItem && self.activeListItem == point.id) {
                 // Подсветка метки если есть активный элемент списка
-                if (typeof this.options.placemark.icons[0] == 'string') {
-                    placemark.options.set('preset', this.options.placemark.icons[1]);
+                if (typeof self.options.placemark.icons[0] == 'string') {
+                    placemark.options.set('preset', self.options.placemark.icons[1]);
                 } else {
-                    placemark.options.set('iconImageHref', this.options.placemark.icons[1].href);
+                    placemark.options.set('iconImageHref', self.options.placemark.icons[1].href);
                 }
 
                 placemark.isActive = true;
                 placemark.options.set('zIndex', 1000);
             }
 
-            this.placemarks.push(placemark);
+            self.placemarks.push(placemark);
         }
     }
 
@@ -550,8 +558,10 @@ class Ylist {
      * @private
      */
     _addPlacemarks() {
-        for (let i = 0; i < this.placemarks.length; i++) {
-            this.map.geoObjects.add(this.placemarks[i]);
+        let self = this;
+
+        for (let i = 0; i < self.placemarks.length; i++) {
+            self.map.geoObjects.add(self.placemarks[i]);
         }
     }
 
@@ -562,8 +572,10 @@ class Ylist {
      * @private
      */
     _openPlacemarkBalloon(placemarkId) {
-        for (let i = 0; i < this.placemarks.length; i++) {
-            let placemark = this.placemarks[i];
+        let self = this;
+
+        for (let i = 0; i < self.placemarks.length; i++) {
+            let placemark = self.placemarks[i];
 
             if (placemark.id == placemarkId) {
                 placemark.events.fire('click');
@@ -580,38 +592,39 @@ class Ylist {
      * @private
      */
     _setPlacemarkOptions(index) {
-        let placemarkOptions = {},
-            balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
-            balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+        let self = this,
+            placemarkOptions = {},
+            balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
+            balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
-        if (typeof this.options.placemark.icons[0] == 'string') {
+        if (typeof self.options.placemark.icons[0] == 'string') {
             // Если задаем стандартную иконку метки из набора яндекса
-            placemarkOptions.preset = this.options.placemark.icons[0];
+            placemarkOptions.preset = self.options.placemark.icons[0];
         } else {
             // Если задаем кастомную иконку метки
             // Опции.
             // Необходимо указать данный тип макета.
             placemarkOptions.iconLayout = 'default#image',
             // Своё изображение иконки метки.
-            placemarkOptions.iconImageHref = this.options.placemark.icons[0].href,
+            placemarkOptions.iconImageHref = self.options.placemark.icons[0].href,
             // Размеры метки.
-            placemarkOptions.iconImageSize = this.options.placemark.icons[0].size,
+            placemarkOptions.iconImageSize = self.options.placemark.icons[0].size,
             // Смещение левого верхнего угла иконки относительно
             // её "ножки" (точки привязки).
-            placemarkOptions.iconImageOffset = this.options.placemark.icons[0].offset
+            placemarkOptions.iconImageOffset = self.options.placemark.icons[0].offset
         }
 
-        if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked ||
-            balloonBeforeBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked ||
-            balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
-            placemarkOptions.balloonLayout = this._createBalloonLayout();
-            placemarkOptions.balloonContentLayout = this._createBalloonContentLayout();
+        if (balloonBeforeBreakpoint && balloonAfterBreakpoint && self.options.placemark.clicked ||
+            balloonBeforeBreakpoint && self.isLessThanAdaptiveBreakpoint && self.options.placemark.clicked ||
+            balloonAfterBreakpoint && !self.isLessThanAdaptiveBreakpoint && self.options.placemark.clicked) {
+            placemarkOptions.balloonLayout = self._createBalloonLayout();
+            placemarkOptions.balloonContentLayout = self._createBalloonContentLayout();
             placemarkOptions.balloonAutoPan = false;
             placemarkOptions.balloonShadow = false;
             placemarkOptions.balloonPanelMaxMapArea = 0;
         }
 
-        if (!this.options.placemark.clicked) {
+        if (!self.options.placemark.clicked) {
             placemarkOptions.cursor = 'default';
         }
 
@@ -624,8 +637,10 @@ class Ylist {
      * @private
      */
     _createClusterer() {
-        if (this.clusterer) {
-            this.clusterer.removeAll();
+        let self = this;
+
+        if (self.clusterer) {
+            self.clusterer.removeAll();
         }
 
         /**
@@ -633,7 +648,7 @@ class Ylist {
          * Список всех опций доступен в документации.
          * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Clusterer.xml#constructor-summary
          */
-        this.clusterer = new ymaps.Clusterer({
+        self.clusterer = new ymaps.Clusterer({
             /**
              * Ставим true, если хотим кластеризовать только точки с одинаковыми координатами.
              */
@@ -649,25 +664,25 @@ class Ylist {
         });
 
 
-        if (typeof this.options.cluster.icons[0] == 'string') {
+        if (typeof self.options.cluster.icons[0] == 'string') {
             // Если задаем стандартную иконку кластера из набора яндекса
-            this.clusterer.options.set({
+            self.clusterer.options.set({
                 /**
                  * Через кластеризатор можно указать только стили кластеров,
                  * стили для меток нужно назначать каждой метке отдельно.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/option.presetStorage.xml
                  */
-                preset: this.options.cluster.icons[0]
+                preset: self.options.cluster.icons[0]
             });
         } else {
             // Если задаем для кластера кастомную иконку
 
             // Сделаем макет содержимого иконки кластера
-            var MyClustererIconContentLayout = ymaps.templateLayoutFactory.createClass(
-                `<div style="${this.options.cluster.inlineStyle}">{{ properties.geoObjects.length }}</div>`);
+            let MyClustererIconContentLayout = ymaps.templateLayoutFactory.createClass(
+                `<div style="${self.options.cluster.inlineStyle}">{{ properties.geoObjects.length }}</div>`);
 
-            this.clusterer.options.set({
-                clusterIcons: this.options.cluster.icons[0],
+            self.clusterer.options.set({
+                clusterIcons: self.options.cluster.icons[0],
                 // Эта опция отвечает за размеры кластеров.
                 // В данном случае для кластеров, содержащих до 100 элементов,
                 // будет показываться маленькая иконка. Для остальных - большая.
@@ -680,7 +695,7 @@ class Ylist {
          * В кластеризатор можно добавить javascript-массив меток (не геоколлекцию) или одну метку.
          * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Clusterer.xml#add
          */
-        this.clusterer.add(this.placemarks);
+        self.clusterer.add(self.placemarks);
     }
 
 
@@ -689,7 +704,9 @@ class Ylist {
      * @private
      */
     _addClusterer() {
-        this.map.geoObjects.add(this.clusterer);
+        let self = this;
+
+        self.map.geoObjects.add(self.clusterer);
     }
 
 
@@ -701,8 +718,8 @@ class Ylist {
         let self = this;
 
         let balloonLayout = ymaps.templateLayoutFactory.createClass(
-            `<div class="ylist-balloon ${this.options.balloon.modifier}">
-                <button class="ylist-balloon__close" type="button">${this.options.balloon.closeButton}</button>
+            `<div class="ylist-balloon ${self.options.balloon.modifier}">
+                <button class="ylist-balloon__close" type="button">${self.options.balloon.closeButton}</button>
                 <div class="ylist-balloon__inner">
                     $[[options.contentLayout]]
                 </div>
@@ -711,7 +728,7 @@ class Ylist {
                  * Строит экземпляр макета на основе шаблона и добавляет его в родительский HTML-элемент.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#build
                  */
-                build: function () {
+                build: function() {
                     this.constructor.superclass.build.call(this);
                     this._$element = $('.ylist-balloon', this.getParentElement());
                     this.applyElementOffset();
@@ -726,7 +743,7 @@ class Ylist {
                  * Удаляет содержимое макета из DOM.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#clear
                  */
-                clear: function () {
+                clear: function() {
                     this._$element.find('.ylist-balloon__close')
                         .off('click');
                     this.constructor.superclass.clear.call(this);
@@ -736,7 +753,7 @@ class Ylist {
                  * Метод будет вызван системой шаблонов АПИ при изменении размеров вложенного макета.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
                  */
-                onSublayoutSizeChange: function () {
+                onSublayoutSizeChange: function() {
                     this.balloonLayout.superclass.onSublayoutSizeChange.apply(this, arguments);
 
                     if(!this._isElement(this._$element)) {
@@ -752,7 +769,7 @@ class Ylist {
                  * Сдвигаем балун, чтобы "хвостик" указывал на точку привязки.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
                  */
-                applyElementOffset: function () {
+                applyElementOffset: function() {
                     this._$element.css({
                         left: -(this._$element[0].offsetWidth / 2),
                         top: -(this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight)
@@ -763,7 +780,7 @@ class Ylist {
                  * Закрывает балун при клике на крестик, кидая событие "userclose" на макете.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
                  */
-                onCloseClick: function (e) {
+                onCloseClick: function(e) {
                     e.preventDefault();
 
                     this.events.fire('userclose');
@@ -774,7 +791,7 @@ class Ylist {
                  * @param {jQuery} [element] Элемент.
                  * @returns {Boolean} Флаг наличия.
                  */
-                _isElement: function (element) {
+                _isElement: function(element) {
                     return element && element[0] && element.find('.ylist-balloon__inner')[0];
                 }
             });
@@ -788,9 +805,10 @@ class Ylist {
      * @private
      */
     _createBalloonContentLayout() {
-        let balloonContentLayout = ``;
+        let self = this,
+            balloonContentLayout = ``;
 
-        if (this.options.balloon.header === false) {
+        if (self.options.balloon.header === false) {
             balloonContentLayout = `<div class="ylist-balloon__content">$[properties.balloonContent]</div>`;
         } else {
             balloonContentLayout = `<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>
@@ -807,26 +825,27 @@ class Ylist {
      * @private
      */
     _setBalloonData(index) {
-        let balloonHeader = ``,
+        let self = this,
+            balloonHeader = ``,
             balloonContent = ``;
 
-        for (let i = 0; i < this.options.dataOrder.length; i++) {
-            let dataOptionName = this.options.dataOrder[i],
+        for (let i = 0; i < self.options.dataOrder.length; i++) {
+            let dataOptionName = self.options.dataOrder[i],
                 optionName = ``,
                 optionContent = ``;
 
-            if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
+            if (self.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
                 // Формируется контент одной опции из колбека
-                optionContent = this.options.dataExtension[dataOptionName](this.points[index][dataOptionName], this.points[index]);
+                optionContent = self.options.dataExtension[dataOptionName](self.points[index][dataOptionName], self.points[index]);
 
-            } else if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName == 'name') {
+            } else if (self.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName == 'name') {
                 // Формируется контент заголовка опции из колбека
-                optionName = this.options.dataExtension[dataOptionName](this.points[index][dataOptionName], this.points[index]);
+                optionName = self.options.dataExtension[dataOptionName](self.points[index][dataOptionName], self.points[index]);
 
             } else {
                 // Контент опции передается как есть если колбек для неё не задан
-                optionName = this.points[index].name;
-                optionContent = this.points[index][dataOptionName];
+                optionName = self.points[index].name;
+                optionContent = self.points[index][dataOptionName];
             }
 
             balloonHeader += optionName;
@@ -849,9 +868,9 @@ class Ylist {
      */
     _setBalloonPane(map, placemark, mapData) {
         mapData = mapData || {
-                globalPixelCenter: map.getGlobalPixelCenter(),
-                zoom: map.getZoom()
-            };
+            globalPixelCenter: map.getGlobalPixelCenter(),
+            zoom: map.getZoom()
+        };
 
         let mapSize = map.container.getSize(),
             mapBounds = [
@@ -891,19 +910,20 @@ class Ylist {
      * @private
      */
     _createListElement(point) {
-        let $elementTitle = $('<h3/>', {class: `${this.listClassName}__title`}),
+        let self = this,
+            $elementTitle = $('<h3/>', {class: `${self.listClassName}__title`}),
             $elementContent = ``,
             $elementWrapper = ``;
 
-        var $listElement = $('<li/>', {
+        let $listElement = $('<li/>', {
             id: point.id,
-            class: `${this.listClassName}__item`
+            class: `${self.listClassName}__item`
         });
 
-        if (point.name && this.options.list.header) {
-            if (this.options.dataExtension.hasOwnProperty('name')) {
+        if (point.name && self.options.list.header) {
+            if (self.options.dataExtension.hasOwnProperty('name')) {
                 // Формируется контент одной опции из колбека
-                $elementTitle.html(this.options.dataExtension['name'](point.name, point));
+                $elementTitle.html(self.options.dataExtension['name'](point.name, point));
             } else {
                 // Контент опции передается как есть если колбек для неё не задан
                 $elementTitle.html(point.name);
@@ -912,14 +932,14 @@ class Ylist {
             $elementTitle = null;
         }
 
-        for (let i = 0; i < this.options.dataOrder.length; i++) {
-            let dataOptionName = this.options.dataOrder[i],
+        for (let i = 0; i < self.options.dataOrder.length; i++) {
+            let dataOptionName = self.options.dataOrder[i],
                 optionName = ``,
                 optionContent = ``;
 
-            if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
+            if (self.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
                 // Формируется контент одной опции из колбека
-                optionContent = this.options.dataExtension[dataOptionName](point[dataOptionName], point);
+                optionContent = self.options.dataExtension[dataOptionName](point[dataOptionName], point);
 
             } else {
                 // Контент опции передается как есть если колбек для неё не задан
@@ -931,9 +951,9 @@ class Ylist {
             $elementContent += optionContent;
         }
 
-        if (this.options.list.itemWrapper !== false) {
+        if (self.options.list.itemWrapper !== false) {
             // Оборачиваем все содержимое элемента списка в указанную в опциях обертку
-            $elementWrapper = $('<div/>', {class: this.options.list.itemWrapper});
+            $elementWrapper = $('<div/>', {class: self.options.list.itemWrapper});
 
             $elementWrapper.append($elementTitle, $elementContent);
             $listElement.append($elementWrapper);
@@ -951,20 +971,20 @@ class Ylist {
      */
     _createPointsList() {
         let self = this,
-            $list = $('<ul/>', {class: `${this.listClassName} ${this.options.list.modifier}`});
+            $list = $('<ul/>', {class: `${self.listClassName} ${self.options.list.modifier}`});
 
-        for (let i = 0; i < this.points.length; i++) {
-            let point = this.points[i];
+        for (let i = 0; i < self.points.length; i++) {
+            let point = self.points[i];
 
-            $list.append(this._createListElement(point));
+            $list.append(self._createListElement(point));
         }
 
-        $('#' + this.options.list.container).html('').append($list);
+        $(`#${self.options.list.container}`).html('').append($list);
 
 
         // При клике на элемент списка, срабатывает соответстующая точка на карте
-        $(document).on('click', `.${self.options.list.clickElement}`, function(e) {
-            let listItemId = $(this).closest(`.${self.listClassName}__item`).attr('id');
+        $(document).on('click', `.${self.options.list.clickElement}`, (e) => {
+            let listItemId = $(e.target).closest(`.${self.listClassName}__item`).attr('id');
 
             if (self.placemarks.length > 0) {
                 // Если карта еще не инициализирована
@@ -989,11 +1009,13 @@ class Ylist {
      * @private
      */
     _setBounds(objects) {
-        if (typeof this.placemarks === 'object' && this.placemarks.length === 1) {
+        let self = this;
+
+        if (typeof self.placemarks === 'object' && self.placemarks.length === 1) {
             // Если метка 1, то её координаты ставятся центром карты и масштаб не самый максимальный
-            this.map.setCenter(this.placemarks[0].geometry.getCoordinates(), 16);
+            self.map.setCenter(self.placemarks[0].geometry.getCoordinates(), 16);
         } else {
-            this.map.setBounds(objects.getBounds(), {
+            self.map.setBounds(objects.getBounds(), {
                 checkZoomRange: true,
                 zoomMargin: 10
             });
@@ -1013,25 +1035,25 @@ class Ylist {
         }
 
         let placemark = e.get('target'),
-            balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
-            balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+            balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
+            balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
         self.activePlacemark = placemark;
 
-        this._commonClickHandler(placemark);
+        self._commonClickHandler(placemark);
 
         if (balloonBeforeBreakpoint && balloonAfterBreakpoint ||
-            balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
-            !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+            balloonBeforeBreakpoint && !balloonAfterBreakpoint && self.isLessThanAdaptiveBreakpoint ||
+            !balloonBeforeBreakpoint && balloonAfterBreakpoint && !self.isLessThanAdaptiveBreakpoint) {
 
             // Настройка балуна, выходящего за пределы карты
-            if (this.options.balloon.mapOverflow === false) {
-                let outerHandler = function(e) {
+            if (self.options.balloon.mapOverflow === false) {
+                let outerHandler = (e) => {
                     if (placemark.options.get('balloonPane') === 'outerBalloon') {
                         self._setBalloonPane(self.map, placemark, e.get('tick'));
                     }
                 };
-                let innerHandler = function(e) {
+                let innerHandler = (e) => {
                     if (placemark.options.get('balloonPane') !== 'outerBalloon') {
                         self._setBalloonPane(self.map, placemark, e.get('tick'));
                     }
@@ -1058,7 +1080,7 @@ class Ylist {
              * Расчитывает координаты центра, с учетом размеров балуна,
              * и центрирует карту относительно балуна
              */
-            let setBalloonToCenter = function() {
+            let setBalloonToCenter = () => {
                 let coords, newCoords;
 
                 // Если балун выходит за рамки карты, опустим балун на 1/4 его высоты
@@ -1094,25 +1116,27 @@ class Ylist {
      * @private
      */
     _listItemClickHandler(e, placemark) {
-        this._commonClickHandler(placemark);
+        let self = this;
 
-        let balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
-            balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+        self._commonClickHandler(placemark);
+
+        let balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
+            balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
 
 
         if (typeof placemark !== 'string') {
-            if (this.activePlacemark && this.map.getZoom() < 11) {
-                let prevClustered = this.clusterer.getObjectState(this.activePlacemark).isClustered,
-                    currentClustered = this.clusterer.getObjectState(placemark).isClustered;
+            if (self.activePlacemark && self.map.getZoom() < 11) {
+                let prevClustered = self.clusterer.getObjectState(self.activePlacemark).isClustered,
+                    currentClustered = self.clusterer.getObjectState(placemark).isClustered;
 
                 // Если оба элемента на небольшом зуме не кластеризованы, просто подвинем карту к ним
                 if (!prevClustered && !currentClustered) {
-                    this.map.panTo(placemark.geometry.getCoordinates(), {flying: true});
+                    self.map.panTo(placemark.geometry.getCoordinates(), {flying: true});
 
-                    this.activePlacemark = placemark;
+                    self.activePlacemark = placemark;
 
-                    if (this.options.list.active && this.options.placemark.clicked && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+                    if (self.options.list.active && self.options.placemark.clicked && balloonAfterBreakpoint && !self.isLessThanAdaptiveBreakpoint) {
                         // Диспатчим метку только после брейкпоинта при активном списке
                         placemark.events.fire('click');
                     }
@@ -1121,20 +1145,20 @@ class Ylist {
             }
 
             // Устанавливаем минимальное значение зума, при котором активная метка находится вне кластера
-            let zoom = this.map.getZoom() === 9 ? this.map.getZoom() : 9;
+            let zoom = self.map.getZoom() === 9 ? self.map.getZoom() : 9;
             while (true) {
-                this.map.setCenter(placemark.geometry.getCoordinates(), zoom++);
+                self.map.setCenter(placemark.geometry.getCoordinates(), zoom++);
 
-                if (!this.clusterer.getObjectState(placemark).isClustered) {
+                if (!self.clusterer.getObjectState(placemark).isClustered) {
                     break;
                 }
             }
 
-            this.activePlacemark = placemark;
+            self.activePlacemark = placemark;
 
-            if (this.options.placemark.clicked && balloonBeforeBreakpoint && balloonAfterBreakpoint ||
-                this.options.placemark.clicked && balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint ||
-                this.options.placemark.clicked && !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+            if (self.options.placemark.clicked && balloonBeforeBreakpoint && balloonAfterBreakpoint ||
+                self.options.placemark.clicked && balloonBeforeBreakpoint && !balloonAfterBreakpoint && self.isLessThanAdaptiveBreakpoint ||
+                self.options.placemark.clicked && !balloonBeforeBreakpoint && balloonAfterBreakpoint && !self.isLessThanAdaptiveBreakpoint) {
                 placemark.events.fire('click');
             }
         }
@@ -1147,43 +1171,44 @@ class Ylist {
      * @private
      */
     _commonClickHandler(placemark) {
-        let $listContainer = null,
+        let self = this,
+            $listContainer = null,
             $listItem = null,
             activeListItemId = null,
-            listActive = this.options.list.active;
+            listActive = self.options.list.active;
 
         if (listActive) {
-            $listContainer = $('#' + this.options.list.container);
+            $listContainer = $(`#${self.options.list.container}`);
         }
 
         if (typeof placemark == 'string') {
             if (listActive) {
-                $listItem = $('#' + placemark);
+                $listItem = $(`#${placemark}`);
             }
             activeListItemId = placemark;
         } else {
             if (listActive) {
-                $listItem = $('#' + placemark.id);
+                $listItem = $(`#${placemark.id}`);
             }
             activeListItemId = placemark.id;
 
             // Возвращаем всем меткам и кластерам исходный вид
-            for (let i = 0; i < this.placemarks.length; i++) {
-                let placemark = this.placemarks[i];
+            for (let i = 0; i < self.placemarks.length; i++) {
+                let placemark = self.placemarks[i];
 
-                if (typeof this.options.placemark.icons[0] == 'string') {
-                    placemark.options.set('preset', this.options.placemark.icons[0]);
+                if (typeof self.options.placemark.icons[0] == 'string') {
+                    placemark.options.set('preset', self.options.placemark.icons[0]);
                 } else {
-                    placemark.options.set('iconImageHref', this.options.placemark.icons[0].href);
+                    placemark.options.set('iconImageHref', self.options.placemark.icons[0].href);
                 }
 
                 placemark.balloon.close();
 
-                if (this.clusterer.getObjectState(placemark).cluster) {
-                    if (typeof this.options.cluster.icons[0] == 'string') {
-                        this.clusterer.getObjectState(placemark).cluster.options.set('preset', this.options.cluster.icons[0]);
+                if (self.clusterer.getObjectState(placemark).cluster) {
+                    if (typeof self.options.cluster.icons[0] == 'string') {
+                        self.clusterer.getObjectState(placemark).cluster.options.set('preset', self.options.cluster.icons[0]);
                     } else {
-                        this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[0]);
+                        self.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', self.options.cluster.icons[0]);
                     }
                 }
 
@@ -1194,36 +1219,36 @@ class Ylist {
             placemark.options.set('zIndex', 1000);
 
             // Если метка в кластере, соответствующий кластер будет подсвечен
-            if (this.clusterer.getObjectState(placemark).isClustered) {
-                if (typeof this.options.cluster.icons[0] == 'string') {
-                    this.clusterer.getObjectState(placemark).cluster.options.set('preset', this.options.cluster.icons[1]);
+            if (self.clusterer.getObjectState(placemark).isClustered) {
+                if (typeof self.options.cluster.icons[0] == 'string') {
+                    self.clusterer.getObjectState(placemark).cluster.options.set('preset', self.options.cluster.icons[1]);
                 } else {
-                    this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[1]);
+                    self.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', self.options.cluster.icons[1]);
                 }
             }
 
             // Подсветка метки на карте
-            if (typeof this.options.placemark.icons[0] == 'string') {
-                placemark.options.set('preset', this.options.placemark.icons[1]);
+            if (typeof self.options.placemark.icons[0] == 'string') {
+                placemark.options.set('preset', self.options.placemark.icons[1]);
             } else {
-                placemark.options.set('iconImageHref', this.options.placemark.icons[1].href);
+                placemark.options.set('iconImageHref', self.options.placemark.icons[1].href);
             }
 
             placemark.isActive = true;
         }
 
-        this.activeListItem = activeListItemId;
+        self.activeListItem = activeListItemId;
 
         if (listActive) {
             // Подсветка элемента списка
-            $listContainer.find(`.${this.listClassName}__item.is-active`).removeClass('is-active');
+            $listContainer.find(`.${self.listClassName}__item.is-active`).removeClass('is-active');
             $listItem.addClass('is-active');
 
             // Скроллим список к нужному элементу
-            if (typeof this.options.list.scroll == 'boolean' && !this.options.list.scroll) {
+            if (typeof self.options.list.scroll == 'boolean' && !self.options.list.scroll) {
                 $listContainer.scrollTop($listItem.position().top + $listContainer.scrollTop());
             } else {
-                this.options.list.scroll($listContainer, $listItem);
+                self.options.list.scroll($listContainer, $listItem);
             }
         }
     }
@@ -1250,16 +1275,16 @@ class Ylist {
 
             if (self.options.switchContainer != false) {
                 // Показываем блок с кнопками
-                $('#' + self.options.switchContainer).addClass('is-visible');
-                $('#' + self.options.switchContainer).find('[data-ylist-switch="list"]').addClass('is-active');
+                $(`#${self.options.switchContainer}`).addClass('is-visible');
+                $(`#${self.options.switchContainer}`).find('[data-ylist-switch="list"]').addClass('is-active');
             }
 
             if (listActive) {
-                $('#' + self.options.map.container).addClass('is-hidden');
+                $(`#${self.options.map.container}`).addClass('is-hidden');
             }
-            $('#' + self.options.map.container).addClass('is-adaptive');
-            $('#' + self.options.list.container).addClass('is-adaptive');
-            $('#' + self.options.container).addClass('is-adaptive');
+            $(`#${self.options.map.container}`).addClass('is-adaptive');
+            $(`#${self.options.list.container}`).addClass('is-adaptive');
+            $(`#${self.options.container}`).addClass('is-adaptive');
 
             if (!listActive && !self.map) {
                 // Если список отключен и карта не инициализирована, то инитим карту на адаптиве сразу
@@ -1267,7 +1292,7 @@ class Ylist {
             }
 
             // Добавляем обработчик клика на элементы переключения
-            $(document).on('click', `#${self.options.switchContainer} [data-ylist-switch]`, function(e) {
+            $(document).on('click', `#${self.options.switchContainer} [data-ylist-switch]`, (e) => {
                 self._switchHandler(e, self);
             });
         } else {
@@ -1277,21 +1302,21 @@ class Ylist {
 
             if (self.options.switchContainer != false) {
                 // Скрываем блок с кнопками
-                $('#' + self.options.switchContainer).removeClass('is-visible');
-                $('#' + self.options.switchContainer).find('[data-ylist-switch]').removeClass('is-active');
+                $(`#${self.options.switchContainer}`).removeClass('is-visible');
+                $(`#${self.options.switchContainer}`).find('[data-ylist-switch]').removeClass('is-active');
             }
 
-            $('#' + self.options.map.container).removeClass('is-adaptive is-hidden');
-            $('#' + self.options.list.container).removeClass('is-adaptive is-hidden');
-            $('#' + self.options.container).removeClass('is-adaptive');
+            $(`#${self.options.map.container}`).removeClass('is-adaptive is-hidden');
+            $(`#${self.options.list.container}`).removeClass('is-adaptive is-hidden');
+            $(`#${self.options.container}`).removeClass('is-adaptive');
 
             if (listActive || !listActive && !self.isLessThanAdaptiveBreakpoint && !self.map) {
                 self._initMap();
 
-                if (this.currentFilterCallback && this.currentFilterParam) {
+                if (self.currentFilterCallback && self.currentFilterParam) {
                     // Если производилась фильтрация и карта переинициализируется,
                     // то надо еще раз вызвать фильтрацию, чтобы метки карты тоже отфильтровались
-                    self.filter(this.currentFilterCallback, this.currentFilterParam);
+                    self.filter(self.currentFilterCallback, self.currentFilterParam);
                 }
             }
 
@@ -1321,8 +1346,8 @@ class Ylist {
      */
     _switchHandler(e, self) {
         let $elem = $(e.target),
-            balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
-            balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+            balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
+            balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
         if (!$elem.length || $elem.hasClass('is-active')) {
             return;
@@ -1335,10 +1360,10 @@ class Ylist {
             if (self.needReloadMap) {
                 self._initMap();
 
-                if (this.currentFilterCallback && this.currentFilterParam) {
+                if (self.currentFilterCallback && self.currentFilterParam) {
                     // Если производилась фильтрация списка пока карта не была инициализирована,
                     // то надо еще раз вызвать фильтрацию, чтобы метки карты тоже отфильтровались
-                    self.filter(this.currentFilterCallback, this.currentFilterParam);
+                    self.filter(self.currentFilterCallback, self.currentFilterParam);
                 }
             } else {
                 if (self.options.list.active && self.activeListItem && self.options.placemark.clicked && balloonBeforeBreakpoint && self.isLessThanAdaptiveBreakpoint) {
@@ -1368,30 +1393,32 @@ class Ylist {
             throw new TypeError('Аргумент должен быть функцией');
         }
 
-        // Запоминаем колбек 
-        this.currentFilterCallback = callback;
+        let self = this;
 
-        let points = this.points,
-            placemarks = this.placemarks,
+        // Запоминаем колбек 
+        self.currentFilterCallback = callback;
+
+        let points = self.points,
+            placemarks = self.placemarks,
             falseFilterCounter = 0,
             $filterTooltip = $(`<div class="ylist-filter-tooltip">
-                                    <span class="ylist-filter-tooltip__text">${this.options.map.filterTooltip.text}</span>
+                                    <span class="ylist-filter-tooltip__text">${self.options.map.filterTooltip.text}</span>
                                 </div>`);
 
-        if (this.map && !placemarks.length) {
+        if (self.map && !placemarks.length) {
             console.warn('Невозможно запустить фильтрацию. Массив меток пуст.');
             return;
         }
 
         // Скрываем все
-        if (this.map) {
+        if (self.map) {
             placemarks.forEach(placemarkItem => {
                 placemarkItem.options.set('visible', false);
-                this.clusterer.remove(placemarkItem);
+                self.clusterer.remove(placemarkItem);
                 $(`#${placemarkItem.id}`).hide();
             });
         } else {
-            $(`#${this.options.list.container} .${this.listClassName}__item`).hide();
+            $(`#${self.options.list.container} .${self.listClassName}__item`).hide();
         }
 
         for (let i = 0; i < points.length; i++) {
@@ -1399,15 +1426,15 @@ class Ylist {
 
             if (callback(dataItem, i, points)) {
                 // Показываем нужное
-                if (this.map) {
+                if (self.map) {
                     placemarks[i].options.set('visible', true);
-                    this.clusterer.add(placemarks[i]);
+                    self.clusterer.add(placemarks[i]);
                 }
 
                 $(`#${dataItem.id}`).show();
 
                 // Запоминаем значение, по которому была успешная фильтрация
-                this.currentFilterParam = param;
+                self.currentFilterParam = param;
             } else {
                 falseFilterCounter++;
             }
@@ -1415,23 +1442,23 @@ class Ylist {
 
         if (falseFilterCounter == points.length) {
             // Нет совпадений
-            if (this.options.map.filterTooltip.active) {
-                $(`#${this.options.container} .ylist-filter-tooltip`).remove();
-                $(`#${this.options.container}`).append($filterTooltip);
-                $(`#${this.options.container} .ylist-filter-tooltip`).css('opacity', '1');
+            if (self.options.map.filterTooltip.active) {
+                $(`#${self.options.container} .ylist-filter-tooltip`).remove();
+                $(`#${self.options.container}`).append($filterTooltip);
+                $(`#${self.options.container} .ylist-filter-tooltip`).css('opacity', '1');
             } else {
-                console.warn(this.options.map.filterTooltip.text);
+                console.warn(self.options.map.filterTooltip.text);
             }
         } else {
-            if (this.options.map.filterTooltip.active) {
-                $(`#${this.options.container} .ylist-filter-tooltip`).remove();
+            if (self.options.map.filterTooltip.active) {
+                $(`#${self.options.container} .ylist-filter-tooltip`).remove();
             }
 
             // Масштабируем карту так, чтобы были видны все метки
-            if (typeof this.options.cluster == 'boolean' && !this.options.cluster) {
-                this._setBounds(this.map.geoObjects);
+            if (typeof self.options.cluster == 'boolean' && !self.options.cluster) {
+                self._setBounds(self.map.geoObjects);
             } else {
-                this._setBounds(this.clusterer);
+                self._setBounds(self.clusterer);
             }
         }
     }
@@ -1442,35 +1469,37 @@ class Ylist {
      * @public
      */
     clearFilter() {
-        // Сбрасываем колбек 
-        this.currentFilterCallback = null;
-        // Сбрасываем параметр фильтрации
-        this.currentFilterParam = null;
+        let self = this;
 
-        if (this.options.map.filterTooltip.active) {
+        // Сбрасываем колбек 
+        self.currentFilterCallback = null;
+        // Сбрасываем параметр фильтрации
+        self.currentFilterParam = null;
+
+        if (self.options.map.filterTooltip.active) {
             // Удаляем тултип
-            $(`#${this.options.container} .ylist-filter-tooltip`).remove();
+            $(`#${self.options.container} .ylist-filter-tooltip`).remove();
         }
 
-        let points = this.points,
-            placemarks = this.placemarks;
+        let points = self.points,
+            placemarks = self.placemarks;
 
         for (let i = 0; i < points.length; i++) {
-            if (this.map) {
+            if (self.map) {
                 placemarks.forEach(placemarkItem => {
                     placemarkItem.options.set('visible', true);
-                    this.clusterer.add(placemarkItem);
+                    self.clusterer.add(placemarkItem);
                     $(`#${placemarkItem.id}`).show();
                 });
 
                 // Масштабируем карту так, чтобы были видны все метки
-                if (typeof this.options.cluster == 'boolean' && !this.options.cluster) {
-                    this._setBounds(this.map.geoObjects);
+                if (typeof self.options.cluster == 'boolean' && !self.options.cluster) {
+                    self._setBounds(self.map.geoObjects);
                 } else {
-                    this._setBounds(this.clusterer);
+                    self._setBounds(self.clusterer);
                 }
             } else {
-                $(`#${this.options.list.container} .${this.listClassName}__item`).show();
+                $(`#${self.options.list.container} .${self.listClassName}__item`).show();
             }
         }
     }

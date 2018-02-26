@@ -53,9 +53,9 @@ var Ylist = function () {
     _createClass(Ylist, [{
         key: 'init',
         value: function init() {
-            this._checkRequiredOptions();
-
             var self = this;
+
+            self._checkRequiredOptions();
 
             ymaps.ready(function () {
                 self.mqlAdaptiveBreakpoint.addListener(function () {
@@ -64,8 +64,8 @@ var Ylist = function () {
                 self._adaptiveHandle(self.mqlAdaptiveBreakpoint, self);
             });
 
-            if (this.options.list.active) {
-                this._initList();
+            if (self.options.list.active) {
+                self._initList();
             }
         }
 
@@ -290,57 +290,58 @@ var Ylist = function () {
             var self = this;
 
             // Если карта уже создана, то дистроим её
-            if (this.map) {
-                this.map.destroy();
-                this.map = null;
-                this.placemarks = [];
-                this.activePlacemark = null;
-                this.clusterer = null;
-                this.balloonLayout = null;
+            if (self.map) {
+                self.map.destroy();
+                self.map = null;
+                self.placemarks = [];
+                self.activePlacemark = null;
+                self.clusterer = null;
+                self.balloonLayout = null;
             }
 
-            if (this.options.map.dragTooltip.active) {
-                this._initMapDragTooltip();
+            if (self.options.map.dragTooltip.active) {
+                self._initMapDragTooltip();
             }
 
+            // Дефолтные опции карты
             var baseMapState = {
-                center: this.options.map.center,
+                center: self.options.map.center,
                 zoom: 13,
                 controls: []
             },
                 extendedMapState = null;
 
-            if (_typeof(this.options.map.customize) == 'object' && _typeof(this.options.map.customize.state) == 'object') {
-                extendedMapState = this._setMapState(this.options.map.customize.state, baseMapState);
+            if (_typeof(self.options.map.customize) == 'object' && _typeof(self.options.map.customize.state) == 'object') {
+                extendedMapState = self._setMapState(self.options.map.customize.state, baseMapState);
             }
 
             // Создаем яндекс карту
-            this.map = new ymaps.Map(this.options.map.container, extendedMapState ? extendedMapState : baseMapState, this.options.map.customize.options);
+            self.map = new ymaps.Map(self.options.map.container, extendedMapState ? extendedMapState : baseMapState, self.options.map.customize.options);
 
-            if (_typeof(this.options.map.customize) == 'object' && _typeof(this.options.map.customize.controls) == 'object') {
-                this._setMapControls(this.options.map.customize.controls);
+            if (_typeof(self.options.map.customize) == 'object' && _typeof(self.options.map.customize.controls) == 'object') {
+                self._setMapControls(self.options.map.customize.controls);
             }
 
-            this.map.behaviors.disable('scrollZoom');
+            self.map.behaviors.disable('scrollZoom');
 
-            this._createPlacemarks();
+            self._createPlacemarks();
 
-            if (typeof this.options.cluster == 'boolean' && !this.options.cluster) {
-                this._addPlacemarks();
-                this._setBounds(this.map.geoObjects);
+            if (typeof self.options.cluster == 'boolean' && !self.options.cluster) {
+                self._addPlacemarks();
+                self._setBounds(self.map.geoObjects);
             } else {
-                this._createClusterer();
-                this._addClusterer();
-                this._setBounds(this.clusterer);
+                self._createClusterer();
+                self._addClusterer();
+                self._setBounds(self.clusterer);
             }
 
-            if (this.touch && this.options.map.drag.disableOnTouch || this.options.map.drag.disableAlways) {
-                this.map.behaviors.disable('drag');
+            if (self.touch && self.options.map.drag.disableOnTouch || self.options.map.drag.disableAlways) {
+                self.map.behaviors.disable('drag');
             }
 
             // Первый экземпляр коллекции слоев, потом первый слой коллекции
-            var layer = this.map.layers.get(0).get(0);
-            this._isReadyMap(layer).then(function () {
+            var layer = self.map.layers.get(0).get(0);
+            self._isReadyMap(layer).then(function () {
                 var balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
                     balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
@@ -352,7 +353,7 @@ var Ylist = function () {
             });
 
             // Карта инициализирована
-            this.needReloadMap = false;
+            self.needReloadMap = false;
         }
 
         /**
@@ -363,13 +364,15 @@ var Ylist = function () {
     }, {
         key: '_destroyMap',
         value: function _destroyMap() {
-            if (this.map) {
-                this.map.destroy();
-                this.map = null;
-                this.placemarks = [];
-                this.activePlacemark = null;
-                this.clusterer = null;
-                this.balloonLayout = null;
+            var self = this;
+
+            if (self.map) {
+                self.map.destroy();
+                self.map = null;
+                self.placemarks = [];
+                self.activePlacemark = null;
+                self.clusterer = null;
+                self.balloonLayout = null;
             } else {
                 return;
             }
@@ -380,6 +383,7 @@ var Ylist = function () {
          * @see https://ru.stackoverflow.com/questions/463638/callback-%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B8-%D0%BA%D0%B0%D1%80%D1%82%D1%8B-yandex-map
          * @param  {Object}  layer 
          * @return {Boolean}       Promise
+         * @private
          */
 
     }, {
@@ -423,7 +427,8 @@ var Ylist = function () {
     }, {
         key: '_initList',
         value: function _initList() {
-            this._createPointsList();
+            var self = this;
+            self._createPointsList();
         }
 
         /**
@@ -434,24 +439,23 @@ var Ylist = function () {
     }, {
         key: '_initMapDragTooltip',
         value: function _initMapDragTooltip() {
-            var _this = this;
-
-            var $container = $('#' + this.options.map.container),
-                $dragTooltip = $('<div class="ylist-drag-tooltip">\n                              <span class="ylist-drag-tooltip__text">' + this.options.map.dragTooltip.text + '</span>\n                          </div>');
+            var self = this,
+                $container = $('#' + self.options.map.container),
+                $dragTooltip = $('<div class="ylist-drag-tooltip">\n                              <span class="ylist-drag-tooltip__text">' + self.options.map.dragTooltip.text + '</span>\n                          </div>');
 
             $container.find('.ylist-drag-tooltip').remove();
             $container.append($dragTooltip);
 
             $container.off('touchmove touchstart touchend touchleave touchcancel');
 
-            if (this.touch && this.options.map.drag.disableOnTouch || this.options.map.drag.disableAlways) {
+            if (self.touch && self.options.map.drag.disableOnTouch || self.options.map.drag.disableAlways) {
                 $container.on('touchmove', function (e) {
                     if (e.originalEvent.touches.length == 1) {
                         $dragTooltip.css('opacity', '1');
 
-                        if (!_this.options.balloon.mapOverflow && _this.activePlacemark) {
+                        if (!self.options.balloon.mapOverflow && self.activePlacemark) {
                             // Если балун выходит за пределы карты, то скрываем его при показе подсказки
-                            _this.activePlacemark.balloon.close();
+                            self.activePlacemark.balloon.close();
                         }
                     } else {
                         $dragTooltip.css('opacity', '0');
@@ -488,7 +492,7 @@ var Ylist = function () {
     }, {
         key: '_setMapControls',
         value: function _setMapControls(userControls) {
-            var _this2 = this;
+            var self = this;
 
             userControls.forEach(function (control) {
                 var params = {};
@@ -501,7 +505,7 @@ var Ylist = function () {
                 params.options = control.options;
 
                 // Добавляем каждый контрол на карту
-                _this2.map.controls.add(new ymaps.control[control.constructor](params));
+                self.map.controls.add(new ymaps.control[control.constructor](params));
             });
         }
 
@@ -515,38 +519,38 @@ var Ylist = function () {
         value: function _createPlacemarks() {
             var self = this;
 
-            for (var i = 0; i < this.points.length; i++) {
+            for (var i = 0; i < self.points.length; i++) {
                 var balloonData = void 0,
-                    balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
-                    balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+                    balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
+                    balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
-                if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked || balloonBeforeBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
-                    balloonData = this._setBalloonData(i);
+                if (balloonBeforeBreakpoint && balloonAfterBreakpoint && self.options.placemark.clicked || balloonBeforeBreakpoint && self.isLessThanAdaptiveBreakpoint && self.options.placemark.clicked || balloonAfterBreakpoint && !self.isLessThanAdaptiveBreakpoint && self.options.placemark.clicked) {
+                    balloonData = self._setBalloonData(i);
                 } else {
                     balloonData = {};
                 }
 
-                var point = this.points[i],
-                    placemark = new ymaps.Placemark(point.coords, balloonData, this._setPlacemarkOptions(i));
+                var point = self.points[i],
+                    placemark = new ymaps.Placemark(point.coords, balloonData, self._setPlacemarkOptions(i));
 
                 placemark.id = point.id;
                 placemark.events.add('click', function (e) {
                     self._placemarkClickHandler(e, self);
                 });
 
-                if (this.activeListItem && this.activeListItem == point.id) {
+                if (self.activeListItem && self.activeListItem == point.id) {
                     // Подсветка метки если есть активный элемент списка
-                    if (typeof this.options.placemark.icons[0] == 'string') {
-                        placemark.options.set('preset', this.options.placemark.icons[1]);
+                    if (typeof self.options.placemark.icons[0] == 'string') {
+                        placemark.options.set('preset', self.options.placemark.icons[1]);
                     } else {
-                        placemark.options.set('iconImageHref', this.options.placemark.icons[1].href);
+                        placemark.options.set('iconImageHref', self.options.placemark.icons[1].href);
                     }
 
                     placemark.isActive = true;
                     placemark.options.set('zIndex', 1000);
                 }
 
-                this.placemarks.push(placemark);
+                self.placemarks.push(placemark);
             }
         }
 
@@ -558,8 +562,10 @@ var Ylist = function () {
     }, {
         key: '_addPlacemarks',
         value: function _addPlacemarks() {
-            for (var i = 0; i < this.placemarks.length; i++) {
-                this.map.geoObjects.add(this.placemarks[i]);
+            var self = this;
+
+            for (var i = 0; i < self.placemarks.length; i++) {
+                self.map.geoObjects.add(self.placemarks[i]);
             }
         }
 
@@ -572,8 +578,10 @@ var Ylist = function () {
     }, {
         key: '_openPlacemarkBalloon',
         value: function _openPlacemarkBalloon(placemarkId) {
-            for (var i = 0; i < this.placemarks.length; i++) {
-                var placemark = this.placemarks[i];
+            var self = this;
+
+            for (var i = 0; i < self.placemarks.length; i++) {
+                var placemark = self.placemarks[i];
 
                 if (placemark.id == placemarkId) {
                     placemark.events.fire('click');
@@ -592,36 +600,37 @@ var Ylist = function () {
     }, {
         key: '_setPlacemarkOptions',
         value: function _setPlacemarkOptions(index) {
-            var placemarkOptions = {},
-                balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
-                balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+            var self = this,
+                placemarkOptions = {},
+                balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
+                balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
-            if (typeof this.options.placemark.icons[0] == 'string') {
+            if (typeof self.options.placemark.icons[0] == 'string') {
                 // Если задаем стандартную иконку метки из набора яндекса
-                placemarkOptions.preset = this.options.placemark.icons[0];
+                placemarkOptions.preset = self.options.placemark.icons[0];
             } else {
                 // Если задаем кастомную иконку метки
                 // Опции.
                 // Необходимо указать данный тип макета.
                 placemarkOptions.iconLayout = 'default#image',
                 // Своё изображение иконки метки.
-                placemarkOptions.iconImageHref = this.options.placemark.icons[0].href,
+                placemarkOptions.iconImageHref = self.options.placemark.icons[0].href,
                 // Размеры метки.
-                placemarkOptions.iconImageSize = this.options.placemark.icons[0].size,
+                placemarkOptions.iconImageSize = self.options.placemark.icons[0].size,
                 // Смещение левого верхнего угла иконки относительно
                 // её "ножки" (точки привязки).
-                placemarkOptions.iconImageOffset = this.options.placemark.icons[0].offset;
+                placemarkOptions.iconImageOffset = self.options.placemark.icons[0].offset;
             }
 
-            if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked || balloonBeforeBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
-                placemarkOptions.balloonLayout = this._createBalloonLayout();
-                placemarkOptions.balloonContentLayout = this._createBalloonContentLayout();
+            if (balloonBeforeBreakpoint && balloonAfterBreakpoint && self.options.placemark.clicked || balloonBeforeBreakpoint && self.isLessThanAdaptiveBreakpoint && self.options.placemark.clicked || balloonAfterBreakpoint && !self.isLessThanAdaptiveBreakpoint && self.options.placemark.clicked) {
+                placemarkOptions.balloonLayout = self._createBalloonLayout();
+                placemarkOptions.balloonContentLayout = self._createBalloonContentLayout();
                 placemarkOptions.balloonAutoPan = false;
                 placemarkOptions.balloonShadow = false;
                 placemarkOptions.balloonPanelMaxMapArea = 0;
             }
 
-            if (!this.options.placemark.clicked) {
+            if (!self.options.placemark.clicked) {
                 placemarkOptions.cursor = 'default';
             }
 
@@ -636,8 +645,10 @@ var Ylist = function () {
     }, {
         key: '_createClusterer',
         value: function _createClusterer() {
-            if (this.clusterer) {
-                this.clusterer.removeAll();
+            var self = this;
+
+            if (self.clusterer) {
+                self.clusterer.removeAll();
             }
 
             /**
@@ -645,7 +656,7 @@ var Ylist = function () {
              * Список всех опций доступен в документации.
              * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Clusterer.xml#constructor-summary
              */
-            this.clusterer = new ymaps.Clusterer({
+            self.clusterer = new ymaps.Clusterer({
                 /**
                  * Ставим true, если хотим кластеризовать только точки с одинаковыми координатами.
                  */
@@ -660,24 +671,24 @@ var Ylist = function () {
                 zoomMargin: 40
             });
 
-            if (typeof this.options.cluster.icons[0] == 'string') {
+            if (typeof self.options.cluster.icons[0] == 'string') {
                 // Если задаем стандартную иконку кластера из набора яндекса
-                this.clusterer.options.set({
+                self.clusterer.options.set({
                     /**
                      * Через кластеризатор можно указать только стили кластеров,
                      * стили для меток нужно назначать каждой метке отдельно.
                      * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/option.presetStorage.xml
                      */
-                    preset: this.options.cluster.icons[0]
+                    preset: self.options.cluster.icons[0]
                 });
             } else {
                 // Если задаем для кластера кастомную иконку
 
                 // Сделаем макет содержимого иконки кластера
-                var MyClustererIconContentLayout = ymaps.templateLayoutFactory.createClass('<div style="' + this.options.cluster.inlineStyle + '">{{ properties.geoObjects.length }}</div>');
+                var MyClustererIconContentLayout = ymaps.templateLayoutFactory.createClass('<div style="' + self.options.cluster.inlineStyle + '">{{ properties.geoObjects.length }}</div>');
 
-                this.clusterer.options.set({
-                    clusterIcons: this.options.cluster.icons[0],
+                self.clusterer.options.set({
+                    clusterIcons: self.options.cluster.icons[0],
                     // Эта опция отвечает за размеры кластеров.
                     // В данном случае для кластеров, содержащих до 100 элементов,
                     // будет показываться маленькая иконка. Для остальных - большая.
@@ -690,7 +701,7 @@ var Ylist = function () {
              * В кластеризатор можно добавить javascript-массив меток (не геоколлекцию) или одну метку.
              * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Clusterer.xml#add
              */
-            this.clusterer.add(this.placemarks);
+            self.clusterer.add(self.placemarks);
         }
 
         /**
@@ -701,7 +712,9 @@ var Ylist = function () {
     }, {
         key: '_addClusterer',
         value: function _addClusterer() {
-            this.map.geoObjects.add(this.clusterer);
+            var self = this;
+
+            self.map.geoObjects.add(self.clusterer);
         }
 
         /**
@@ -714,7 +727,7 @@ var Ylist = function () {
         value: function _createBalloonLayout() {
             var self = this;
 
-            var balloonLayout = ymaps.templateLayoutFactory.createClass('<div class="ylist-balloon ' + this.options.balloon.modifier + '">\n                <button class="ylist-balloon__close" type="button">' + this.options.balloon.closeButton + '</button>\n                <div class="ylist-balloon__inner">\n                    $[[options.contentLayout]]\n                </div>\n            </div>', {
+            var balloonLayout = ymaps.templateLayoutFactory.createClass('<div class="ylist-balloon ' + self.options.balloon.modifier + '">\n                <button class="ylist-balloon__close" type="button">' + self.options.balloon.closeButton + '</button>\n                <div class="ylist-balloon__inner">\n                    $[[options.contentLayout]]\n                </div>\n            </div>', {
                 /**
                  * Строит экземпляр макета на основе шаблона и добавляет его в родительский HTML-элемент.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#build
@@ -796,9 +809,10 @@ var Ylist = function () {
     }, {
         key: '_createBalloonContentLayout',
         value: function _createBalloonContentLayout() {
-            var balloonContentLayout = '';
+            var self = this,
+                balloonContentLayout = '';
 
-            if (this.options.balloon.header === false) {
+            if (self.options.balloon.header === false) {
                 balloonContentLayout = '<div class="ylist-balloon__content">$[properties.balloonContent]</div>';
             } else {
                 balloonContentLayout = '<h3 class="ylist-balloon__title">$[properties.balloonHeader]</h3>\n                                    <div class="ylist-balloon__content">$[properties.balloonContent]</div>';
@@ -816,24 +830,25 @@ var Ylist = function () {
     }, {
         key: '_setBalloonData',
         value: function _setBalloonData(index) {
-            var balloonHeader = '',
+            var self = this,
+                balloonHeader = '',
                 balloonContent = '';
 
-            for (var i = 0; i < this.options.dataOrder.length; i++) {
-                var dataOptionName = this.options.dataOrder[i],
+            for (var i = 0; i < self.options.dataOrder.length; i++) {
+                var dataOptionName = self.options.dataOrder[i],
                     optionName = '',
                     optionContent = '';
 
-                if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
+                if (self.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
                     // Формируется контент одной опции из колбека
-                    optionContent = this.options.dataExtension[dataOptionName](this.points[index][dataOptionName], this.points[index]);
-                } else if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName == 'name') {
+                    optionContent = self.options.dataExtension[dataOptionName](self.points[index][dataOptionName], self.points[index]);
+                } else if (self.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName == 'name') {
                     // Формируется контент заголовка опции из колбека
-                    optionName = this.options.dataExtension[dataOptionName](this.points[index][dataOptionName], this.points[index]);
+                    optionName = self.options.dataExtension[dataOptionName](self.points[index][dataOptionName], self.points[index]);
                 } else {
                     // Контент опции передается как есть если колбек для неё не задан
-                    optionName = this.points[index].name;
-                    optionContent = this.points[index][dataOptionName];
+                    optionName = self.points[index].name;
+                    optionContent = self.points[index][dataOptionName];
                 }
 
                 balloonHeader += optionName;
@@ -898,19 +913,20 @@ var Ylist = function () {
     }, {
         key: '_createListElement',
         value: function _createListElement(point) {
-            var $elementTitle = $('<h3/>', { class: this.listClassName + '__title' }),
+            var self = this,
+                $elementTitle = $('<h3/>', { class: self.listClassName + '__title' }),
                 $elementContent = '',
                 $elementWrapper = '';
 
             var $listElement = $('<li/>', {
                 id: point.id,
-                class: this.listClassName + '__item'
+                class: self.listClassName + '__item'
             });
 
-            if (point.name && this.options.list.header) {
-                if (this.options.dataExtension.hasOwnProperty('name')) {
+            if (point.name && self.options.list.header) {
+                if (self.options.dataExtension.hasOwnProperty('name')) {
                     // Формируется контент одной опции из колбека
-                    $elementTitle.html(this.options.dataExtension['name'](point.name, point));
+                    $elementTitle.html(self.options.dataExtension['name'](point.name, point));
                 } else {
                     // Контент опции передается как есть если колбек для неё не задан
                     $elementTitle.html(point.name);
@@ -919,14 +935,14 @@ var Ylist = function () {
                 $elementTitle = null;
             }
 
-            for (var i = 0; i < this.options.dataOrder.length; i++) {
-                var dataOptionName = this.options.dataOrder[i],
+            for (var i = 0; i < self.options.dataOrder.length; i++) {
+                var dataOptionName = self.options.dataOrder[i],
                     optionName = '',
                     optionContent = '';
 
-                if (this.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
+                if (self.options.dataExtension.hasOwnProperty(dataOptionName) && dataOptionName != 'name') {
                     // Формируется контент одной опции из колбека
-                    optionContent = this.options.dataExtension[dataOptionName](point[dataOptionName], point);
+                    optionContent = self.options.dataExtension[dataOptionName](point[dataOptionName], point);
                 } else {
                     // Контент опции передается как есть если колбек для неё не задан
                     if (dataOptionName != 'name') {
@@ -937,9 +953,9 @@ var Ylist = function () {
                 $elementContent += optionContent;
             }
 
-            if (this.options.list.itemWrapper !== false) {
+            if (self.options.list.itemWrapper !== false) {
                 // Оборачиваем все содержимое элемента списка в указанную в опциях обертку
-                $elementWrapper = $('<div/>', { class: this.options.list.itemWrapper });
+                $elementWrapper = $('<div/>', { class: self.options.list.itemWrapper });
 
                 $elementWrapper.append($elementTitle, $elementContent);
                 $listElement.append($elementWrapper);
@@ -959,19 +975,19 @@ var Ylist = function () {
         key: '_createPointsList',
         value: function _createPointsList() {
             var self = this,
-                $list = $('<ul/>', { class: this.listClassName + ' ' + this.options.list.modifier });
+                $list = $('<ul/>', { class: self.listClassName + ' ' + self.options.list.modifier });
 
-            for (var i = 0; i < this.points.length; i++) {
-                var point = this.points[i];
+            for (var i = 0; i < self.points.length; i++) {
+                var point = self.points[i];
 
-                $list.append(this._createListElement(point));
+                $list.append(self._createListElement(point));
             }
 
-            $('#' + this.options.list.container).html('').append($list);
+            $('#' + self.options.list.container).html('').append($list);
 
             // При клике на элемент списка, срабатывает соответстующая точка на карте
             $(document).on('click', '.' + self.options.list.clickElement, function (e) {
-                var listItemId = $(this).closest('.' + self.listClassName + '__item').attr('id');
+                var listItemId = $(e.target).closest('.' + self.listClassName + '__item').attr('id');
 
                 if (self.placemarks.length > 0) {
                     // Если карта еще не инициализирована
@@ -998,11 +1014,13 @@ var Ylist = function () {
     }, {
         key: '_setBounds',
         value: function _setBounds(objects) {
-            if (_typeof(this.placemarks) === 'object' && this.placemarks.length === 1) {
+            var self = this;
+
+            if (_typeof(self.placemarks) === 'object' && self.placemarks.length === 1) {
                 // Если метка 1, то её координаты ставятся центром карты и масштаб не самый максимальный
-                this.map.setCenter(this.placemarks[0].geometry.getCoordinates(), 16);
+                self.map.setCenter(self.placemarks[0].geometry.getCoordinates(), 16);
             } else {
-                this.map.setBounds(objects.getBounds(), {
+                self.map.setBounds(objects.getBounds(), {
                     checkZoomRange: true,
                     zoomMargin: 10
                 });
@@ -1024,17 +1042,17 @@ var Ylist = function () {
             }
 
             var placemark = e.get('target'),
-                balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
-                balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+                balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
+                balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
             self.activePlacemark = placemark;
 
-            this._commonClickHandler(placemark);
+            self._commonClickHandler(placemark);
 
-            if (balloonBeforeBreakpoint && balloonAfterBreakpoint || balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+            if (balloonBeforeBreakpoint && balloonAfterBreakpoint || balloonBeforeBreakpoint && !balloonAfterBreakpoint && self.isLessThanAdaptiveBreakpoint || !balloonBeforeBreakpoint && balloonAfterBreakpoint && !self.isLessThanAdaptiveBreakpoint) {
 
                 // Настройка балуна, выходящего за пределы карты
-                if (this.options.balloon.mapOverflow === false) {
+                if (self.options.balloon.mapOverflow === false) {
                     var outerHandler = function outerHandler(e) {
                         if (placemark.options.get('balloonPane') === 'outerBalloon') {
                             self._setBalloonPane(self.map, placemark, e.get('tick'));
@@ -1103,23 +1121,25 @@ var Ylist = function () {
     }, {
         key: '_listItemClickHandler',
         value: function _listItemClickHandler(e, placemark) {
-            this._commonClickHandler(placemark);
+            var self = this;
 
-            var balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
-                balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+            self._commonClickHandler(placemark);
+
+            var balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
+                balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
             if (typeof placemark !== 'string') {
-                if (this.activePlacemark && this.map.getZoom() < 11) {
-                    var prevClustered = this.clusterer.getObjectState(this.activePlacemark).isClustered,
-                        currentClustered = this.clusterer.getObjectState(placemark).isClustered;
+                if (self.activePlacemark && self.map.getZoom() < 11) {
+                    var prevClustered = self.clusterer.getObjectState(self.activePlacemark).isClustered,
+                        currentClustered = self.clusterer.getObjectState(placemark).isClustered;
 
                     // Если оба элемента на небольшом зуме не кластеризованы, просто подвинем карту к ним
                     if (!prevClustered && !currentClustered) {
-                        this.map.panTo(placemark.geometry.getCoordinates(), { flying: true });
+                        self.map.panTo(placemark.geometry.getCoordinates(), { flying: true });
 
-                        this.activePlacemark = placemark;
+                        self.activePlacemark = placemark;
 
-                        if (this.options.list.active && this.options.placemark.clicked && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+                        if (self.options.list.active && self.options.placemark.clicked && balloonAfterBreakpoint && !self.isLessThanAdaptiveBreakpoint) {
                             // Диспатчим метку только после брейкпоинта при активном списке
                             placemark.events.fire('click');
                         }
@@ -1128,18 +1148,18 @@ var Ylist = function () {
                 }
 
                 // Устанавливаем минимальное значение зума, при котором активная метка находится вне кластера
-                var zoom = this.map.getZoom() === 9 ? this.map.getZoom() : 9;
+                var zoom = self.map.getZoom() === 9 ? self.map.getZoom() : 9;
                 while (true) {
-                    this.map.setCenter(placemark.geometry.getCoordinates(), zoom++);
+                    self.map.setCenter(placemark.geometry.getCoordinates(), zoom++);
 
-                    if (!this.clusterer.getObjectState(placemark).isClustered) {
+                    if (!self.clusterer.getObjectState(placemark).isClustered) {
                         break;
                     }
                 }
 
-                this.activePlacemark = placemark;
+                self.activePlacemark = placemark;
 
-                if (this.options.placemark.clicked && balloonBeforeBreakpoint && balloonAfterBreakpoint || this.options.placemark.clicked && balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint || this.options.placemark.clicked && !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint) {
+                if (self.options.placemark.clicked && balloonBeforeBreakpoint && balloonAfterBreakpoint || self.options.placemark.clicked && balloonBeforeBreakpoint && !balloonAfterBreakpoint && self.isLessThanAdaptiveBreakpoint || self.options.placemark.clicked && !balloonBeforeBreakpoint && balloonAfterBreakpoint && !self.isLessThanAdaptiveBreakpoint) {
                     placemark.events.fire('click');
                 }
             }
@@ -1154,13 +1174,14 @@ var Ylist = function () {
     }, {
         key: '_commonClickHandler',
         value: function _commonClickHandler(placemark) {
-            var $listContainer = null,
+            var self = this,
+                $listContainer = null,
                 $listItem = null,
                 activeListItemId = null,
-                listActive = this.options.list.active;
+                listActive = self.options.list.active;
 
             if (listActive) {
-                $listContainer = $('#' + this.options.list.container);
+                $listContainer = $('#' + self.options.list.container);
             }
 
             if (typeof placemark == 'string') {
@@ -1175,22 +1196,22 @@ var Ylist = function () {
                 activeListItemId = placemark.id;
 
                 // Возвращаем всем меткам и кластерам исходный вид
-                for (var i = 0; i < this.placemarks.length; i++) {
-                    var _placemark = this.placemarks[i];
+                for (var i = 0; i < self.placemarks.length; i++) {
+                    var _placemark = self.placemarks[i];
 
-                    if (typeof this.options.placemark.icons[0] == 'string') {
-                        _placemark.options.set('preset', this.options.placemark.icons[0]);
+                    if (typeof self.options.placemark.icons[0] == 'string') {
+                        _placemark.options.set('preset', self.options.placemark.icons[0]);
                     } else {
-                        _placemark.options.set('iconImageHref', this.options.placemark.icons[0].href);
+                        _placemark.options.set('iconImageHref', self.options.placemark.icons[0].href);
                     }
 
                     _placemark.balloon.close();
 
-                    if (this.clusterer.getObjectState(_placemark).cluster) {
-                        if (typeof this.options.cluster.icons[0] == 'string') {
-                            this.clusterer.getObjectState(_placemark).cluster.options.set('preset', this.options.cluster.icons[0]);
+                    if (self.clusterer.getObjectState(_placemark).cluster) {
+                        if (typeof self.options.cluster.icons[0] == 'string') {
+                            self.clusterer.getObjectState(_placemark).cluster.options.set('preset', self.options.cluster.icons[0]);
                         } else {
-                            this.clusterer.getObjectState(_placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[0]);
+                            self.clusterer.getObjectState(_placemark).cluster.options.set('clusterIcons', self.options.cluster.icons[0]);
                         }
                     }
 
@@ -1201,36 +1222,36 @@ var Ylist = function () {
                 placemark.options.set('zIndex', 1000);
 
                 // Если метка в кластере, соответствующий кластер будет подсвечен
-                if (this.clusterer.getObjectState(placemark).isClustered) {
-                    if (typeof this.options.cluster.icons[0] == 'string') {
-                        this.clusterer.getObjectState(placemark).cluster.options.set('preset', this.options.cluster.icons[1]);
+                if (self.clusterer.getObjectState(placemark).isClustered) {
+                    if (typeof self.options.cluster.icons[0] == 'string') {
+                        self.clusterer.getObjectState(placemark).cluster.options.set('preset', self.options.cluster.icons[1]);
                     } else {
-                        this.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', this.options.cluster.icons[1]);
+                        self.clusterer.getObjectState(placemark).cluster.options.set('clusterIcons', self.options.cluster.icons[1]);
                     }
                 }
 
                 // Подсветка метки на карте
-                if (typeof this.options.placemark.icons[0] == 'string') {
-                    placemark.options.set('preset', this.options.placemark.icons[1]);
+                if (typeof self.options.placemark.icons[0] == 'string') {
+                    placemark.options.set('preset', self.options.placemark.icons[1]);
                 } else {
-                    placemark.options.set('iconImageHref', this.options.placemark.icons[1].href);
+                    placemark.options.set('iconImageHref', self.options.placemark.icons[1].href);
                 }
 
                 placemark.isActive = true;
             }
 
-            this.activeListItem = activeListItemId;
+            self.activeListItem = activeListItemId;
 
             if (listActive) {
                 // Подсветка элемента списка
-                $listContainer.find('.' + this.listClassName + '__item.is-active').removeClass('is-active');
+                $listContainer.find('.' + self.listClassName + '__item.is-active').removeClass('is-active');
                 $listItem.addClass('is-active');
 
                 // Скроллим список к нужному элементу
-                if (typeof this.options.list.scroll == 'boolean' && !this.options.list.scroll) {
+                if (typeof self.options.list.scroll == 'boolean' && !self.options.list.scroll) {
                     $listContainer.scrollTop($listItem.position().top + $listContainer.scrollTop());
                 } else {
-                    this.options.list.scroll($listContainer, $listItem);
+                    self.options.list.scroll($listContainer, $listItem);
                 }
             }
         }
@@ -1297,10 +1318,10 @@ var Ylist = function () {
                 if (listActive || !listActive && !self.isLessThanAdaptiveBreakpoint && !self.map) {
                     self._initMap();
 
-                    if (this.currentFilterCallback && this.currentFilterParam) {
+                    if (self.currentFilterCallback && self.currentFilterParam) {
                         // Если производилась фильтрация и карта переинициализируется,
                         // то надо еще раз вызвать фильтрацию, чтобы метки карты тоже отфильтровались
-                        self.filter(this.currentFilterCallback, this.currentFilterParam);
+                        self.filter(self.currentFilterCallback, self.currentFilterParam);
                     }
                 }
 
@@ -1332,8 +1353,8 @@ var Ylist = function () {
         key: '_switchHandler',
         value: function _switchHandler(e, self) {
             var $elem = $(e.target),
-                balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
-                balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
+                balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
+                balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
             if (!$elem.length || $elem.hasClass('is-active')) {
                 return;
@@ -1346,10 +1367,10 @@ var Ylist = function () {
                 if (self.needReloadMap) {
                     self._initMap();
 
-                    if (this.currentFilterCallback && this.currentFilterParam) {
+                    if (self.currentFilterCallback && self.currentFilterParam) {
                         // Если производилась фильтрация списка пока карта не была инициализирована,
                         // то надо еще раз вызвать фильтрацию, чтобы метки карты тоже отфильтровались
-                        self.filter(this.currentFilterCallback, this.currentFilterParam);
+                        self.filter(self.currentFilterCallback, self.currentFilterParam);
                     }
                 } else {
                     if (self.options.list.active && self.activeListItem && self.options.placemark.clicked && balloonBeforeBreakpoint && self.isLessThanAdaptiveBreakpoint) {
@@ -1377,34 +1398,34 @@ var Ylist = function () {
     }, {
         key: 'filter',
         value: function filter(callback, param) {
-            var _this3 = this;
-
             if (typeof callback !== 'function') {
                 throw new TypeError('Аргумент должен быть функцией');
             }
 
+            var self = this;
+
             // Запоминаем колбек 
-            this.currentFilterCallback = callback;
+            self.currentFilterCallback = callback;
 
-            var points = this.points,
-                placemarks = this.placemarks,
+            var points = self.points,
+                placemarks = self.placemarks,
                 falseFilterCounter = 0,
-                $filterTooltip = $('<div class="ylist-filter-tooltip">\n                                    <span class="ylist-filter-tooltip__text">' + this.options.map.filterTooltip.text + '</span>\n                                </div>');
+                $filterTooltip = $('<div class="ylist-filter-tooltip">\n                                    <span class="ylist-filter-tooltip__text">' + self.options.map.filterTooltip.text + '</span>\n                                </div>');
 
-            if (this.map && !placemarks.length) {
+            if (self.map && !placemarks.length) {
                 console.warn('Невозможно запустить фильтрацию. Массив меток пуст.');
                 return;
             }
 
             // Скрываем все
-            if (this.map) {
+            if (self.map) {
                 placemarks.forEach(function (placemarkItem) {
                     placemarkItem.options.set('visible', false);
-                    _this3.clusterer.remove(placemarkItem);
+                    self.clusterer.remove(placemarkItem);
                     $('#' + placemarkItem.id).hide();
                 });
             } else {
-                $('#' + this.options.list.container + ' .' + this.listClassName + '__item').hide();
+                $('#' + self.options.list.container + ' .' + self.listClassName + '__item').hide();
             }
 
             for (var i = 0; i < points.length; i++) {
@@ -1412,15 +1433,15 @@ var Ylist = function () {
 
                 if (callback(dataItem, i, points)) {
                     // Показываем нужное
-                    if (this.map) {
+                    if (self.map) {
                         placemarks[i].options.set('visible', true);
-                        this.clusterer.add(placemarks[i]);
+                        self.clusterer.add(placemarks[i]);
                     }
 
                     $('#' + dataItem.id).show();
 
                     // Запоминаем значение, по которому была успешная фильтрация
-                    this.currentFilterParam = param;
+                    self.currentFilterParam = param;
                 } else {
                     falseFilterCounter++;
                 }
@@ -1428,23 +1449,23 @@ var Ylist = function () {
 
             if (falseFilterCounter == points.length) {
                 // Нет совпадений
-                if (this.options.map.filterTooltip.active) {
-                    $('#' + this.options.container + ' .ylist-filter-tooltip').remove();
-                    $('#' + this.options.container).append($filterTooltip);
-                    $('#' + this.options.container + ' .ylist-filter-tooltip').css('opacity', '1');
+                if (self.options.map.filterTooltip.active) {
+                    $('#' + self.options.container + ' .ylist-filter-tooltip').remove();
+                    $('#' + self.options.container).append($filterTooltip);
+                    $('#' + self.options.container + ' .ylist-filter-tooltip').css('opacity', '1');
                 } else {
-                    console.warn(this.options.map.filterTooltip.text);
+                    console.warn(self.options.map.filterTooltip.text);
                 }
             } else {
-                if (this.options.map.filterTooltip.active) {
-                    $('#' + this.options.container + ' .ylist-filter-tooltip').remove();
+                if (self.options.map.filterTooltip.active) {
+                    $('#' + self.options.container + ' .ylist-filter-tooltip').remove();
                 }
 
                 // Масштабируем карту так, чтобы были видны все метки
-                if (typeof this.options.cluster == 'boolean' && !this.options.cluster) {
-                    this._setBounds(this.map.geoObjects);
+                if (typeof self.options.cluster == 'boolean' && !self.options.cluster) {
+                    self._setBounds(self.map.geoObjects);
                 } else {
-                    this._setBounds(this.clusterer);
+                    self._setBounds(self.clusterer);
                 }
             }
         }
@@ -1457,37 +1478,37 @@ var Ylist = function () {
     }, {
         key: 'clearFilter',
         value: function clearFilter() {
-            var _this4 = this;
+            var self = this;
 
             // Сбрасываем колбек 
-            this.currentFilterCallback = null;
+            self.currentFilterCallback = null;
             // Сбрасываем параметр фильтрации
-            this.currentFilterParam = null;
+            self.currentFilterParam = null;
 
-            if (this.options.map.filterTooltip.active) {
+            if (self.options.map.filterTooltip.active) {
                 // Удаляем тултип
-                $('#' + this.options.container + ' .ylist-filter-tooltip').remove();
+                $('#' + self.options.container + ' .ylist-filter-tooltip').remove();
             }
 
-            var points = this.points,
-                placemarks = this.placemarks;
+            var points = self.points,
+                placemarks = self.placemarks;
 
             for (var i = 0; i < points.length; i++) {
-                if (this.map) {
+                if (self.map) {
                     placemarks.forEach(function (placemarkItem) {
                         placemarkItem.options.set('visible', true);
-                        _this4.clusterer.add(placemarkItem);
+                        self.clusterer.add(placemarkItem);
                         $('#' + placemarkItem.id).show();
                     });
 
                     // Масштабируем карту так, чтобы были видны все метки
-                    if (typeof this.options.cluster == 'boolean' && !this.options.cluster) {
-                        this._setBounds(this.map.geoObjects);
+                    if (typeof self.options.cluster == 'boolean' && !self.options.cluster) {
+                        self._setBounds(self.map.geoObjects);
                     } else {
-                        this._setBounds(this.clusterer);
+                        self._setBounds(self.clusterer);
                     }
                 } else {
-                    $('#' + this.options.list.container + ' .' + this.listClassName + '__item').show();
+                    $('#' + self.options.list.container + ' .' + self.listClassName + '__item').show();
                 }
             }
         }
