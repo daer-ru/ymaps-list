@@ -1,5 +1,8 @@
 'use strict';
 
+// This import was inline after build with gulp-imports
+//import 'vendor/modernizr.min.js'
+
 class Ylist {
     constructor(options) {
         this.options = options;
@@ -22,6 +25,7 @@ class Ylist {
             balloonTailHeight: 15
         };
         this.listClassName = 'ylist-list';
+        this.touch = Modernizr.touchevents ? true : false;
         this.isLessThanAdaptiveBreakpoint = false;
         this.mqlAdaptiveBreakpoint = window.matchMedia('(max-width: ' + (this.options.adaptiveBreakpoint - 1) + 'px)');
         this.needReloadMap = true;
@@ -119,12 +123,12 @@ class Ylist {
             }
 
             if (this.options.map.hasOwnProperty('drag') && typeof this.options.map.drag == 'object') {
-                if (!this.options.map.drag.hasOwnProperty('disableBeforeBreakpoint')) {
-                    this.options.map.drag.disableBeforeBreakpoint = true;
+                if (!this.options.map.drag.hasOwnProperty('disableOnTouch')) {
+                    this.options.map.drag.disableOnTouch = true;
                 }
 
-                if (!this.options.map.drag.hasOwnProperty('disableAfterBreakpoint')) {
-                    this.options.map.drag.disableAfterBreakpoint = false;
+                if (!this.options.map.drag.hasOwnProperty('disableAlways')) {
+                    this.options.map.drag.disableAlways = false;
                 }
             }
 
@@ -331,8 +335,7 @@ class Ylist {
         }
 
 
-        if (this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableBeforeBreakpoint || 
-            !this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableAfterBreakpoint) {
+        if (this.touch && this.options.map.drag.disableOnTouch || this.options.map.drag.disableAlways) {
             this.map.behaviors.disable('drag');
         }
 
@@ -441,7 +444,7 @@ class Ylist {
         $container.off('touchmove touchstart touchend touchleave touchcancel');
 
 
-        if (this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableBeforeBreakpoint) {
+        if (this.touch && this.options.map.drag.disableOnTouch || this.options.map.drag.disableAlways) {
             $container.on('touchmove', (e) => {
                 if (e.originalEvent.touches.length == 1) {
                     $dragTooltip.css('opacity', '1');
@@ -1259,18 +1262,6 @@ class Ylist {
                 self._initMap();
             }
 
-            if (!listActive && self.map) {
-                if (self.options.map.drag.disableBeforeBreakpoint) {
-                    self.map.behaviors.disable('drag');
-                } else {
-                    self.map.behaviors.enable('drag');
-                }
-
-                if (this.options.map.dragTooltip.active) {
-                    this._initMapDragTooltip();
-                }
-            }
-
             // Добавляем обработчик клика на элементы переключения
             $(document).on('click', `#${self.options.switchContainer} [data-ylist-switch]`, function(e) {
                 self._switchHandler(e, self);
@@ -1300,20 +1291,20 @@ class Ylist {
                 }
             }
 
-            if (!listActive && self.map) {
-                if (self.options.map.drag.disableAfterBreakpoint) {
-                    self.map.behaviors.disable('drag');
-                } else {
-                    self.map.behaviors.enable('drag');
-                }
-
-                if (this.options.map.dragTooltip.active) {
-                    this._initMapDragTooltip();
-                }
-            }
-
             // Удаляем обработчик клика на элементы переключения
             $(document).off('click', `#${self.options.switchContainer} [data-ylist-switch]`, self._switchHandler);
+        }
+
+        if (self.map) {
+            if (self.touch && self.options.map.drag.disableOnTouch || self.options.map.drag.disableAlways) {
+                self.map.behaviors.disable('drag');
+            } else {
+                self.map.behaviors.enable('drag');
+            }
+
+            if (self.options.map.dragTooltip.active) {
+                self._initMapDragTooltip();
+            }
         }
     }
 

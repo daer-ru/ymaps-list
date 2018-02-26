@@ -3,6 +3,7 @@ var multiDest    = require('gulp-multi-dest');
 var rename       = require('gulp-rename');
 var babel        = require('gulp-babel');
 var env          = require('babel-preset-env');
+var inlineImport = require('gulp-imports');
 var uglify       = require('gulp-uglify');
 var concat       = require('gulp-concat');
 var postcss      = require('gulp-postcss');
@@ -30,12 +31,15 @@ gulp.task('scripts', function() {
             }))
         }))
         .pipe(babel({
-            'presets': [['env', {
-                'targets': {
-                    'browsers': ['>=5%', 'ie >= 10']
-                }
-            }]]
+            'presets': [
+                ['env', {
+                    'targets': {
+                        'browsers': ['>=5%', 'ie >= 10']
+                    }
+                }]
+            ]
         }))
+        .pipe(inlineImport())
         .pipe(concat('ymaps-list.js'))
         .pipe(multiDest(['dist', 'example/js']));
 });
@@ -49,12 +53,15 @@ gulp.task('scripts-min', function() {
             }))
         }))
         .pipe(babel({
-            'presets': [['env', {
-                'targets': {
-                    'browsers': ['>=5%', 'ie >= 10']
-                }
-            }]]
+            'presets': [
+                ['env', {
+                    'targets': {
+                        'browsers': ['>=5%', 'ie >= 10']
+                    }
+                }]
+            ]
         }))
+        .pipe(inlineImport())
         .pipe(concat('ymaps-list.min.js'))
         .pipe(uglify())
         .pipe(multiDest(['dist', 'example/js']));
