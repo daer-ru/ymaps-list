@@ -343,7 +343,7 @@ class Ylist {
 
         // Первый экземпляр коллекции слоев, потом первый слой коллекции
         let layer = self.map.layers.get(0).get(0);
-        self._isReadyMap(layer).then(function() {
+        self._isReadyMap(layer).then(() => {
             let balloonBeforeBreakpoint = self.options.balloon.activeBeforeBreakpoint,
                 balloonAfterBreakpoint = self.options.balloon.activeAfterBreakpoint;
 
@@ -403,9 +403,9 @@ class Ylist {
             return null;
         }
 
-        return new ymaps.vow.Promise(function(resolve, reject) {
+        return new ymaps.vow.Promise((resolve, reject) => {
             let tc = getTileContainer(layer), readyAll = true;
-            tc.tiles.each(function(tile, number) {
+            tc.tiles.each((tile, number) => {
                 if (!tile.isReady()) {
                     readyAll = false;
                 }
@@ -414,7 +414,7 @@ class Ylist {
             if (readyAll) {
                 resolve();
             } else {
-                tc.events.once('ready', function() {
+                tc.events.once('ready', () => {
                     resolve();
                 });
             }
@@ -531,7 +531,7 @@ class Ylist {
                 placemark = new ymaps.Placemark(point.coords, balloonData, self._setPlacemarkOptions(i));
 
             placemark.id = point.id;
-            placemark.events.add('click', function(e) {
+            placemark.events.add('click', (e) => {
                 self._placemarkClickHandler(e, self);
             });
 
@@ -727,7 +727,7 @@ class Ylist {
                  * Строит экземпляр макета на основе шаблона и добавляет его в родительский HTML-элемент.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#build
                  */
-                build: function () {
+                build: function() {
                     this.constructor.superclass.build.call(this);
                     this._$element = $('.ylist-balloon', this.getParentElement());
                     this.applyElementOffset();
@@ -742,7 +742,7 @@ class Ylist {
                  * Удаляет содержимое макета из DOM.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/layout.templateBased.Base.xml#clear
                  */
-                clear: function () {
+                clear: function() {
                     this._$element.find('.ylist-balloon__close')
                         .off('click');
                     this.constructor.superclass.clear.call(this);
@@ -752,7 +752,7 @@ class Ylist {
                  * Метод будет вызван системой шаблонов АПИ при изменении размеров вложенного макета.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
                  */
-                onSublayoutSizeChange: function () {
+                onSublayoutSizeChange: function() {
                     this.balloonLayout.superclass.onSublayoutSizeChange.apply(this, arguments);
 
                     if(!this._isElement(this._$element)) {
@@ -768,7 +768,7 @@ class Ylist {
                  * Сдвигаем балун, чтобы "хвостик" указывал на точку привязки.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
                  */
-                applyElementOffset: function () {
+                applyElementOffset: function() {
                     this._$element.css({
                         left: -(this._$element[0].offsetWidth / 2),
                         top: -(this._$element[0].offsetHeight + self.balloonParams.balloonTailHeight)
@@ -779,7 +779,7 @@ class Ylist {
                  * Закрывает балун при клике на крестик, кидая событие "userclose" на макете.
                  * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
                  */
-                onCloseClick: function (e) {
+                onCloseClick: function(e) {
                     e.preventDefault();
 
                     this.events.fire('userclose');
@@ -790,7 +790,7 @@ class Ylist {
                  * @param {jQuery} [element] Элемент.
                  * @returns {Boolean} Флаг наличия.
                  */
-                _isElement: function (element) {
+                _isElement: function(element) {
                     return element && element[0] && element.find('.ylist-balloon__inner')[0];
                 }
             });
@@ -982,8 +982,8 @@ class Ylist {
 
 
         // При клике на элемент списка, срабатывает соответстующая точка на карте
-        $(document).on('click', `.${self.options.list.clickElement}`, function(e) {
-            let listItemId = $(this).closest(`.${self.listClassName}__item`).attr('id');
+        $(document).on('click', `.${self.options.list.clickElement}`, (e) => {
+            let listItemId = $(e.target).closest(`.${self.listClassName}__item`).attr('id');
 
             if (self.placemarks.length > 0) {
                 // Если карта еще не инициализирована
@@ -1047,12 +1047,12 @@ class Ylist {
 
             // Настройка балуна, выходящего за пределы карты
             if (self.options.balloon.mapOverflow === false) {
-                let outerHandler = function(e) {
+                let outerHandler = (e) => {
                     if (placemark.options.get('balloonPane') === 'outerBalloon') {
                         self._setBalloonPane(self.map, placemark, e.get('tick'));
                     }
                 };
-                let innerHandler = function(e) {
+                let innerHandler = (e) => {
                     if (placemark.options.get('balloonPane') !== 'outerBalloon') {
                         self._setBalloonPane(self.map, placemark, e.get('tick'));
                     }
@@ -1079,7 +1079,7 @@ class Ylist {
              * Расчитывает координаты центра, с учетом размеров балуна,
              * и центрирует карту относительно балуна
              */
-            let setBalloonToCenter = function() {
+            let setBalloonToCenter = () => {
                 let coords, newCoords;
 
                 // Если балун выходит за рамки карты, опустим балун на 1/4 его высоты
@@ -1291,7 +1291,7 @@ class Ylist {
             }
 
             // Добавляем обработчик клика на элементы переключения
-            $(document).on('click', `#${self.options.switchContainer} [data-ylist-switch]`, function(e) {
+            $(document).on('click', `#${self.options.switchContainer} [data-ylist-switch]`, (e) => {
                 self._switchHandler(e, self);
             });
         } else {

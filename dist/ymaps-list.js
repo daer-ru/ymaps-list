@@ -986,7 +986,7 @@ var Ylist = function () {
 
             // При клике на элемент списка, срабатывает соответстующая точка на карте
             $(document).on('click', '.' + self.options.list.clickElement, function (e) {
-                var listItemId = $(this).closest('.' + self.listClassName + '__item').attr('id');
+                var listItemId = $(e.target).closest('.' + self.listClassName + '__item').attr('id');
 
                 if (self.placemarks.length > 0) {
                     // Если карта еще не инициализирована
