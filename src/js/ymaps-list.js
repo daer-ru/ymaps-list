@@ -434,13 +434,18 @@ class Ylist {
 
 
         if (this.isLessThanAdaptiveBreakpoint && this.options.map.drag.disableBeforeBreakpoint) {
-            $container.on('touchmove', function(e) {
+            $container.on('touchmove', (e) => {
                 if (e.originalEvent.touches.length == 1) {
                     $dragTooltip.css('opacity', '1');
+
+                    if (!this.options.balloon.mapOverflow && this.activePlacemark) {
+                        // Если балун выходит за пределы карты, то скрываем его при показе подсказки
+                        this.activePlacemark.balloon.close();
+                    }
                 } else {
                     $dragTooltip.css('opacity', '0');
                 }
-            }).on('touchstart touchend touchleave touchcancel', function(e) {
+            }).on('touchstart touchend touchleave touchcancel', (e) => {
                 $dragTooltip.css('opacity', '0');
             });
         }
@@ -497,8 +502,8 @@ class Ylist {
                 balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
 
             if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked ||
-                balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked ||
-                !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
+                balloonBeforeBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked ||
+                balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
                 balloonData = this._setBalloonData(i);
             } else {
                 balloonData = {};
@@ -585,8 +590,8 @@ class Ylist {
         }
 
         if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked ||
-            balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked ||
-            !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
+            balloonBeforeBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked ||
+            balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
             placemarkOptions.balloonLayout = this._createBalloonLayout();
             placemarkOptions.balloonContentLayout = this._createBalloonContentLayout();
             placemarkOptions.balloonAutoPan = false;

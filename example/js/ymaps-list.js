@@ -420,6 +420,8 @@ var Ylist = function () {
     }, {
         key: '_initMapDragTooltip',
         value: function _initMapDragTooltip() {
+            var _this = this;
+
             var $container = $('#' + this.options.map.container),
                 $dragTooltip = $('<div class="ylist-drag-tooltip">\n                              <span class="ylist-drag-tooltip__text">' + this.options.map.dragTooltip.text + '</span>\n                          </div>');
 
@@ -432,6 +434,11 @@ var Ylist = function () {
                 $container.on('touchmove', function (e) {
                     if (e.originalEvent.touches.length == 1) {
                         $dragTooltip.css('opacity', '1');
+
+                        if (!_this.options.balloon.mapOverflow && _this.activePlacemark) {
+                            // Если балун выходит за пределы карты, то скрываем его при показе подсказки
+                            _this.activePlacemark.balloon.close();
+                        }
                     } else {
                         $dragTooltip.css('opacity', '0');
                     }
@@ -467,7 +474,7 @@ var Ylist = function () {
     }, {
         key: '_setMapControls',
         value: function _setMapControls(userControls) {
-            var _this = this;
+            var _this2 = this;
 
             userControls.forEach(function (control) {
                 var params = {};
@@ -480,7 +487,7 @@ var Ylist = function () {
                 params.options = control.options;
 
                 // Добавляем каждый контрол на карту
-                _this.map.controls.add(new ymaps.control[control.constructor](params));
+                _this2.map.controls.add(new ymaps.control[control.constructor](params));
             });
         }
 
@@ -499,7 +506,7 @@ var Ylist = function () {
                     balloonBeforeBreakpoint = this.options.balloon.activeBeforeBreakpoint,
                     balloonAfterBreakpoint = this.options.balloon.activeAfterBreakpoint;
 
-                if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked || balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
+                if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked || balloonBeforeBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
                     balloonData = this._setBalloonData(i);
                 } else {
                     balloonData = {};
@@ -591,7 +598,7 @@ var Ylist = function () {
                 placemarkOptions.iconImageOffset = this.options.placemark.icons[0].offset;
             }
 
-            if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked || balloonBeforeBreakpoint && !balloonAfterBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || !balloonBeforeBreakpoint && balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
+            if (balloonBeforeBreakpoint && balloonAfterBreakpoint && this.options.placemark.clicked || balloonBeforeBreakpoint && this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked || balloonAfterBreakpoint && !this.isLessThanAdaptiveBreakpoint && this.options.placemark.clicked) {
                 placemarkOptions.balloonLayout = this._createBalloonLayout();
                 placemarkOptions.balloonContentLayout = this._createBalloonContentLayout();
                 placemarkOptions.balloonAutoPan = false;
@@ -1355,7 +1362,7 @@ var Ylist = function () {
     }, {
         key: 'filter',
         value: function filter(callback, param) {
-            var _this2 = this;
+            var _this3 = this;
 
             if (typeof callback !== 'function') {
                 throw new TypeError('Аргумент должен быть функцией');
@@ -1378,7 +1385,7 @@ var Ylist = function () {
             if (this.map) {
                 placemarks.forEach(function (placemarkItem) {
                     placemarkItem.options.set('visible', false);
-                    _this2.clusterer.remove(placemarkItem);
+                    _this3.clusterer.remove(placemarkItem);
                     $('#' + placemarkItem.id).hide();
                 });
             } else {
@@ -1435,7 +1442,7 @@ var Ylist = function () {
     }, {
         key: 'clearFilter',
         value: function clearFilter() {
-            var _this3 = this;
+            var _this4 = this;
 
             // Сбрасываем колбек 
             this.currentFilterCallback = null;
@@ -1454,7 +1461,7 @@ var Ylist = function () {
                 if (this.map) {
                     placemarks.forEach(function (placemarkItem) {
                         placemarkItem.options.set('visible', true);
-                        _this3.clusterer.add(placemarkItem);
+                        _this4.clusterer.add(placemarkItem);
                         $('#' + placemarkItem.id).show();
                     });
 
