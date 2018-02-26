@@ -190,6 +190,14 @@ var Ylist = function () {
                     this.options.list.header = true;
                 }
 
+                if (!this.options.list.hasOwnProperty('clickElement')) {
+                    this.options.list.clickElement = this.listClassName + '__title';
+                }
+
+                if (!this.options.list.hasOwnProperty('itemWrapper')) {
+                    this.options.list.itemWrapper = false;
+                }
+
                 if (!this.options.list.hasOwnProperty('modifier')) {
                     this.options.list.modifier = '';
                 }
@@ -884,7 +892,8 @@ var Ylist = function () {
         key: '_createListElement',
         value: function _createListElement(point) {
             var $elementTitle = $('<h3/>', { class: this.listClassName + '__title' }),
-                $elementContent = '';
+                $elementContent = '',
+                $elementWrapper = '';
 
             var $listElement = $('<li/>', {
                 id: point.id,
@@ -921,7 +930,15 @@ var Ylist = function () {
                 $elementContent += optionContent;
             }
 
-            $listElement.append($elementTitle, $elementContent);
+            if (this.options.list.itemWrapper !== false) {
+                // Оборачиваем все содержимое элемента списка в указанную в опциях обертку
+                $elementWrapper = $('<div/>', { class: this.options.list.itemWrapper });
+
+                $elementWrapper.append($elementTitle, $elementContent);
+                $listElement.append($elementWrapper);
+            } else {
+                $listElement.append($elementTitle, $elementContent);
+            }
 
             return $listElement;
         }
@@ -946,7 +963,7 @@ var Ylist = function () {
             $('#' + this.options.list.container).html('').append($list);
 
             // При клике на элемент списка, срабатывает соответстующая точка на карте
-            $(document).on('click', '.' + self.listClassName + '__title', function (e) {
+            $(document).on('click', '.' + self.options.list.clickElement, function (e) {
                 var listItemId = $(this).closest('.' + self.listClassName + '__item').attr('id');
 
                 if (self.placemarks.length > 0) {

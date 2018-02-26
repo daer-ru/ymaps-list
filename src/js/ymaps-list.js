@@ -183,6 +183,14 @@ class Ylist {
                 this.options.list.header = true;
             }
 
+            if (!this.options.list.hasOwnProperty('clickElement')) {
+                this.options.list.clickElement = `${this.listClassName}__title`;
+            }
+
+            if (!this.options.list.hasOwnProperty('itemWrapper')) {
+                this.options.list.itemWrapper = false;
+            }
+
             if (!this.options.list.hasOwnProperty('modifier')) {
                 this.options.list.modifier = '';
             }
@@ -879,12 +887,13 @@ class Ylist {
      * @private
      */
     _createListElement(point) {
-        let $elementTitle = $('<h3/>', {class: this.listClassName + '__title'}),
-            $elementContent = ``;
+        let $elementTitle = $('<h3/>', {class: `${this.listClassName}__title`}),
+            $elementContent = ``,
+            $elementWrapper = ``;
 
         var $listElement = $('<li/>', {
             id: point.id,
-            class: this.listClassName + '__item'
+            class: `${this.listClassName}__item`
         });
 
         if (point.name && this.options.list.header) {
@@ -918,7 +927,15 @@ class Ylist {
             $elementContent += optionContent;
         }
 
-        $listElement.append($elementTitle, $elementContent);
+        if (this.options.list.itemWrapper !== false) {
+            // Оборачиваем все содержимое элемента списка в указанную в опциях обертку
+            $elementWrapper = $('<div/>', {class: this.options.list.itemWrapper});
+
+            $elementWrapper.append($elementTitle, $elementContent);
+            $listElement.append($elementWrapper);
+        } else {
+            $listElement.append($elementTitle, $elementContent);
+        }
 
         return $listElement;
     }
@@ -930,7 +947,7 @@ class Ylist {
      */
     _createPointsList() {
         let self = this,
-            $list = $('<ul/>', {class: this.listClassName + ' ' +this.options.list.modifier});
+            $list = $('<ul/>', {class: `${this.listClassName} ${this.options.list.modifier}`});
 
         for (let i = 0; i < this.points.length; i++) {
             let point = this.points[i];
@@ -942,8 +959,8 @@ class Ylist {
 
 
         // При клике на элемент списка, срабатывает соответстующая точка на карте
-        $(document).on('click', '.' + self.listClassName + '__title', function(e) {
-            let listItemId = $(this).closest('.' + self.listClassName + '__item').attr('id');
+        $(document).on('click', `.${self.options.list.clickElement}`, function(e) {
+            let listItemId = $(this).closest(`.${self.listClassName}__item`).attr('id');
 
             if (self.placemarks.length > 0) {
                 // Если карта еще не инициализирована
