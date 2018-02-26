@@ -60,6 +60,172 @@ yarn add ymaps-list
 </div>
 ```
 
+Настройка и инициализация:
+
+```javascript
+var data = [
+    {
+        "id": "id-1",
+        "name": "Элемент списка №1",
+        "coords": [55.790464, 37.530409],
+        "address": "Ходынский бульвар, д. 4",
+        "phone": "8 (999) 999-99-99",
+        "email": "email@domain.com",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+    },
+    {
+        "id": "id-2",
+        "name": "Элемент списка №2",
+        "coords": [55.861954, 37.687713],
+        "address": "ул. Дудинка, д. 3",
+        "phone": "8 (999) 999-99-99",
+        "email": "email@domain.com",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+    }
+];
+
+var myYmaps = new Ylist({
+    data: data,
+    dataOrder: [
+        'name',
+        'address',
+        'phone',
+        'email',
+        'description'
+    ],
+    dataExtension: {
+        address: function(address, pointData) {
+            let extendedAddress = `<p class="ylist__address">${address}</p>`;
+            return extendedAddress;
+        },
+        phone: function(phone, pointData) {
+            let phoneLink = phone.replace(/[\ \-\(\)']+/g, '');
+            let extendedPhone = `<p class="ylist__phone"><a href="tel:${phoneLink}">${phone}</a></p>`;
+            return extendedPhone;
+        },
+        email: function(email, pointData) {
+            let extendedEmail = `<p class="ylist__email"><a href="mailto:${email}">${email}</a></p>`;
+            return extendedEmail;
+        },
+        description: function(description, pointData) {
+            let extendedDescription = `<p class="ylist__description">${description}</p>`;
+            return extendedDescription;
+        },
+    },
+    container: 'ymaps',
+    map: {
+        center: [55.751574, 37.573856],
+        customize: {
+            state: {
+                zoom: 4
+            },
+            options: {
+                nativeFullscreen: true
+            },
+            controls: [
+                {
+                    constructor: 'ZoomControl',
+                    options: {
+                        size: 'small',
+                        position: {
+                            top: 10,
+                            right: 10
+                        }
+                    }
+                },
+                {
+                    constructor: 'FullscreenControl',
+                    options: {
+                        position: {
+                            bottom: 10,
+                            left: 10
+                        }
+                    }
+                }
+            ]
+        },
+        container: 'ymaps-map',
+        drag: {
+            disableOnTouch: true,
+            disableAlways: false
+        },
+        dragTooltip: {
+            active: true,
+            text: 'Чтобы переместить карту, проведите по ней двумя пальцами'
+        },
+        filterTooltip: {
+            active: true,
+            text: 'Совпадений не найдено'
+        }
+    },
+    list: {
+        active: true,
+        container: 'ymaps-list',
+        scroll: false,
+        header: true,
+        clickElement: 'my-element',
+        itemWrapper: 'list-item-wrapper',
+        modifier: 'ylist-list--delivery'
+    },
+    switchContainer: 'ymaps-switch',
+    cluster: {
+        icons: [
+            [
+                {
+                    href: 'img/pin_empty.svg',
+                    size: [40, 50],
+                    offset: [-20, -30]
+                },
+                {
+                    href: 'img/pin_empty.svg',
+                    size: [60, 75],
+                    offset: [-30, -37]
+                }
+            ],
+            [
+                {
+                    href: 'img/pin_empty_active.svg',
+                    size: [40, 50],
+                    offset: [-20, -30]
+                },
+                {
+                    href: 'img/pin_empty_active.svg',
+                    size: [60, 75],
+                    offset: [-30, -37]
+                }
+            ]
+        ],
+        inlineStyle: 'color: #fff; padding-left: 2px; text-align: center; font: bold 16px/44px Helvetica, Helvetica CY, Arial, Nimbus Sans L, sans-serif;'
+    },
+    placemark: {
+        icons: [
+            {
+                href: 'img/pin.svg',
+                size: [40, 50],
+                offset: [-20, -50]
+            },
+            {
+                href: 'img/pin_active.svg',
+                size: [40, 50],
+                offset: [-20, -50]
+            }
+        ],
+        clicked: false
+    },
+    balloon: {
+        activeBeforeBreakpoint: true,
+        activeAfterBreakpoint: true,
+        closeButton: '<span>x</span>',
+        header: true,
+        modifier: 'ylist-balloon--delivery',
+        mapOverflow: false
+    },
+    adaptiveBreakpoint: 1024
+});
+
+myYmaps.init();
+```
+
 ### Настройки
 
 **data**
@@ -72,6 +238,22 @@ yarn add ymaps-list
 
 Данные меток в виде массива объектов. Обязательные параметры метки: `id: 'string'`, `name: 'string'`, `coords: [широта, долгота]`. Из `name` формируется заголовок балуна и списка. Остальные параметры опциональны, могут иметь любое название и быть в любом кол-ве. **Важно** чтобы у каждой метки был одинаковый набор параметров. Порядок вывода параметров указывается в опции `dataOrder`.
 
+```javascript
+// Пример входящего массива данных
+var data = [
+    {
+        "id": "id-1",
+        "name": "Point №1",
+        "coords": [55.790464, 37.530409],
+        "address": "Moscow, Main street, 5",
+        "phone": "8 (999) 999-99-99",
+        "email": "email@domain.com",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+    },
+    // ...
+];
+```
+
 ---
 
 **dataOrder** 
@@ -82,7 +264,19 @@ yarn add ymaps-list
 
 *Обязательно:* +
 
-Массив, в котором указывается порядок вывода параметров метки, например: `['name', address', 'phone', 'email', 'description']`. В массиве указываются именно названия свойств, которые указаны у метки в `data`.
+Массив, в котором указывается порядок вывода параметров меткию. В массиве указываются именно названия свойств, которые указаны у метки в `data`.
+
+```javascript
+// ...
+dataOrder: [
+    'name',
+    'address',
+    'phone',
+    'email',
+    'description'
+]
+// ...
+```
 
 ---
 
@@ -94,7 +288,23 @@ yarn add ymaps-list
 
 *Обязательно:* -
 
-В объекте указываются свойства с таким же именем, как в `dataOrder`. В каждом свойстве находится функция колбек, в которую первым аргументом передается в виде строки значение соответствующего свойства из `data`, вторым аргументом передается весь объект данных по метке. Например, `function(address, pointData) {}`. Функция должна возвращать строку. Например `function(address, pointData) {let extendedAddress = '<p class="ylist-balloon__address">${address}</p>'; return extendedAddress;}`
+В объекте указываются свойства с таким же именем, как в `dataOrder`. В каждом свойстве находится функция колбек, в которую первым аргументом передается в виде строки значение соответствующего свойства из `data`, вторым аргументом передается весь объект данных по метке. Например, `function(address, pointData) {}`. Функция должна возвращать строку.
+
+```javascript
+// ...
+dataExtension: {
+    address: function(address, pointData) {
+        let extendedAddress = `<p class="ylist__address">${address}</p>`;
+        return extendedAddress;
+    },
+    phone: function(phone, pointData) {
+        let phoneLink = phone.replace(/[\ \-\(\)']+/g, '');
+        let extendedPhone = `<p class="ylist__phone"><a href="tel:${phoneLink}">${phone}</a></p>`;
+        return extendedPhone;
+    }
+}
+// ...
+```
 
 ---
 
@@ -168,6 +378,18 @@ ID контейнера карты в виде строки, например `y
 
 Параметры карты. См. [API Яндекс.Карт](https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Map-docpage/) `state.*`
 
+```javascript
+// ...
+map: {
+    customize: {
+        state: {
+            zoom: 4
+        }
+    }
+}
+// ...
+```
+
 ---
 
 **map.customize.options**
@@ -180,6 +402,18 @@ ID контейнера карты в виде строки, например `y
 
 Опции карты. См. [API Яндекс.Карт](https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/Map-docpage/) `options.*`
 
+```javascript
+// ...
+map: {
+    customize: {
+        options: {
+            nativeFullscreen: true
+        }
+    }
+}
+// ...
+```
+
 ---
 
 **map.customize.controls**
@@ -191,6 +425,36 @@ ID контейнера карты в виде строки, например `y
 *Обязательно:* -
 
 Элементы управления картой. Массив объектов, где у объекта есть параметры `constructor` - название конструктора контрола из [API Яндекс.Карт](https://tech.yandex.ru/maps/doc/jsapi/2.1/ref/reference/control.ZoomControl-docpage/), например `ZoomControl`, `options` - опции конструктора контрола `parameters.options.*`. Пример см. в [Демо](https://daer-ru.github.io/ymaps-list/).
+
+```javascript
+// ...
+map: {
+    customize: {
+        controls: [
+            {
+                constructor: 'ZoomControl',
+                options: {
+                    size: 'small',
+                    position: {
+                        top: 10,
+                        right: 10
+                    }
+                }
+            },
+            {
+                constructor: 'FullscreenControl',
+                options: {
+                    position: {
+                        bottom: 10,
+                        left: 10
+                    }
+                }
+            }
+        ]
+    }
+}
+// ...
+```
 
 ---
 
@@ -355,6 +619,16 @@ ID контейнера списка в виде строки, например 
 
 Если `list.active: true` и `list.scroll: false`, то проскролливание к активному элементу списка происходит с помощью `jQuery.scrollTop()` и подсчет позиции активного элемента. Если `list.active: true` и `list.scroll: function($listContainer, $activeListItem) {}`, то можно описать свой механизм проскролливания, например в случае использования кастомного скроллбара. В функцию передается элемент контейнера списка и активный элемент спсика.
 
+```javascript
+// ...
+list: {
+    scroll: function($listContainer, $activeListItem) {
+        // Call custom scrollbar method to $activeListItem
+    }
+}
+// ...
+```
+
 ---
 
 **list.header** 
@@ -439,6 +713,52 @@ ID контейнера с переключателями карта/списо�
 
 Массив, который содержит настройки иконок кластера. Первым элементом указывается дефолтная иконка, вторым элементом указывается активная иконка. В качестве значений можно использовать [уже существующийе иконки](https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/option.presetStorage.xml) в Яндкс.Картах. Если требуется задать кастомные иконки кластера, то первым элементом указывается массив из 2-х объектов для дефолтной иконки, вторым элементом указывается массив из 2-х объектов для активной иконки см. [пример](https://tech.yandex.ru/maps/jsbox/2.1/clusterer_custom_icon).
 
+```javascript
+// ...
+cluster: {
+    icons: [
+        [
+            {
+                href: 'img/pin_empty.svg',
+                size: [40, 50],
+                offset: [-20, -30]
+            },
+            {
+                href: 'img/pin_empty.svg',
+                size: [60, 75],
+                offset: [-30, -37]
+            }
+        ],
+        [
+            {
+                href: 'img/pin_empty_active.svg',
+                size: [40, 50],
+                offset: [-20, -30]
+            },
+            {
+                href: 'img/pin_empty_active.svg',
+                size: [60, 75],
+                offset: [-30, -37]
+            }
+        ]
+    ]
+}
+// ...
+```
+
+или
+
+```javascript
+// ...
+cluster: {
+    icons: [
+        'islands#invertedGrayClusterIcons',
+        'islands#invertedOrangeClusterIcons'
+    ]
+}
+// ...
+```
+
 ---
 
 **cluster.inlineStyle**
@@ -450,6 +770,14 @@ ID контейнера с переключателями карта/списо�
 *Обязательно:* -
 
 Инлайновые стили для текста внутри кастомной иконки кластера.
+
+```javascript
+// ...
+cluster: {
+    inlineStyle: 'color: #fff; padding-left: 2px; text-align: center; font: bold 16px/44px Helvetica, Helvetica CY, Arial, Nimbus Sans L, sans-serif;'
+}
+// ...
+```
 
 ---
 
@@ -473,7 +801,39 @@ ID контейнера с переключателями карта/списо�
 
 *Обязательно:* -
 
-Массив, который содержит настройки иконок меток. Первым элементом указывается дефолтная иконка, вторым элементом указывается активная иконка. В качестве значений можно использовать [уже существующийе иконки](https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/option.presetStorage.xml) в Яндкс.Картах. Если требуется задать кастомные иконки меток, то первым элементом указывается объект для дефолтной иконки, вторым элементом указывается объект для активной иконки, например `{href: 'pin.svg', size: [40, 50], offset: [-20, -50]}, {href: 'pin-active.svg', size: [40, 50], offset: [-20, -50]}`
+Массив, который содержит настройки иконок меток. Первым элементом указывается дефолтная иконка, вторым элементом указывается активная иконка. В качестве значений можно использовать [уже существующийе иконки](https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/option.presetStorage.xml) в Яндкс.Картах. Если требуется задать кастомные иконки меток, то первым элементом указывается объект для дефолтной иконки, вторым элементом указывается объект для активной иконки, например:
+
+```javascript
+// ...
+placemark: {
+    icons: [
+        {
+            href: 'img/pin.svg',
+            size: [40, 50],
+            offset: [-20, -50]
+        },
+        {
+            href: 'img/pin_active.svg',
+            size: [40, 50],
+            offset: [-20, -50]
+        }
+    ]
+}
+// ...
+```
+
+или
+
+```javascript
+// ...
+placemark: {
+    icons: [
+        'islands#grayDotIcon',
+        'islands#orangeDotIcon'
+    ]
+}
+// ...
+```
 
 ---
 
@@ -534,6 +894,14 @@ ID контейнера с переключателями карта/списо�
 *Обязательно:* -
 
 Html разметка содержимого кнопки закрытия балуна метки.
+
+```javascript
+// ...
+balloon: {
+    closeButton: '<span>x</span>'
+}
+// ...
+```
 
 ---
 
@@ -599,23 +967,21 @@ Html разметка содержимого кнопки закрытия ба�
 
 Фильрация списка и меток на карте. 
 
-```html
-<script>
-    var param = $('.some-field').val();
+```javascript
+var param = $('.some-field').val();
 
-    // obj - элемент массива входящих данных data
-    // i - индекс элемента внутри массива data
-    // data - весь массив входящих данных
-    myFilteredMap.filter((obj, i, data) => {
-        // Фильтрацию можно делать по любому доступному параметру
-        if (obj.id === param) {
-            // Если колбек возвращает true, то эта метка будет отображена
-            return true;
-        }
+// obj - элемент массива входящих данных data
+// i - индекс элемента внутри массива data
+// data - весь массив входящих данных
+myFilteredMap.filter((obj, i, data) => {
+    // Фильтрацию можно делать по любому доступному параметру
+    if (obj.id === param) {
+        // Если колбек возвращает true, то эта метка будет отображена
+        return true;
+    }
 
-        return false;
-    }, param); // Значение, по которому произошла фильтрация нужно передавать обязательно
-</script>
+    return false;
+}, param); // Значение, по которому произошла фильтрация нужно передавать обязательно
 ```
 
 ---
@@ -626,12 +992,10 @@ Html разметка содержимого кнопки закрытия ба�
 
 Сброс результата фильтрации.
 
-```html
-<script>
-    $(document).on('click', '.js-clear-filtered-map', function() {
-        myFilteredMap.clearFilter();
-    });
-</script>
+```javascript
+$(document).on('click', '.js-clear-filtered-map', function() {
+    myFilteredMap.clearFilter();
+});
 ```
 
 ---
