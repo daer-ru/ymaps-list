@@ -1104,11 +1104,21 @@ class Ylist {
         if (typeof placemark !== 'string') {
             if (this.activePlacemark && this.map.getZoom() < 11) {
                 let prevClustered = this.clusterer.getObjectState(this.activePlacemark).isClustered,
-                    currentClustered = this.clusterer.getObjectState(placemark).isClustered;
+                    currentClustered = this.clusterer.getObjectState(placemark).isClustered,
+                    distance = ymaps.coordSystem.geo.getDistance(placemark.geometry.getCoordinates(), this.activePlacemark.geometry.getCoordinates()) / 1000,
+                    flying = null;
 
                 // Если оба элемента на небольшом зуме не кластеризованы, просто подвинем карту к ним
                 if (!prevClustered && !currentClustered) {
-                    this.map.panTo(placemark.geometry.getCoordinates(), {flying: true});
+                    // if (distance < 100) {
+                        flying = true;
+                    // } else {
+                    //     flying = false;
+                    // }
+
+                    this.map.panTo(placemark.geometry.getCoordinates(), {flying: flying}).then(function() {
+                        console.log('flying')
+                    });
 
                     this.activePlacemark = placemark;
 
