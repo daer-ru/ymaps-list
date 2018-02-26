@@ -190,6 +190,10 @@ var Ylist = function () {
                     this.options.list.header = true;
                 }
 
+                if (!this.options.list.hasOwnProperty('clickElement')) {
+                    this.options.list.clickElement = this.listClassName + '__title';
+                }
+
                 if (!this.options.list.hasOwnProperty('modifier')) {
                     this.options.list.modifier = '';
                 }
@@ -946,7 +950,7 @@ var Ylist = function () {
             $('#' + this.options.list.container).html('').append($list);
 
             // При клике на элемент списка, срабатывает соответстующая точка на карте
-            $(document).on('click', '.' + self.listClassName + '__title', function (e) {
+            $(document).on('click', '.' + self.options.list.clickElement, function (e) {
                 var listItemId = $(this).closest('.' + self.listClassName + '__item').attr('id');
 
                 if (self.placemarks.length > 0) {

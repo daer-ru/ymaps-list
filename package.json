@@ -1,6 +1,6 @@
 {
   "name": "ymaps-list",
-  "version": "1.12.1",
+  "version": "1.13.0",
   "description": "Plugin for create Yandex.Map with multiple placemarks",
   "main": "",
   "repository": {
