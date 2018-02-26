@@ -303,6 +303,7 @@ var Ylist = function () {
                 self._initMapDragTooltip();
             }
 
+            // Дефолтные опции карты
             var baseMapState = {
                 center: self.options.map.center,
                 zoom: 13,

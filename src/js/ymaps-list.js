@@ -303,6 +303,7 @@ class Ylist {
             self._initMapDragTooltip();
         }
 
+        // Дефолтные опции карты
         let baseMapState = {
                 center: self.options.map.center,
                 zoom: 13,
@@ -866,9 +867,9 @@ class Ylist {
      */
     _setBalloonPane(map, placemark, mapData) {
         mapData = mapData || {
-                globalPixelCenter: map.getGlobalPixelCenter(),
-                zoom: map.getZoom()
-            };
+            globalPixelCenter: map.getGlobalPixelCenter(),
+            zoom: map.getZoom()
+        };
 
         let mapSize = map.container.getSize(),
             mapBounds = [
@@ -977,7 +978,7 @@ class Ylist {
             $list.append(self._createListElement(point));
         }
 
-        $('#' + self.options.list.container).html('').append($list);
+        $(`#${self.options.list.container}`).html('').append($list);
 
 
         // При клике на элемент списка, срабатывает соответстующая точка на карте
@@ -1176,17 +1177,17 @@ class Ylist {
             listActive = self.options.list.active;
 
         if (listActive) {
-            $listContainer = $('#' + self.options.list.container);
+            $listContainer = $(`#${self.options.list.container}`);
         }
 
         if (typeof placemark == 'string') {
             if (listActive) {
-                $listItem = $('#' + placemark);
+                $listItem = $(`#${placemark}`);
             }
             activeListItemId = placemark;
         } else {
             if (listActive) {
-                $listItem = $('#' + placemark.id);
+                $listItem = $(`#${placemark.id}`);
             }
             activeListItemId = placemark.id;
 
@@ -1273,16 +1274,16 @@ class Ylist {
 
             if (self.options.switchContainer != false) {
                 // Показываем блок с кнопками
-                $('#' + self.options.switchContainer).addClass('is-visible');
-                $('#' + self.options.switchContainer).find('[data-ylist-switch="list"]').addClass('is-active');
+                $(`#${self.options.switchContainer}`).addClass('is-visible');
+                $(`#${self.options.switchContainer}`).find('[data-ylist-switch="list"]').addClass('is-active');
             }
 
             if (listActive) {
-                $('#' + self.options.map.container).addClass('is-hidden');
+                $(`#${self.options.map.container}`).addClass('is-hidden');
             }
-            $('#' + self.options.map.container).addClass('is-adaptive');
-            $('#' + self.options.list.container).addClass('is-adaptive');
-            $('#' + self.options.container).addClass('is-adaptive');
+            $(`#${self.options.map.container}`).addClass('is-adaptive');
+            $(`#${self.options.list.container}`).addClass('is-adaptive');
+            $(`#${self.options.container}`).addClass('is-adaptive');
 
             if (!listActive && !self.map) {
                 // Если список отключен и карта не инициализирована, то инитим карту на адаптиве сразу
@@ -1300,13 +1301,13 @@ class Ylist {
 
             if (self.options.switchContainer != false) {
                 // Скрываем блок с кнопками
-                $('#' + self.options.switchContainer).removeClass('is-visible');
-                $('#' + self.options.switchContainer).find('[data-ylist-switch]').removeClass('is-active');
+                $(`#${self.options.switchContainer}`).removeClass('is-visible');
+                $(`#${self.options.switchContainer}`).find('[data-ylist-switch]').removeClass('is-active');
             }
 
-            $('#' + self.options.map.container).removeClass('is-adaptive is-hidden');
-            $('#' + self.options.list.container).removeClass('is-adaptive is-hidden');
-            $('#' + self.options.container).removeClass('is-adaptive');
+            $(`#${self.options.map.container}`).removeClass('is-adaptive is-hidden');
+            $(`#${self.options.list.container}`).removeClass('is-adaptive is-hidden');
+            $(`#${self.options.container}`).removeClass('is-adaptive');
 
             if (listActive || !listActive && !self.isLessThanAdaptiveBreakpoint && !self.map) {
                 self._initMap();
