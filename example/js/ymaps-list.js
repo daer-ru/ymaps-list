@@ -383,6 +383,7 @@ var Ylist = function () {
          * @see https://ru.stackoverflow.com/questions/463638/callback-%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B8-%D0%BA%D0%B0%D1%80%D1%82%D1%8B-yandex-map
          * @param  {Object}  layer 
          * @return {Boolean}       Promise
+         * @private
          */
 
     }, {

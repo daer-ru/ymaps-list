@@ -387,10 +387,11 @@ class Ylist {
      * @see https://ru.stackoverflow.com/questions/463638/callback-%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B8-%D0%BA%D0%B0%D1%80%D1%82%D1%8B-yandex-map
      * @param  {Object}  layer 
      * @return {Boolean}       Promise
+     * @private
      */
     _isReadyMap(layer) {
         function getTileContainer(layer) {
-            for (var k in layer) {
+            for (let k in layer) {
                 if (layer.hasOwnProperty(k)) {
                     if (
                         layer[k] instanceof ymaps.layer.tileContainer.CanvasContainer
@@ -677,7 +678,7 @@ class Ylist {
             // Если задаем для кластера кастомную иконку
 
             // Сделаем макет содержимого иконки кластера
-            var MyClustererIconContentLayout = ymaps.templateLayoutFactory.createClass(
+            let MyClustererIconContentLayout = ymaps.templateLayoutFactory.createClass(
                 `<div style="${self.options.cluster.inlineStyle}">{{ properties.geoObjects.length }}</div>`);
 
             self.clusterer.options.set({
@@ -914,7 +915,7 @@ class Ylist {
             $elementContent = ``,
             $elementWrapper = ``;
 
-        var $listElement = $('<li/>', {
+        let $listElement = $('<li/>', {
             id: point.id,
             class: `${self.listClassName}__item`
         });
