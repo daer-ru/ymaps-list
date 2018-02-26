@@ -537,6 +537,7 @@ class Ylist {
                 }
 
                 placemark.isActive = true;
+                placemark.options.set('zIndex', 1000);
             }
 
             this.placemarks.push(placemark);
@@ -1187,7 +1188,10 @@ class Ylist {
                 }
 
                 placemark.isActive = false;
+                placemark.options.set('zIndex', 650); // 650 дефолтное значение
             }
+
+            placemark.options.set('zIndex', 1000);
 
             // Если метка в кластере, соответствующий кластер будет подсвечен
             if (this.clusterer.getObjectState(placemark).isClustered) {
