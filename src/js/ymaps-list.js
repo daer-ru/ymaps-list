@@ -660,7 +660,7 @@ class Ylist {
             clusterDisableClickZoom: false,
             clusterHideIconOnBalloonOpen: false,
             geoObjectHideIconOnBalloonOpen: false,
-            zoomMargin: 40
+            zoomMargin: [80, 40, 40, 40]
         });
 
 
@@ -1017,7 +1017,7 @@ class Ylist {
         } else {
             self.map.setBounds(objects.getBounds(), {
                 checkZoomRange: true,
-                zoomMargin: 10
+                zoomMargin: [80, 40, 40, 40]
             });
         }
     }

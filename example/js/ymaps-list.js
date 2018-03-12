@@ -668,7 +668,7 @@ var Ylist = function () {
                 clusterDisableClickZoom: false,
                 clusterHideIconOnBalloonOpen: false,
                 geoObjectHideIconOnBalloonOpen: false,
-                zoomMargin: 40
+                zoomMargin: [80, 40, 40, 40]
             });
 
             if (typeof self.options.cluster.icons[0] == 'string') {
@@ -1022,7 +1022,7 @@ var Ylist = function () {
             } else {
                 self.map.setBounds(objects.getBounds(), {
                     checkZoomRange: true,
-                    zoomMargin: 10
+                    zoomMargin: [80, 40, 40, 40]
                 });
             }
         }
