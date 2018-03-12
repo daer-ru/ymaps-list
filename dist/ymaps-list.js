@@ -170,6 +170,10 @@ var Ylist = function () {
                     if (!this.options.map.filterTooltip.hasOwnProperty('text')) {
                         this.options.map.filterTooltip.text = 'No matches found';
                     }
+
+                    if (!this.options.map.filterTooltip.hasOwnProperty('container')) {
+                        this.options.map.filterTooltip.container = '#' + this.options.container;
+                    }
                 }
             }
 
@@ -1410,6 +1414,7 @@ var Ylist = function () {
             var points = self.points,
                 placemarks = self.placemarks,
                 falseFilterCounter = 0,
+                filterTooltipContainer = self.options.map.filterTooltip.container,
                 $filterTooltip = $('<div class="ylist-filter-tooltip">\n                                    <span class="ylist-filter-tooltip__text">' + self.options.map.filterTooltip.text + '</span>\n                                </div>');
 
             if (self.map && !placemarks.length) {
@@ -1450,15 +1455,15 @@ var Ylist = function () {
             if (falseFilterCounter == points.length) {
                 // Нет совпадений
                 if (self.options.map.filterTooltip.active) {
-                    $('#' + self.options.container + ' .ylist-filter-tooltip').remove();
-                    $('#' + self.options.container).append($filterTooltip);
-                    $('#' + self.options.container + ' .ylist-filter-tooltip').css('opacity', '1');
+                    $(filterTooltipContainer + ' .ylist-filter-tooltip').remove();
+                    $(filterTooltipContainer).append($filterTooltip);
+                    $(filterTooltipContainer + ' .ylist-filter-tooltip').css('opacity', '1');
                 } else {
                     console.warn(self.options.map.filterTooltip.text);
                 }
             } else {
                 if (self.options.map.filterTooltip.active) {
-                    $('#' + self.options.container + ' .ylist-filter-tooltip').remove();
+                    $(filterTooltipContainer + ' .ylist-filter-tooltip').remove();
                 }
 
                 // Масштабируем карту так, чтобы были видны все метки
@@ -1478,7 +1483,8 @@ var Ylist = function () {
     }, {
         key: 'clearFilter',
         value: function clearFilter() {
-            var self = this;
+            var self = this,
+                filterTooltipContainer = self.options.map.filterTooltip.container;
 
             // Сбрасываем колбек 
             self.currentFilterCallback = null;
@@ -1487,7 +1493,7 @@ var Ylist = function () {
 
             if (self.options.map.filterTooltip.active) {
                 // Удаляем тултип
-                $('#' + self.options.container + ' .ylist-filter-tooltip').remove();
+                $(filterTooltipContainer + ' .ylist-filter-tooltip').remove();
             }
 
             var points = self.points,
