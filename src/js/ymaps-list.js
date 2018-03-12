@@ -160,6 +160,10 @@ class Ylist {
                 if (!this.options.map.filterTooltip.hasOwnProperty('text')) {
                     this.options.map.filterTooltip.text = 'No matches found';
                 }
+
+                if (!this.options.map.filterTooltip.hasOwnProperty('container')) {
+                    this.options.map.filterTooltip.container = `#${this.options.container}`;
+                }
             }
         }
 
@@ -1401,6 +1405,7 @@ class Ylist {
         let points = self.points,
             placemarks = self.placemarks,
             falseFilterCounter = 0,
+            filterTooltipContainer = self.options.map.filterTooltip.container,
             $filterTooltip = $(`<div class="ylist-filter-tooltip">
                                     <span class="ylist-filter-tooltip__text">${self.options.map.filterTooltip.text}</span>
                                 </div>`);
@@ -1443,15 +1448,15 @@ class Ylist {
         if (falseFilterCounter == points.length) {
             // Нет совпадений
             if (self.options.map.filterTooltip.active) {
-                $(`#${self.options.container} .ylist-filter-tooltip`).remove();
-                $(`#${self.options.container}`).append($filterTooltip);
-                $(`#${self.options.container} .ylist-filter-tooltip`).css('opacity', '1');
+                $(`${filterTooltipContainer} .ylist-filter-tooltip`).remove();
+                $(filterTooltipContainer).append($filterTooltip);
+                $(`${filterTooltipContainer} .ylist-filter-tooltip`).css('opacity', '1');
             } else {
                 console.warn(self.options.map.filterTooltip.text);
             }
         } else {
             if (self.options.map.filterTooltip.active) {
-                $(`#${self.options.container} .ylist-filter-tooltip`).remove();
+                $(`${filterTooltipContainer} .ylist-filter-tooltip`).remove();
             }
 
             // Масштабируем карту так, чтобы были видны все метки
@@ -1469,7 +1474,8 @@ class Ylist {
      * @public
      */
     clearFilter() {
-        let self = this;
+        let self = this,
+            filterTooltipContainer = self.options.map.filterTooltip.container;
 
         // Сбрасываем колбек 
         self.currentFilterCallback = null;
@@ -1478,7 +1484,7 @@ class Ylist {
 
         if (self.options.map.filterTooltip.active) {
             // Удаляем тултип
-            $(`#${self.options.container} .ylist-filter-tooltip`).remove();
+            $(`${filterTooltipContainer} .ylist-filter-tooltip`).remove();
         }
 
         let points = self.points,
