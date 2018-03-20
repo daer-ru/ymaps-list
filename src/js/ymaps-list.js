@@ -1509,4 +1509,25 @@ class Ylist {
             }
         }
     }
+
+    getObject(id) {
+        const points = this.points;
+
+        // можно передавать id как с решеткой, так и без решетки.
+        id = id.replace(/^#/, '');
+
+        // записал по старинке через for
+        // метод points.find появился только в es6, хотя для старых браузеров можно и полифилл заюзать ( https://www.npmjs.com/package/array.prototype.find )
+        // в таком случае все превратилось бы в 1 строчку:
+        // return points.find(elem => elem.id === id);
+        let obj; // искомый объект
+        for(let i = 0; i < points.length; i++) {
+            if(points[i].id === id) {
+                obj = points[i];
+                break;
+            }
+        }
+
+        return obj;
+    }
 }
