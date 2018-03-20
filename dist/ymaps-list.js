@@ -1518,6 +1518,33 @@ var Ylist = function () {
                 }
             }
         }
+
+        /**
+         * Получает и возвращает объект с данными метки c {id}
+         * @param  {String} id  id метки в формате "#some-id" или "some-id"
+         * @return {Object}     данные метки
+         * @public
+         */
+
+    }, {
+        key: 'getPointData',
+        value: function getPointData(id) {
+            var self = this,
+                point = null;
+            var points = self.points;
+
+            // Можно передавать id как с решеткой, так и без решетки
+            id = id.replace(/^#/, '');
+
+            for (var i = 0; i < points.length; i++) {
+                if (points[i].id === id) {
+                    point = points[i];
+                    break;
+                }
+            }
+
+            return point;
+        }
     }]);
 
     return Ylist;
