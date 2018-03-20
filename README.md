@@ -1012,6 +1012,22 @@ $(document).on('click', '.js-clear-filtered-map', function() {
 
 ---
 
+**getPointData**
+
+*Arguments:* `id : String`
+
+Получает данные метки по её id.
+
+```javascript
+$(document).on('click', '.js-get-my-point-data', function() {
+    myFilteredMap.getPointData('id-1');
+    // Вариант передачи id c # тоже допустим
+    // myFilteredMap.getPointData('#id-1');
+});
+```
+
+---
+
 ## Building
 
 1. Установить [Node.js](https://nodejs.org)
