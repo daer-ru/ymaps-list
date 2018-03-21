@@ -96,6 +96,10 @@ var Ylist = function () {
                 return;
             }
 
+            if (!this.options.hasOwnProperty('afterInit')) {
+                this.options.afterInit = false;
+            }
+
             // Map
             if (!this.options.hasOwnProperty('map')) {
                 this.options.map = {};
@@ -353,6 +357,13 @@ var Ylist = function () {
                     // Если при инициализации карты есть активный элемент списка
                     // и если разрешено отображение балуна
                     self._openPlacemarkBalloon(self.activeListItem);
+                }
+
+                if (typeof self.options.afterInit == 'function') {
+                    // Если есть колбек afterInit вызываем его
+                    var $mainContainer = $('#' + self.options.container);
+
+                    self.options.afterInit($mainContainer);
                 }
             });
 
