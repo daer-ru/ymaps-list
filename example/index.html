@@ -1337,6 +1337,29 @@ $('.js-clear-filter').on('click', function() {
 
         ymapsFull.init();
 
+        setTimeout(function(argument) {
+            var newData = [
+                {
+                    "id": "ylist-6",
+                    "name": "Элемент списка №1",
+                    "coords": [55.790464, 37.530409],
+                    "address": "Ходынский бульвар, д. 4",
+                    "phone": "8 (999) 999-99-99",
+                    "email": "email@domain.com",
+                    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+                },
+                {
+                    "id": "ylist-7",
+                    "name": "Элемент списка №2",
+                    "coords": [55.861954, 37.687713],
+                    "address": "ул. Дудинка, д. 3",
+                    "phone": "8 (999) 999-99-99",
+                    "email": "email@domain.com",
+                    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+                }];
+            ymapsFull.update();
+        }, 7000);
+
 
 
         var dataMap = [

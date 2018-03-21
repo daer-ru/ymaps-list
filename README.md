@@ -997,6 +997,57 @@ afterInit: function($mainContainer) {
 
 ---
 
+**update**
+
+*Arguments:* `newData : Array` необязательно
+
+Обновляет карту и список. Опционально можно передать массив новых данных см. описание опции `data`
+
+```javascript
+var newData = [
+    {
+        "id": "id-1",
+        "name": "Элемент списка №1",
+        "coords": [55.790464, 37.530409],
+        "address": "Ходынский бульвар, д. 4",
+        "phone": "8 (999) 999-99-99",
+        "email": "email@domain.com",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+    },
+    {
+        "id": "id-2",
+        "name": "Элемент списка №2",
+        "coords": [55.861954, 37.687713],
+        "address": "ул. Дудинка, д. 3",
+        "phone": "8 (999) 999-99-99",
+        "email": "email@domain.com",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis illo perferendis quaerat."
+    }
+];
+
+$(document).on('click', '.js-update-my-map', function() {
+    myMap.update(newData);
+});
+```
+
+---
+
+**getPointData**
+
+*Arguments:* `id : String`
+
+Получает данные метки по её id.
+
+```javascript
+$(document).on('click', '.js-get-my-point-data', function() {
+    myMap.getPointData('id-1');
+    // Вариант передачи id c # тоже допустим
+    // myFilteredMap.getPointData('#id-1');
+});
+```
+
+---
+
 **filter**
 
 *Arguments:* `callback : Function`, `param : String/Number`
@@ -1031,22 +1082,6 @@ myFilteredMap.filter((obj, i, data) => {
 ```javascript
 $(document).on('click', '.js-clear-filtered-map', function() {
     myFilteredMap.clearFilter();
-});
-```
-
----
-
-**getPointData**
-
-*Arguments:* `id : String`
-
-Получает данные метки по её id.
-
-```javascript
-$(document).on('click', '.js-get-my-point-data', function() {
-    myFilteredMap.getPointData('id-1');
-    // Вариант передачи id c # тоже допустим
-    // myFilteredMap.getPointData('#id-1');
 });
 ```
 
