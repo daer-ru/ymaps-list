@@ -21,7 +21,7 @@ var Ylist = function () {
         if (!options.hasOwnProperty('data')) {
             this.points = null;
         } else {
-            this.points = this.options.data;
+            this.points = $.extend(true, [], this.options.data);
         }
 
         this.placemarks = [];
@@ -1555,6 +1555,26 @@ var Ylist = function () {
             }
 
             return point;
+        }
+
+        /**
+         * Реинициализация карты, опционально можно передать новые данные меток
+         * @param {Array} newData массив объектов см. описание options.data в readme
+         * @public
+         */
+
+    }, {
+        key: 'update',
+        value: function update(newData) {
+            var self = this;
+
+            self._destroyMap();
+
+            if (newData) {
+                self.points = $.extend(true, [], newData);
+            }
+
+            self.init();
         }
     }]);
 
