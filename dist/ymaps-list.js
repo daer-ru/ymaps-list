@@ -363,7 +363,7 @@ var Ylist = function () {
                     // Если есть колбек afterInit вызываем его
                     var $mainContainer = $('#' + self.options.container);
 
-                    self.options.afterInit($mainContainer);
+                    self.options.afterInit(self, $mainContainer);
                 }
             });
 

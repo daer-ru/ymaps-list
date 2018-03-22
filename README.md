@@ -976,12 +976,13 @@ balloon: {
 *Обязательно:* -
 
 Колбек отрабатывает после полной готовности списка и карты (отрисока и простановка меток).
-Возвращает jQuery элемент главного контейнера.
+Возвращает экземпляр класса и jQuery элемент главного контейнера.
 
 ```javascript
 // ...
-afterInit: function($mainContainer) {
+afterInit: function(ymapsList, $mainContainer) {
     $mainContainer.addClass('loaded');
+    ymapsList.getPointData('id-1');
 }
 // ...
 ```
@@ -1044,7 +1045,7 @@ $(document).on('click', '.js-update-my-map', function() {
 $(document).on('click', '.js-get-my-point-data', function() {
     myMap.getPointData('id-1');
     // Вариант передачи id c # тоже допустим
-    // myFilteredMap.getPointData('#id-1');
+    // myMap.getPointData('#id-1');
 });
 ```
 

@@ -368,7 +368,7 @@ class Ylist {
                 // Если есть колбек afterInit вызываем его
                 let $mainContainer = $(`#${self.options.container}`);
 
-                self.options.afterInit($mainContainer);
+                self.options.afterInit(self, $mainContainer);
             }
         });
 
